@@ -14,5 +14,8 @@ namespace NutriWeek.Data.Models
 
         public Dish Dish { get; set; } = null!;
 
+
+        public int DailyMenuId { get; set; }
+        public DailyMenu DailyMenu { get; set; } = null!;
     }
 }
