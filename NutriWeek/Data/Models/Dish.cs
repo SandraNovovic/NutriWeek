@@ -14,7 +14,6 @@ namespace NutriWeek.Data.Models
         [MaxLength(DishNameMaxLength)]
         public string Name { get; set; } = null!;
 
-        [Required]
         [MaxLength(DishDescriptionMaxLength)]
         public string? Description { get; set; }
 
