@@ -1,28 +1,116 @@
-﻿@using NutriWeek.Data.Models;
-@model IEnumerable<Meal>
+﻿@model IEnumerable<NutriWeek.Data.Models.Meal>
 
-
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>All Meals</h1>
-
-    <a href="#" class="btn btn-success">
-        Add Meal
-    </a>
-    <a href="#" class="btn btn-success">
-        Delete Meal
-    </a>
-</div>
-
-@foreach (var meal in Model)
-{
-    <h3>@meal.MealType</h3>
-
-    <p>
-        Dish: @meal.Dish.Name
-    </p>
-
-    <p>Date: @meal.DailyMenu.Date.ToString("dd/MM/yyyy")</p>
-    <p>Calories: @meal.Dish.Calories kcal</p>
-
-    <hr />
+@{
+    ViewData["Title"] = "Meals";
 }
+
+<div class="container py-4">
+
+    <div class="text-center mb-5">
+        <p class="text-success fw-semibold text-uppercase mb-2">
+            NutriWeek
+        </p>
+
+        <h1 class="display-5 fw-bold">
+            Planned Meals
+        </h1>
+
+        <p class="text-muted">
+            See all your planned breakfasts, lunches, dinners and snacks.
+        </p>
+
+        <a href="#" class="btn btn-success mt-2">
+            + Add Meal
+        </a>
+    </div>
+
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">
+            No meals have been planned yet.
+        </div>
+    }
+    else
+    {
+        @foreach (var group in Model.GroupBy(m => m.MealType))
+        {
+            <div class="mb-5">
+
+                <div class="d-flex align-items-center mb-3">
+                    <h2 class="fw-bold mb-0">
+                        @group.Key
+                    </h2>
+                </div>
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Dish</th>
+                                <th>Calories</th>
+                                <th>Preparation Time</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var meal in group)
+                            {
+                                <tr>
+
+                                    <td>
+                                        @meal.DailyMenu.Date.ToString("dd.MM.yyyy")
+                                    </td>
+
+                                    <td>
+                                        <strong>
+                                            @meal.Dish.Name
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        @meal.Dish.Calories kcal
+                                    </td>
+
+                                    <td>
+                                        @meal.Dish.PreparationTime min
+                                    </td>
+
+                                    <td class="text-end">
+
+                                        <a href="#"
+                                           class="btn btn-outline-success btn-sm">
+                                            Details
+                                        </a>
+
+                                        <a href="#"
+                                           class="btn btn-outline-secondary btn-sm">
+                                            Edit
+                                        </a>
+
+                                        <a href="#"
+                                           class="btn btn-outline-danger btn-sm">
+                                            Delete
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+        }
+    }
+
+</div>
