@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NutriWeek.Data;
+using NutriWeek.Data.Models;
 
 namespace NutriWeek.Controllers
 {
@@ -12,7 +13,8 @@ namespace NutriWeek.Controllers
         }
         public IActionResult Index()
         {
-            return View();
+            List<DailyMenu> dailyMenus = _dbContext.DailyMenus.OrderBy(d=>d.Meals.Count).ThenBy(d => d.Id).ToList();
+            return View(dailyMenus);
         }
 
         public IActionResult Details(int id)
