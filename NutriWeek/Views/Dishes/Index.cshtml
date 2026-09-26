@@ -1,21 +1,148 @@
-﻿@using NutriWeek.Data.Models;
-@model IEnumerable<Dish>
+﻿@model IEnumerable<NutriWeek.Data.Models.Dish>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>All Dishes</h1>
-
-    <a href="#" class="btn btn-success">
-        Add Dish
-    </a>
-    <a href="#" class="btn btn-success">
-        Delete Dish 
-    </a>
-</div>
-@foreach (var dish in Model)
-{
-    <h3>@dish.Name</h3>
-    <p>@dish.Description</p>
-    <p>@dish.Calories kcal</p>
-
-    <hr />
+@{
+    ViewData["Title"] = "Our Menu";
 }
+
+<div class="container py-4">
+
+    <div class="text-center mb-5">
+        <p class="text-success fw-semibold text-uppercase mb-2">
+            NutriWeek
+        </p>
+
+        <h1 class="display-5 fw-bold">
+            Our Healthy Menu
+        </h1>
+
+        <p class="text-muted">
+            Fresh, balanced and delicious meals for your week.
+        </p>
+
+        <a href="#" class="btn btn-success mt-2">
+            + Add New Dish
+        </a>
+    </div>
+
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">
+            No dishes available yet.
+        </div>
+    }
+    else
+    {
+        @foreach (var group in Model.GroupBy(d => d.DishType))
+        {
+            <div class="mb-5">
+
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold">
+                        @group.Key
+                    </h2>
+
+                    <hr class="w-25 mx-auto" />
+                </div>
+
+
+                @foreach (var dish in group)
+                {
+                    <div class="row align-items-center mb-4 pb-4 border-bottom">
+
+                        <div class="col-md-3 mb-3 mb-md-0">
+
+                            @if (!string.IsNullOrEmpty(dish.ImageUrl))
+                            {
+                                <img src="@dish.ImageUrl"
+                                     class="img-fluid rounded shadow-sm"
+                                     alt="@dish.Name"
+                                     style="width: 100%; height: 170px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center"
+                                     style="height: 170px;">
+
+                                    <span class="text-muted">
+                                        No image
+                                    </span>
+
+                                </div>
+                            }
+
+                        </div>
+
+
+                        <div class="col-md-9">
+
+                            <div class="d-flex justify-content-between align-items-start">
+
+                                <div>
+                                    <h4 class="fw-bold mb-1">
+                                        @dish.Name
+                                    </h4>
+
+                                    <span class="badge bg-success-subtle text-success mb-2">
+                                        @dish.DishType
+                                    </span>
+                                </div>
+
+                                <span class="fw-bold text-success">
+                                    @dish.Calories kcal
+                                </span>
+
+                            </div>
+
+
+                            <p class="text-muted">
+                                @dish.Description
+                            </p>
+
+
+                            <div class="d-flex flex-wrap gap-3 mb-3">
+
+                                <span>
+                                    ⏱ @dish.PreparationTime min
+                                </span>
+
+                                <span>
+                                    🍽 @dish.Portions servings
+                                </span>
+
+                                <span>
+                                    🔥 @dish.Calories kcal
+                                </span>
+
+                            </div>
+
+
+                            <div class="d-flex gap-2">
+
+                                <a href="#"
+                                   class="btn btn-outline-success btn-sm">
+                                    View Recipe
+                                </a>
+
+                                <a href="#"
+                                   class="btn btn-outline-secondary btn-sm">
+                                    Edit
+                                </a>
+
+                                <a href="#"
+                                   class="btn btn-outline-danger btn-sm">
+                                    Delete
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+        }
+    }
+
+</div>
