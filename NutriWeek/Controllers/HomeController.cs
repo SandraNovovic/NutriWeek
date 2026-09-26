@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using NutriWeek.Models;
+using NutriWeek.ViewModels;
 
 namespace NutriWeek.Controllers
 {

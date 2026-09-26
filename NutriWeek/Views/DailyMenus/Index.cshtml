@@ -15,8 +15,17 @@
 @foreach (var dailyMenu in Model)
 {
     <h3>@dailyMenu.Id</h3>
-    <p>@dailyMenu.Date</p>
-    <p>@dailyMenu.Meals.ToList() </p>
+
+    <p>@dailyMenu.Date.ToString("dd/MM/yyyy")</p>
+
+    @foreach (var meal in dailyMenu.Meals)
+    {
+        <p>
+            <strong>@meal.MealType:</strong>
+            @meal.Dish.Name
+            - @meal.Dish.Calories kcal
+        </p>
+    }
 
     <hr />
 }

@@ -14,9 +14,25 @@
 
 @foreach (var weeklyMenu in Model)
 {
-    <h3>@weeklyMenu.Title</h3>
-    <p>@weeklyMenu.DailyMenus.ToList()</p>
+    <h3>@weeklyMenu.Id</h3>
 
+    <p>@weeklyMenu.WeekStartDate</p>
+
+    @foreach (var dailyMenu in weeklyMenu.DailyMenus)
+    {
+        <p>
+            <strong>@dailyMenu.Date</strong>
+
+            @foreach (var meal in dailyMenu.Meals)
+            {
+            <p>
+                <strong>@meal.MealType:</strong>
+                @meal.Dish.Name
+                - @meal.Dish.Calories kcal
+            </p>
+            }
+        </p>
+    }
 
     <hr />
 }
