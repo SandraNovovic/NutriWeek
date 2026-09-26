@@ -1,5 +1,13 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@using NutriWeek.Data.Models;
+@model IEnumerable<Dish>
+
+<h1>All Dishes</h1>
+
+@foreach (var dish in Model)
+{
+    <h3>@dish.Name</h3>
+    <p>@dish.Description</p>
+    <p>@dish.Calories kcal</p>
+
+    <hr />
 }
