@@ -1,7 +1,14 @@
 ﻿@using NutriWeek.Data.Models;
 @model IEnumerable<Meal>
 
-<h1>All Meals</h1>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>All Meals</h1>
+
+    <a href="#" class="btn btn-success">
+        Add Meal
+    </a>
+</div>
 
 @foreach (var meal in Model)
 {
