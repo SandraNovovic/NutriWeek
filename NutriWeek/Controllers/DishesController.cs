@@ -17,6 +17,14 @@ namespace NutriWeek.Controllers
             return View(dishes);
         }
 
+        public IActionResult AddDish(Dish dish)
+        {
+            _dbContext.Dishes.Add(dish);
+            _dbContext.SaveChanges();
+
+            return RedirectToAction(nameof(Index));
+        }
+
         public IActionResult Details(int id)
         {
             return View();
