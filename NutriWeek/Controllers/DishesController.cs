@@ -11,18 +11,16 @@ namespace NutriWeek.Controllers
         {
             _dbContext = dbContext;
         }
+
         public IActionResult Index()
         {
             List<Dish> dishes = _dbContext.Dishes.OrderBy(d=>d.Calories).ThenBy(d=>d.Id).ToList();
             return View(dishes);
         }
 
-        public IActionResult AddDish(Dish dish)
+        public IActionResult AddDish()
         {
-            _dbContext.Dishes.Add(dish);
-            _dbContext.SaveChanges();
-
-            return RedirectToAction(nameof(Index));
+            return View();
         }
 
         public IActionResult Details(int id)
