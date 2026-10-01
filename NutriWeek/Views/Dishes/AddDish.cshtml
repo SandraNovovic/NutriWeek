@@ -9,10 +9,6 @@
 
 <style>
 
-    /* =====================================================
-           REMOVE DEFAULT MVC HEADER / FOOTER
-           ===================================================== */
-
     body > header {
         display: none;
     }
@@ -144,10 +140,10 @@
     .nav-user {
         width: 38px;
         height: 38px;
-        flex-shrink: 0;
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-shrink: 0;
         border-radius: 50%;
         background: #f1f5ef;
         color: #415144;
@@ -156,7 +152,7 @@
 
 
     /* =====================================================
-           PAGE BACKGROUND
+           PAGE
            ===================================================== */
 
     .add-dish-page {
@@ -166,7 +162,7 @@
         min-height: calc(100vh - 74px);
         margin-left: -50vw;
         padding-bottom: 70px;
-        background-image: linear-gradient( rgba(249,252,247,.88), rgba(249,252,247,.91) ), url('@Url.Content("~/images/DishesImages/add-dish-background.png")');
+        background-image: linear-gradient( rgba(249,252,247,.88), rgba(249,252,247,.91) ), url('@Url.Content("~/images/DishesImages/add_dish_background.png")');
         background-size: cover;
         background-position: center top;
         background-attachment: fixed;
@@ -174,7 +170,7 @@
 
 
     /* =====================================================
-           PAGE HEADER
+           HEADER
            ===================================================== */
 
     .page-heading-area {
@@ -221,7 +217,7 @@
 
 
     /* =====================================================
-           MAIN FORM CONTAINER
+           MAIN FORM
            ===================================================== */
 
     .form-shell {
@@ -242,7 +238,7 @@
 
 
     /* =====================================================
-           CARDS
+           FORM CARD
            ===================================================== */
 
     .form-card {
@@ -277,7 +273,7 @@
 
 
     /* =====================================================
-           FORM ELEMENTS
+           INPUTS
            ===================================================== */
 
     .form-grid-two {
@@ -358,27 +354,27 @@
 
 
     /* =====================================================
-           IMAGE UPLOAD
+           IMAGE
            ===================================================== */
 
     .image-card {
         padding: 22px;
         border: 1px solid #e6ece4;
         border-radius: 18px;
-        background: rgba(250,252,249,.95);
+        background: rgba(250,252,249,.96);
     }
 
     .upload-area {
         position: relative;
-        min-height: 195px;
-        padding: 20px;
+        min-height: 145px;
+        padding: 18px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         border: 2px dashed #bdcbb9;
         border-radius: 14px;
-        background: rgba(255,255,255,.78);
+        background: rgba(255,255,255,.80);
         cursor: pointer;
         text-align: center;
         transition: border-color .2s ease, background .2s ease;
@@ -398,9 +394,9 @@
         }
 
     .upload-icon {
-        margin-bottom: 7px;
+        margin-bottom: 6px;
         color: #456052;
-        font-size: 38px;
+        font-size: 34px;
     }
 
     .upload-title {
@@ -416,23 +412,23 @@
         line-height: 1.5;
     }
 
+
+    /* IMAGE PREVIEW */
+
     .image-preview-wrapper {
         position: relative;
-        display: none;
         margin-top: 15px;
+        display: block;
     }
-
-        .image-preview-wrapper.show {
-            display: block;
-        }
 
     .image-preview {
         width: 100%;
-        height: 200px;
+        height: 210px;
         display: block;
         object-fit: cover;
-        border-radius: 14px;
         border: 1px solid #e1e7df;
+        border-radius: 14px;
+        background: #eeeeee;
     }
 
     .remove-image {
@@ -497,7 +493,7 @@
 
 
     /* =====================================================
-           BOTTOM BUTTONS
+           BUTTONS
            ===================================================== */
 
     .form-actions {
@@ -714,7 +710,7 @@
 <div class="add-dish-page">
 
 
-    <!-- HEADER -->
+    <!-- PAGE HEADER -->
 
     <section class="page-heading-area">
 
@@ -760,7 +756,9 @@
 
 
 
-    <!-- FORM -->
+    <!-- =====================================================
+         FORM
+         ===================================================== -->
 
     <form asp-controller="Dishes"
           asp-action="AddDish"
@@ -776,13 +774,12 @@
         </div>
 
 
-
         <div class="form-layout">
 
 
-            <!-- =============================================
-                 LEFT SIDE
-                 ============================================= -->
+            <!-- =================================================
+                 LEFT
+                 ================================================= -->
 
             <div class="form-card">
 
@@ -977,7 +974,7 @@
 
 
 
-                <!-- INGREDIENTS + INSTRUCTIONS -->
+                <!-- INGREDIENTS / INSTRUCTIONS -->
 
                 <div class="form-grid-two">
 
@@ -1046,9 +1043,9 @@ e.g.
 
 
 
-            <!-- =============================================
-                 RIGHT SIDE
-                 ============================================= -->
+            <!-- =================================================
+                 RIGHT
+                 ================================================= -->
 
             <div>
 
@@ -1070,8 +1067,11 @@ e.g.
 
 
 
+                    <!-- UPLOAD -->
+
                     <label class="upload-area"
                            for="imageInput">
+
 
                         <input id="imageInput"
                                type="file"
@@ -1091,8 +1091,7 @@ e.g.
 
                         <div class="upload-text">
 
-                            Drag and drop an image here
-                            or click to browse
+                            Click here to browse
 
                             <br />
 
@@ -1100,22 +1099,28 @@ e.g.
 
                         </div>
 
+
                     </label>
 
 
+
+                    <!-- IMAGE PREVIEW -->
 
                     <div id="imagePreviewWrapper"
                          class="image-preview-wrapper">
 
 
                         <img id="imagePreview"
+                             src="~/images/DishesImages/unadded.png"
                              class="image-preview"
-                             alt="Dish preview" />
+                             alt="Dish image preview"
+                             onerror="this.src='/images/DishesImages/unadded.png'" />
 
 
                         <button id="removeImage"
                                 type="button"
-                                class="remove-image">
+                                class="remove-image"
+                                title="Remove selected image">
 
                             ✕
 
@@ -1212,9 +1217,9 @@ e.g.
 
 
 
-        <!-- =============================================
-             BUTTONS
-             ============================================= -->
+        <!-- =================================================
+             ACTIONS
+             ================================================= -->
 
         <div class="form-actions">
 
@@ -1245,6 +1250,7 @@ e.g.
 </div>
 
 
+
 @section Scripts {
 
     <partial name="_ValidationScriptsPartial" />
@@ -1263,24 +1269,26 @@ e.g.
                     );
 
 
-                const previewWrapper =
-                    document.getElementById(
-                        "imagePreviewWrapper"
-                    );
-
-
-                const preview =
+                const imagePreview =
                     document.getElementById(
                         "imagePreview"
                     );
 
 
-                const removeButton =
+                const removeImageButton =
                     document.getElementById(
                         "removeImage"
                     );
 
 
+                const defaultImage =
+                    "/images/DishesImages/unadded.png";
+
+
+
+                /* =========================================
+                   SELECT IMAGE
+                   ========================================= */
 
                 imageInput.addEventListener(
                     "change",
@@ -1293,9 +1301,8 @@ e.g.
 
                         if (!file) {
 
-                            previewWrapper
-                                .classList
-                                .remove("show");
+                            imagePreview.src =
+                                defaultImage;
 
                             return;
 
@@ -1310,13 +1317,8 @@ e.g.
                             function (event) {
 
 
-                                preview.src =
+                                imagePreview.src =
                                     event.target.result;
-
-
-                                previewWrapper
-                                    .classList
-                                    .add("show");
 
 
                             };
@@ -1332,7 +1334,11 @@ e.g.
 
 
 
-                removeButton.addEventListener(
+                /* =========================================
+                   REMOVE SELECTED IMAGE
+                   ========================================= */
+
+                removeImageButton.addEventListener(
                     "click",
                     function () {
 
@@ -1341,13 +1347,8 @@ e.g.
                             "";
 
 
-                        preview.src =
-                            "";
-
-
-                        previewWrapper
-                            .classList
-                            .remove("show");
+                        imagePreview.src =
+                            defaultImage;
 
 
                     }

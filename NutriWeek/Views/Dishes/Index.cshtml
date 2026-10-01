@@ -9,17 +9,13 @@
     Dictionary<string, string> dishImages =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { "Vegan Oatmeal", "~/images/DishesImages/vegan_oatmeal.png" },
-            { "Vegetarian Pasta", "~/images/DishesImages/vegetarian_pasta.png" },
-            { "Chicken Rice Bowl", "~/images/DishesImages/chicken_rice_bowl.png" },
-            { "Salmon with Vegetables", "~/images/DishesImages/salmon_with_vegetables.png" },
-            { "Lentil Soup", "~/images/DishesImages/lentil_soup.png" }
+            { "Vegan Oatmeal", "/images/DishesImages/vegan_oatmeal.png" },
+            { "Vegetarian Pasta", "/images/DishesImages/vegetarian_pasta.png" },
+            { "Chicken Rice Bowl", "/images/DishesImages/chicken_rice_bowl.png" },
+            { "Salmon with Vegetables", "/images/DishesImages/salmon_with_vegetables.png" },
+            { "Lentil Soup", "/images/DishesImages/lentil_soup.png" }
         };
 
-    /*
-        Temporary mapping because Breakfast / Lunch / Dinner
-        belong logically to Meal rather than Dish.
-    */
     Dictionary<string, string> mealTypes =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -31,44 +27,44 @@
         };
 
     int breakfastCount =
-        dishes.Count(dish =>
-            mealTypes.ContainsKey(dish.Name) &&
-            mealTypes[dish.Name] == "Breakfast");
+        dishes.Count(d =>
+            mealTypes.ContainsKey(d.Name) &&
+            mealTypes[d.Name] == "Breakfast");
 
     int lunchCount =
-        dishes.Count(dish =>
-            mealTypes.ContainsKey(dish.Name) &&
-            mealTypes[dish.Name] == "Lunch");
+        dishes.Count(d =>
+            mealTypes.ContainsKey(d.Name) &&
+            mealTypes[d.Name] == "Lunch");
 
     int dinnerCount =
-        dishes.Count(dish =>
-            mealTypes.ContainsKey(dish.Name) &&
-            mealTypes[dish.Name] == "Dinner");
+        dishes.Count(d =>
+            mealTypes.ContainsKey(d.Name) &&
+            mealTypes[d.Name] == "Dinner");
 
     int vegetarianCount =
-        dishes.Count(dish =>
-            dish.DishType.ToString()
+        dishes.Count(d =>
+            d.DishType.ToString()
                 .Equals(
                     "Vegetarian",
                     StringComparison.OrdinalIgnoreCase));
 
     int veganCount =
-        dishes.Count(dish =>
-            dish.DishType.ToString()
+        dishes.Count(d =>
+            d.DishType.ToString()
                 .Equals(
                     "Vegan",
                     StringComparison.OrdinalIgnoreCase));
 
     int meatCount =
-        dishes.Count(dish =>
-            dish.DishType.ToString()
+        dishes.Count(d =>
+            d.DishType.ToString()
                 .Equals(
                     "Meat",
                     StringComparison.OrdinalIgnoreCase));
 
     int fishCount =
-        dishes.Count(dish =>
-            dish.DishType.ToString()
+        dishes.Count(d =>
+            d.DishType.ToString()
                 .Equals(
                     "Fish",
                     StringComparison.OrdinalIgnoreCase));
@@ -77,13 +73,10 @@
 <style>
 
     /* =====================================================
-           REMOVE DEFAULT MVC LAYOUT HEADER / FOOTER
+           REMOVE DEFAULT MVC LAYOUT
            ===================================================== */
 
-    body > header {
-        display: none;
-    }
-
+    body > header,
     body > footer {
         display: none;
     }
@@ -91,7 +84,7 @@
     body {
         margin: 0;
         padding: 0;
-        background-color: #f8faf5;
+        background: #f8faf5;
     }
 
         body > .container {
@@ -108,7 +101,7 @@
 
 
     /* =====================================================
-           NAVIGATION
+           NAVBAR
            ===================================================== */
 
     .nutri-navbar {
@@ -119,9 +112,9 @@
         height: 74px;
         display: flex;
         align-items: center;
+        background: rgba(255,255,255,.98);
         border-bottom: 1px solid #e9eee7;
-        background: rgba(255, 255, 255, 0.98);
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.025);
+        box-shadow: 0 2px 10px rgba(0,0,0,.025);
     }
 
     .nav-content {
@@ -133,23 +126,23 @@
     }
 
     .nav-brand {
-        flex-shrink: 0;
         display: flex;
         align-items: center;
         gap: 8px;
-        color: #121a14;
+        flex-shrink: 0;
+        color: #111b14;
         text-decoration: none;
         font-size: 24px;
         font-weight: 800;
     }
 
         .nav-brand:hover {
-            color: #121a14;
+            color: #111b14;
         }
 
     .nav-brand-leaf {
         color: #2f7b35;
-        font-size: 26px;
+        font-size: 27px;
     }
 
     .nav-links {
@@ -185,7 +178,7 @@
                 right: 0;
                 bottom: 14px;
                 height: 3px;
-                border-radius: 6px;
+                border-radius: 8px;
                 background: #2f7b35;
             }
 
@@ -205,25 +198,19 @@
             border: none;
             outline: none;
             background: transparent;
-            color: #4e5951;
             font-size: 13px;
         }
-
-    .navbar-search-icon {
-        color: #929c94;
-        font-size: 14px;
-    }
 
     .nav-user {
         width: 38px;
         height: 38px;
-        flex-shrink: 0;
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-shrink: 0;
         border-radius: 50%;
-        background: #f2f6ef;
-        color: #405144;
+        background: #f1f5ef;
+        color: #415144;
         font-size: 18px;
     }
 
@@ -239,7 +226,7 @@
         min-height: 100vh;
         margin-left: -50vw;
         padding: 25px 0 70px;
-        background-image: linear-gradient( rgba(250, 252, 247, 0.90), rgba(250, 252, 247, 0.90) ), url('@Url.Content("~/images/DishesImages/background.png")');
+        background-image: linear-gradient( rgba(250,252,247,.90), rgba(250,252,247,.90) ), url('@Url.Content("~/images/DishesImages/background.png")');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
@@ -262,10 +249,10 @@
         align-items: center;
         overflow: hidden;
         border-radius: 26px;
-        background-image: linear-gradient( 90deg, rgba(239, 247, 233, 0.98) 0%, rgba(239, 247, 233, 0.94) 38%, rgba(239, 247, 233, 0.25) 61%, rgba(239, 247, 233, 0) 100% ), url('@Url.Content("~/images/DishesImages/hero_chicken_bowl.png")');
+        background-image: linear-gradient( 90deg, rgba(239,247,233,.98) 0%, rgba(239,247,233,.94) 38%, rgba(239,247,233,.25) 61%, rgba(239,247,233,0) 100% ), url('@Url.Content("~/images/DishesImages/hero_chicken_bowl.png")');
         background-size: cover;
         background-position: center;
-        box-shadow: 0 5px 18px rgba(36, 69, 39, 0.06);
+        box-shadow: 0 5px 18px rgba(36,69,39,.06);
     }
 
     .hero-content {
@@ -303,13 +290,13 @@
 
 
     /* =====================================================
-           TOP CATEGORY CARDS
+           CATEGORY CARDS
            ===================================================== */
 
     .categories-row {
         margin-bottom: 24px;
         display: grid;
-        grid-template-columns: repeat(8, minmax(0, 1fr));
+        grid-template-columns: repeat(8, minmax(0,1fr));
         gap: 12px;
     }
 
@@ -322,8 +309,7 @@
         gap: 10px;
         border: 1px solid transparent;
         border-radius: 16px;
-        background: rgba(255, 255, 255, .90);
-        color: #172019;
+        background: rgba(255,255,255,.90);
         cursor: pointer;
         transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
     }
@@ -367,7 +353,9 @@
         }
 
 
-    /* SAME VISIBLE ICON SIZE */
+    /* =====================================================
+           ICONS
+           ===================================================== */
 
     .category-icon-frame {
         width: 54px;
@@ -419,18 +407,22 @@
 
 
     /* =====================================================
-           MAIN
+           MAIN CONTENT
            ===================================================== */
 
     .dishes-content {
         display: grid;
-        grid-template-columns: 250px minmax(0, 1fr);
+        grid-template-columns: 250px minmax(0,1fr);
         gap: 22px;
+    }
+
+    .dishes-main {
+        min-width: 0;
     }
 
 
     /* =====================================================
-           SIDEBAR
+           FILTER SIDEBAR
            ===================================================== */
 
     .filter-sidebar {
@@ -438,7 +430,7 @@
         padding: 18px;
         border: 1px solid #e5eae2;
         border-radius: 20px;
-        background: rgba(255,255,255,.92);
+        background: rgba(255,255,255,.94);
         box-shadow: 0 4px 14px rgba(0,0,0,.035);
     }
 
@@ -530,10 +522,6 @@
            TOOLBAR
            ===================================================== */
 
-    .dishes-main {
-        min-width: 0;
-    }
-
     .dishes-toolbar {
         margin-bottom: 14px;
         display: flex;
@@ -593,7 +581,7 @@
 
     .dish-grid {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0,1fr));
         gap: 15px;
     }
 
@@ -617,10 +605,16 @@
             display: none;
         }
 
+
+    /* =====================================================
+           DISH IMAGE
+           ===================================================== */
+
     .dish-image-wrapper {
         position: relative;
         height: 155px;
         overflow: hidden;
+        background: #eceeef;
     }
 
         .dish-image-wrapper img {
@@ -650,6 +644,11 @@
         color: #e64d58;
         box-shadow: 0 3px 9px rgba(0,0,0,.13);
     }
+
+
+    /* =====================================================
+           DISH BODY
+           ===================================================== */
 
     .dish-body {
         padding: 13px;
@@ -724,10 +723,10 @@
         border-radius: 12px;
         background: #f4f7f2;
         color: #49604c;
-        text-align: center;
-        text-decoration: none;
         font-size: 10px;
         font-weight: 600;
+        text-align: center;
+        text-decoration: none;
     }
 
         .dish-action:hover {
@@ -745,7 +744,7 @@
         grid-column: 1 / -1;
         padding: 50px 20px;
         border-radius: 18px;
-        background: rgba(255,255,255,.88);
+        background: rgba(255,255,255,.90);
         color: #687269;
         text-align: center;
     }
@@ -762,11 +761,11 @@
     @@media (max-width: 1250px) {
 
         .categories-row {
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(4,1fr);
         }
 
         .dish-grid {
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3,1fr);
         }
     }
 
@@ -784,7 +783,7 @@
         }
 
         .dish-grid {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(2,1fr);
         }
 
         .hero-content {
@@ -815,7 +814,7 @@
         }
 
         .categories-row {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(2,1fr);
         }
 
         .dishes-hero {
@@ -857,12 +856,13 @@
 
 
 <!-- =====================================================
-     NAVIGATION
+     NAVBAR
      ===================================================== -->
 
 <nav class="nutri-navbar">
 
     <div class="nav-content">
+
 
         <a asp-controller="Home"
            asp-action="Index"
@@ -878,6 +878,7 @@
 
 
         <div class="nav-links">
+
 
             <a asp-controller="Home"
                asp-action="Index"
@@ -923,14 +924,13 @@
 
             </a>
 
+
         </div>
 
 
         <div class="navbar-search">
 
-            <span class="navbar-search-icon">
-                🔍
-            </span>
+            🔍
 
             <input id="navbarDishSearch"
                    type="text"
@@ -943,24 +943,28 @@
             ♙
         </div>
 
+
     </div>
 
 </nav>
 
 
 
+<!-- =====================================================
+     PAGE
+     ===================================================== -->
+
 <div class="dishes-page">
 
     <div class="dishes-container">
 
 
-        <!-- =================================================
-             HERO
-             ================================================= -->
+        <!-- HERO -->
 
         <section class="dishes-hero">
 
             <div class="hero-content">
+
 
                 <div class="hero-kicker">
 
@@ -983,6 +987,7 @@
 
                 </p>
 
+
             </div>
 
         </section>
@@ -990,11 +995,13 @@
 
 
         <!-- =================================================
-             TOP CATEGORIES
+             TOP CATEGORY FILTERS
              ================================================= -->
 
         <section class="categories-row">
 
+
+            <!-- ALL -->
 
             <div class="category-card selected"
                  data-top-group="all"
@@ -1025,6 +1032,8 @@
 
 
 
+            <!-- BREAKFAST -->
+
             <div class="category-card breakfast"
                  data-top-group="meal"
                  data-top-value="breakfast">
@@ -1052,6 +1061,8 @@
             </div>
 
 
+
+            <!-- LUNCH -->
 
             <div class="category-card lunch"
                  data-top-group="meal"
@@ -1081,6 +1092,8 @@
 
 
 
+            <!-- DINNER -->
+
             <div class="category-card dinner"
                  data-top-group="meal"
                  data-top-value="dinner">
@@ -1108,6 +1121,8 @@
             </div>
 
 
+
+            <!-- VEGETARIAN -->
 
             <div class="category-card vegetarian"
                  data-top-group="diet"
@@ -1137,6 +1152,8 @@
 
 
 
+            <!-- VEGAN -->
+
             <div class="category-card vegan"
                  data-top-group="diet"
                  data-top-value="vegan">
@@ -1165,6 +1182,8 @@
 
 
 
+            <!-- MEAT -->
+
             <div class="category-card meat"
                  data-top-group="diet"
                  data-top-value="meat">
@@ -1192,6 +1211,8 @@
             </div>
 
 
+
+            <!-- FISH -->
 
             <div class="category-card fish"
                  data-top-group="diet"
@@ -1225,6 +1246,10 @@
 
 
 
+        <!-- =================================================
+             CONTENT
+             ================================================= -->
+
         <section class="dishes-content">
 
 
@@ -1247,6 +1272,8 @@
 
 
 
+                <!-- MEAL TYPE -->
+
                 <div class="filter-title">
                     Meal Type
                 </div>
@@ -1264,13 +1291,11 @@
 
                     </span>
 
-
                     <span class="filter-count">
                         @breakfastCount
                     </span>
 
                 </label>
-
 
 
                 <label class="filter-option">
@@ -1285,13 +1310,11 @@
 
                     </span>
 
-
                     <span class="filter-count">
                         @lunchCount
                     </span>
 
                 </label>
-
 
 
                 <label class="filter-option">
@@ -1306,7 +1329,6 @@
 
                     </span>
 
-
                     <span class="filter-count">
                         @dinnerCount
                     </span>
@@ -1314,6 +1336,8 @@
                 </label>
 
 
+
+                <!-- DIET TYPE -->
 
                 <div class="filter-title">
                     Diet Type
@@ -1332,13 +1356,11 @@
 
                     </span>
 
-
                     <span class="filter-count">
                         @vegetarianCount
                     </span>
 
                 </label>
-
 
 
                 <label class="filter-option">
@@ -1353,13 +1375,11 @@
 
                     </span>
 
-
                     <span class="filter-count">
                         @veganCount
                     </span>
 
                 </label>
-
 
 
                 <label class="filter-option">
@@ -1374,13 +1394,11 @@
 
                     </span>
 
-
                     <span class="filter-count">
                         @meatCount
                     </span>
 
                 </label>
-
 
 
                 <label class="filter-option">
@@ -1395,7 +1413,6 @@
 
                     </span>
 
-
                     <span class="filter-count">
                         @fishCount
                     </span>
@@ -1403,6 +1420,8 @@
                 </label>
 
 
+
+                <!-- COOKING TIME -->
 
                 <div class="filter-title">
                     Cooking Time
@@ -1424,7 +1443,6 @@
                 </label>
 
 
-
                 <label class="filter-option">
 
                     <span class="filter-option-left">
@@ -1438,7 +1456,6 @@
                     </span>
 
                 </label>
-
 
 
                 <label class="filter-option">
@@ -1456,6 +1473,8 @@
                 </label>
 
 
+
+                <!-- CALORIES -->
 
                 <div class="filter-title">
                     Calories
@@ -1490,8 +1509,8 @@
 
 
                 <button id="clearFilters"
-                        class="clear-filter"
-                        type="button">
+                        type="button"
+                        class="clear-filter">
 
                     ↻ Clear Filters
 
@@ -1523,8 +1542,8 @@
                     </h2>
 
 
-
                     <div class="toolbar-right">
+
 
                         <span class="sort-label">
                             Sort by
@@ -1554,12 +1573,13 @@
 
 
                         <a asp-controller="Dishes"
-                           asp-action="AddDish""
+                           asp-action="AddDish"
                            class="add-dish-btn">
 
                             ＋ Add Dish
 
                         </a>
+
 
                     </div>
 
@@ -1568,17 +1588,39 @@
 
 
 
+                <!-- =================================================
+                     DISH GRID
+                     ================================================= -->
+
                 <div id="dishGrid"
                      class="dish-grid">
 
 
                     @foreach (Dish dish in dishes)
                     {
+                        /*
+                        IMAGE PRIORITY:
 
-                        string imagePath =
-                        dishImages.ContainsKey(dish.Name)
-                        ? dishImages[dish.Name]
-                        : "~/images/DishesImages/hero_chicken_bowl.png";
+                        1. ImageUrl from the Dish
+                        2. Existing image for seeded dishes
+                        3. unadded.png
+                        */
+
+                        string imagePath;
+
+                        if (!string.IsNullOrWhiteSpace(dish.ImageUrl))
+                        {
+                            imagePath = dish.ImageUrl;
+                        }
+                        else if (dishImages.ContainsKey(dish.Name))
+                        {
+                            imagePath = dishImages[dish.Name];
+                        }
+                        else
+                        {
+                            imagePath =
+                            "/images/DishesImages/unadded.png";
+                        }
 
 
                         string dietType =
@@ -1595,7 +1637,7 @@
 
 
                         string mealDisplay =
-                        string.IsNullOrEmpty(mealType)
+                        string.IsNullOrWhiteSpace(mealType)
                         ? ""
                         : char.ToUpper(mealType[0]) +
                         mealType.Substring(1);
@@ -1626,19 +1668,26 @@
                                  data-calories="@dish.Calories">
 
 
+                            <!-- IMAGE -->
+
                             <div class="dish-image-wrapper">
 
-                                <img src="@Url.Content(imagePath)"
-                                     alt="@dish.Name" />
+
+                                <img src="@imagePath"
+                                     alt="@dish.Name"
+                                     onerror="this.onerror=null; this.src='/images/DishesImages/unadded.png';" />
 
 
                                 <div class="heart">
                                     ♥
                                 </div>
 
+
                             </div>
 
 
+
+                            <!-- BODY -->
 
                             <div class="dish-body">
 
@@ -1648,11 +1697,10 @@
                                 </div>
 
 
-
                                 <div class="dish-tags">
 
 
-                                    @if (!string.IsNullOrEmpty(mealDisplay))
+                                    @if (!string.IsNullOrWhiteSpace(mealDisplay))
                                     {
 
                                         <span class="dish-tag @mealTagClass">
@@ -1750,6 +1798,8 @@
 
 
 
+                    <!-- NO RESULTS -->
+
                     <div id="noResults"
                          class="no-results">
 
@@ -1798,24 +1848,6 @@
                 );
 
 
-            const mealFilters =
-                document.querySelectorAll(
-                    ".meal-filter"
-                );
-
-
-            const dietFilters =
-                document.querySelectorAll(
-                    ".diet-filter"
-                );
-
-
-            const timeFilters =
-                document.querySelectorAll(
-                    ".time-filter"
-                );
-
-
             const calorieFilter =
                 document.getElementById(
                     "calorieFilter"
@@ -1828,15 +1860,27 @@
                 );
 
 
-            const topFilters =
-                document.querySelectorAll(
-                    ".category-card"
+            const sortSelect =
+                document.getElementById(
+                    "sortDishes"
                 );
 
 
             const dishGrid =
                 document.getElementById(
                     "dishGrid"
+                );
+
+
+            const noResults =
+                document.getElementById(
+                    "noResults"
+                );
+
+
+            const countElement =
+                document.getElementById(
+                    "visibleDishCount"
                 );
 
 
@@ -1848,24 +1892,16 @@
                 );
 
 
-            const countElement =
-                document.getElementById(
-                    "visibleDishCount"
+            const topFilters =
+                document.querySelectorAll(
+                    ".category-card"
                 );
 
 
-            const noResults =
-                document.getElementById(
-                    "noResults"
-                );
 
-
-            const sortSelect =
-                document.getElementById(
-                    "sortDishes"
-                );
-
-
+            /* =================================================
+               GET CHECKED VALUES
+               ================================================= */
 
             function getCheckedValues(
                 selector
@@ -1886,7 +1922,11 @@
 
 
 
-            function matchesCookingTime(
+            /* =================================================
+               COOKING TIME
+               ================================================= */
+
+            function matchesTime(
                 minutes,
                 selectedTimes
             ) {
@@ -1942,6 +1982,10 @@
             }
 
 
+
+            /* =================================================
+               CALORIES
+               ================================================= */
 
             function matchesCalories(
                 calories,
@@ -2005,36 +2049,36 @@
 
 
 
+            /* =================================================
+               APPLY FILTERS
+               ================================================= */
+
             function applyFilters() {
 
 
-                const searchText =
+                const search =
                     searchInput
                         .value
                         .trim()
                         .toLowerCase();
 
 
-                const selectedMeals =
+                const meals =
                     getCheckedValues(
                         ".meal-filter"
                     );
 
 
-                const selectedDiets =
+                const diets =
                     getCheckedValues(
                         ".diet-filter"
                     );
 
 
-                const selectedTimes =
+                const times =
                     getCheckedValues(
                         ".time-filter"
                     );
-
-
-                const selectedCalories =
-                    calorieFilter.value;
 
 
                 let visibleCount = 0;
@@ -2057,7 +2101,7 @@
                             card.dataset.diet;
 
 
-                        const preparationTime =
+                        const time =
                             Number(
                                 card.dataset.time
                             );
@@ -2071,35 +2115,35 @@
 
                         const searchMatches =
                             name.includes(
-                                searchText
+                                search
                             );
 
 
                         const mealMatches =
-                            selectedMeals.length === 0 ||
-                            selectedMeals.includes(
+                            meals.length === 0 ||
+                            meals.includes(
                                 meal
                             );
 
 
                         const dietMatches =
-                            selectedDiets.length === 0 ||
-                            selectedDiets.includes(
+                            diets.length === 0 ||
+                            diets.includes(
                                 diet
                             );
 
 
                         const timeMatches =
-                            matchesCookingTime(
-                                preparationTime,
-                                selectedTimes
+                            matchesTime(
+                                time,
+                                times
                             );
 
 
                         const calorieMatches =
                             matchesCalories(
                                 calories,
-                                selectedCalories
+                                calorieFilter.value
                             );
 
 
@@ -2141,6 +2185,36 @@
 
 
 
+            /* =================================================
+               CLEAR CHECKBOXES
+               ================================================= */
+
+            function clearCheckboxes() {
+
+
+                document
+                    .querySelectorAll(
+                        ".meal-filter, " +
+                        ".diet-filter, " +
+                        ".time-filter"
+                    )
+                    .forEach(
+                        checkbox => {
+
+                            checkbox.checked =
+                                false;
+
+                        }
+                    );
+
+            }
+
+
+
+            /* =================================================
+               TOP CATEGORY SELECTION
+               ================================================= */
+
             function clearTopSelection() {
 
 
@@ -2158,7 +2232,7 @@
 
 
 
-            function selectAllTopCard() {
+            function selectAllCard() {
 
 
                 clearTopSelection();
@@ -2182,39 +2256,9 @@
 
 
 
-            function clearAllCheckboxes() {
-
-
-                document
-                    .querySelectorAll(
-                        ".meal-filter, " +
-                        ".diet-filter, " +
-                        ".time-filter"
-                    )
-                    .forEach(
-                        checkbox => {
-
-                            checkbox.checked =
-                                false;
-
-                        }
-                    );
-
-            }
-
-
-
-            function syncSearch(
-                source,
-                target
-            ) {
-
-                target.value =
-                    source.value;
-
-            }
-
-
+            /* =================================================
+               TOP CATEGORY CLICK
+               ================================================= */
 
             topFilters.forEach(
                 card => {
@@ -2233,11 +2277,7 @@
                                 this.dataset.topValue;
 
 
-                            clearAllCheckboxes();
-
-
-                            calorieFilter.value =
-                                "all";
+                            clearCheckboxes();
 
 
                             searchInput.value =
@@ -2246,6 +2286,10 @@
 
                             navbarSearchInput.value =
                                 "";
+
+
+                            calorieFilter.value =
+                                "all";
 
 
                             clearTopSelection();
@@ -2259,6 +2303,7 @@
                             if (
                                 group === "meal"
                             ) {
+
 
                                 const checkbox =
                                     document.querySelector(
@@ -2275,12 +2320,14 @@
 
                                 }
 
+
                             }
 
 
                             if (
                                 group === "diet"
                             ) {
+
 
                                 const checkbox =
                                     document.querySelector(
@@ -2297,6 +2344,7 @@
 
                                 }
 
+
                             }
 
 
@@ -2311,15 +2359,17 @@
 
 
 
+            /* =================================================
+               SEARCH
+               ================================================= */
+
             searchInput.addEventListener(
                 "input",
                 function () {
 
 
-                    syncSearch(
-                        searchInput,
-                        navbarSearchInput
-                    );
+                    navbarSearchInput.value =
+                        this.value;
 
 
                     clearTopSelection();
@@ -2330,7 +2380,6 @@
 
                 }
             );
-
 
 
             navbarSearchInput.addEventListener(
@@ -2338,10 +2387,8 @@
                 function () {
 
 
-                    syncSearch(
-                        navbarSearchInput,
-                        searchInput
-                    );
+                    searchInput.value =
+                        this.value;
 
 
                     clearTopSelection();
@@ -2355,72 +2402,37 @@
 
 
 
-            mealFilters.forEach(
-                checkbox => {
+            /* =================================================
+               CHECKBOX FILTERS
+               ================================================= */
+
+            document
+                .querySelectorAll(
+                    ".meal-filter, " +
+                    ".diet-filter, " +
+                    ".time-filter"
+                )
+                .forEach(
+                    filter => {
 
 
-                    checkbox.addEventListener(
-                        "change",
-                        function () {
+                        filter.addEventListener(
+                            "change",
+                            function () {
 
 
-                            clearTopSelection();
+                                clearTopSelection();
 
 
-                            applyFilters();
+                                applyFilters();
 
 
-                        }
-                    );
-
-                }
-            );
+                            }
+                        );
 
 
-
-            dietFilters.forEach(
-                checkbox => {
-
-
-                    checkbox.addEventListener(
-                        "change",
-                        function () {
-
-
-                            clearTopSelection();
-
-
-                            applyFilters();
-
-
-                        }
-                    );
-
-                }
-            );
-
-
-
-            timeFilters.forEach(
-                checkbox => {
-
-
-                    checkbox.addEventListener(
-                        "change",
-                        function () {
-
-
-                            clearTopSelection();
-
-
-                            applyFilters();
-
-
-                        }
-                    );
-
-                }
-            );
+                    }
+                );
 
 
 
@@ -2440,6 +2452,10 @@
 
 
 
+            /* =================================================
+               CLEAR FILTERS
+               ================================================= */
+
             clearButton.addEventListener(
                 "click",
                 function () {
@@ -2453,9 +2469,6 @@
                         "";
 
 
-                    clearAllCheckboxes();
-
-
                     calorieFilter.value =
                         "all";
 
@@ -2464,7 +2477,10 @@
                         "default";
 
 
-                    selectAllTopCard();
+                    clearCheckboxes();
+
+
+                    selectAllCard();
 
 
                     dishCards.forEach(
@@ -2489,6 +2505,10 @@
 
 
 
+            /* =================================================
+               SORTING
+               ================================================= */
+
             sortSelect.addEventListener(
                 "change",
                 function () {
@@ -2503,6 +2523,7 @@
                         "nameAsc"
                     ) {
 
+
                         cards.sort(
                             (a, b) =>
 
@@ -2513,6 +2534,7 @@
 
                         );
 
+
                     }
 
 
@@ -2520,6 +2542,7 @@
                         this.value ===
                         "caloriesAsc"
                     ) {
+
 
                         cards.sort(
                             (a, b) =>
@@ -2533,6 +2556,7 @@
                                 )
 
                         );
+
 
                     }
 
@@ -2542,6 +2566,7 @@
                         "caloriesDesc"
                     ) {
 
+
                         cards.sort(
                             (a, b) =>
 
@@ -2554,6 +2579,7 @@
                                 )
 
                         );
+
 
                     }
 
