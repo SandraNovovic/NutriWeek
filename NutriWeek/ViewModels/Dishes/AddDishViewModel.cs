@@ -26,6 +26,6 @@ namespace NutriWeek.ViewModels.Dishes
 
         public string? ImageUrl { get; set; }
 
-        public DishType DishType { get; set; }
+        public IEnumerable<CategoryDropdownViewModel> DishTypes { get; set; }= new List<CategoryDropdownViewModel>();
     }
 }
