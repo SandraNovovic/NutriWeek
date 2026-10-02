@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NutriWeek.Data;
 using NutriWeek.Data.Models;
+using NutriWeek.Data.Models.Enums;
+using NutriWeek.ViewModels;
 using NutriWeek.ViewModels.Dishes;
 namespace NutriWeek.Controllers
 {
@@ -37,7 +39,19 @@ namespace NutriWeek.Controllers
         [HttpGet]
         public IActionResult AddDish()
         {
-            return View();
+            IEnumerable<CategoryDropdownViewModel> dishTypes = Enum.GetValues<DishType>()
+                .Select(dt => new CategoryDropdownViewModel
+                {
+                    Id = (int)dt,
+                    Name = dt.ToString()
+                })
+                .ToList();
+
+            AddDishViewModel model = new AddDishViewModel
+            {
+                DishTypes = dishTypes,
+            };
+            return View(model);
         }
 
         [HttpPost]
