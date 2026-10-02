@@ -4,7 +4,7 @@
 @{
     ViewData["Title"] = "Dishes";
 
-    List<Dish> dishes = Model?.ToList() ?? new List<Dish>();
+    List<DishIndexViewModel> dishes = Model?.ToList() ?? new List<DishIndexViewModel>();
 
     Dictionary<string, string> dishImages =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -1596,7 +1596,7 @@
                      class="dish-grid">
 
 
-                    @foreach (Dish dish in dishes)
+                    @foreach (DishIndexViewModel dish in dishes)
                     {
                         /*
                         IMAGE PRIORITY:
