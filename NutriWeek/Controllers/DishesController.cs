@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NutriWeek.Data;
 using NutriWeek.Data.Models;
-
+using NutriWeek.ViewModels.Dishes;
 namespace NutriWeek.Controllers
 {
     public class DishesController : Controller
@@ -15,7 +15,22 @@ namespace NutriWeek.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            List<Dish> dishes = _dbContext.Dishes.OrderBy(d=>d.Calories).ThenBy(d=>d.Id).ToList();
+            IEnumerable<DishIndexViewModel> dishes = _dbContext.Dishes
+                .OrderBy(d=>d.Calories)
+                .ThenBy(d=>d.Id)
+                .Select(d => new DishIndexViewModel
+            {
+                Id = d.Id,
+                Name = d.Name,
+                Description = d.Description,
+                Calories = d.Calories,
+                PreparationTime = d.PreparationTime,
+                Portions = d.Portions,
+                ImageUrl = d.ImageUrl,
+                DishType = d.DishType
+            })
+                .ToList();
+
             return View(dishes);
         }
 
