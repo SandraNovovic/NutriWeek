@@ -1,10 +1,11 @@
-﻿@using NutriWeek.Data.Models
+﻿@using NutriWeek.ViewModels.Dishes
 @model IEnumerable<DishIndexViewModel>
 
 @{
     ViewData["Title"] = "Dishes";
 
-    List<DishIndexViewModel> dishes = Model?.ToList() ?? new List<DishIndexViewModel>();
+    List<DishIndexViewModel> dishes =
+        Model?.ToList() ?? new List<DishIndexViewModel>();
 
     Dictionary<string, string> dishImages =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -15,31 +16,6 @@
             { "Salmon with Vegetables", "/images/DishesImages/salmon_with_vegetables.png" },
             { "Lentil Soup", "/images/DishesImages/lentil_soup.png" }
         };
-
-    Dictionary<string, string> mealTypes =
-        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            { "Vegan Oatmeal", "Breakfast" },
-            { "Vegetarian Pasta", "Lunch" },
-            { "Chicken Rice Bowl", "Lunch" },
-            { "Salmon with Vegetables", "Dinner" },
-            { "Lentil Soup", "Lunch" }
-        };
-
-    int breakfastCount =
-        dishes.Count(d =>
-            mealTypes.ContainsKey(d.Name) &&
-            mealTypes[d.Name] == "Breakfast");
-
-    int lunchCount =
-        dishes.Count(d =>
-            mealTypes.ContainsKey(d.Name) &&
-            mealTypes[d.Name] == "Lunch");
-
-    int dinnerCount =
-        dishes.Count(d =>
-            mealTypes.ContainsKey(d.Name) &&
-            mealTypes[d.Name] == "Dinner");
 
     int vegetarianCount =
         dishes.Count(d =>
@@ -73,8 +49,8 @@
 <style>
 
     /* =====================================================
-           REMOVE DEFAULT MVC LAYOUT
-           ===================================================== */
+               REMOVE DEFAULT MVC LAYOUT
+               ===================================================== */
 
     body > header,
     body > footer {
@@ -101,8 +77,8 @@
 
 
     /* =====================================================
-           NAVBAR
-           ===================================================== */
+               NAVBAR
+               ===================================================== */
 
     .nutri-navbar {
         position: sticky;
@@ -216,8 +192,8 @@
 
 
     /* =====================================================
-           PAGE
-           ===================================================== */
+               PAGE
+               ===================================================== */
 
     .dishes-page {
         position: relative;
@@ -239,8 +215,8 @@
 
 
     /* =====================================================
-           HERO
-           ===================================================== */
+               HERO
+               ===================================================== */
 
     .dishes-hero {
         height: 300px;
@@ -290,13 +266,13 @@
 
 
     /* =====================================================
-           CATEGORY CARDS
-           ===================================================== */
+               CATEGORY CARDS
+               ===================================================== */
 
     .categories-row {
         margin-bottom: 24px;
         display: grid;
-        grid-template-columns: repeat(8, minmax(0,1fr));
+        grid-template-columns: repeat(5, minmax(0,1fr));
         gap: 12px;
     }
 
@@ -324,18 +300,6 @@
             box-shadow: 0 0 0 1px rgba(47,123,53,.08);
         }
 
-        .category-card.breakfast {
-            background: #fff9e8;
-        }
-
-        .category-card.lunch {
-            background: #fff3e9;
-        }
-
-        .category-card.dinner {
-            background: #fceff1;
-        }
-
         .category-card.vegetarian {
             background: #eef7eb;
         }
@@ -354,8 +318,8 @@
 
 
     /* =====================================================
-           ICONS
-           ===================================================== */
+               ICONS
+               ===================================================== */
 
     .category-icon-frame {
         width: 54px;
@@ -407,8 +371,8 @@
 
 
     /* =====================================================
-           MAIN CONTENT
-           ===================================================== */
+               MAIN CONTENT
+               ===================================================== */
 
     .dishes-content {
         display: grid;
@@ -422,8 +386,8 @@
 
 
     /* =====================================================
-           FILTER SIDEBAR
-           ===================================================== */
+               FILTER SIDEBAR
+               ===================================================== */
 
     .filter-sidebar {
         height: fit-content;
@@ -519,8 +483,8 @@
 
 
     /* =====================================================
-           TOOLBAR
-           ===================================================== */
+               TOOLBAR
+               ===================================================== */
 
     .dishes-toolbar {
         margin-bottom: 14px;
@@ -576,8 +540,8 @@
 
 
     /* =====================================================
-           DISH GRID
-           ===================================================== */
+               DISH GRID
+               ===================================================== */
 
     .dish-grid {
         display: grid;
@@ -607,8 +571,8 @@
 
 
     /* =====================================================
-           DISH IMAGE
-           ===================================================== */
+               DISH IMAGE
+               ===================================================== */
 
     .dish-image-wrapper {
         position: relative;
@@ -647,8 +611,8 @@
 
 
     /* =====================================================
-           DISH BODY
-           ===================================================== */
+               DISH BODY
+               ===================================================== */
 
     .dish-body {
         padding: 13px;
@@ -676,21 +640,6 @@
         background: #edf6e9;
         color: #33713b;
         font-size: 10px;
-    }
-
-    .meal-tag-breakfast {
-        background: #fff6df;
-        color: #c78b1c;
-    }
-
-    .meal-tag-lunch {
-        background: #fff0df;
-        color: #ce7922;
-    }
-
-    .meal-tag-dinner {
-        background: #fdebed;
-        color: #cb535a;
     }
 
     .dish-description {
@@ -736,8 +685,8 @@
 
 
     /* =====================================================
-           NO RESULTS
-           ===================================================== */
+               NO RESULTS
+               ===================================================== */
 
     .no-results {
         display: none;
@@ -755,8 +704,8 @@
 
 
     /* =====================================================
-           RESPONSIVE
-           ===================================================== */
+               RESPONSIVE
+               ===================================================== */
 
     @@media (max-width: 1250px) {
 
@@ -982,7 +931,7 @@
 
                 <p class="hero-text">
 
-                    Browse our collection of nutritious and delicious meals.
+                    Browse our collection of nutritious and delicious recipes.
                     Save your favorites and use them in your weekly menu.
 
                 </p>
@@ -1015,7 +964,6 @@
 
                 </div>
 
-
                 <div class="category-info">
 
                     <div class="category-name">
@@ -1031,97 +979,6 @@
             </div>
 
 
-
-            <!-- BREAKFAST -->
-
-            <div class="category-card breakfast"
-                 data-top-group="meal"
-                 data-top-value="breakfast">
-
-                <div class="category-icon-frame">
-
-                    <img src="~/images/Icons/breakfast-icon.png"
-                         alt="Breakfast" />
-
-                </div>
-
-
-                <div class="category-info">
-
-                    <div class="category-name">
-                        Breakfast
-                    </div>
-
-                    <div class="category-count">
-                        @breakfastCount recipes
-                    </div>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- LUNCH -->
-
-            <div class="category-card lunch"
-                 data-top-group="meal"
-                 data-top-value="lunch">
-
-                <div class="category-icon-frame">
-
-                    <img src="~/images/Icons/lunch-icon.png"
-                         alt="Lunch" />
-
-                </div>
-
-
-                <div class="category-info">
-
-                    <div class="category-name">
-                        Lunch
-                    </div>
-
-                    <div class="category-count">
-                        @lunchCount recipes
-                    </div>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- DINNER -->
-
-            <div class="category-card dinner"
-                 data-top-group="meal"
-                 data-top-value="dinner">
-
-                <div class="category-icon-frame">
-
-                    <img src="~/images/Icons/dinner-icon.png"
-                         alt="Dinner" />
-
-                </div>
-
-
-                <div class="category-info">
-
-                    <div class="category-name">
-                        Dinner
-                    </div>
-
-                    <div class="category-count">
-                        @dinnerCount recipes
-                    </div>
-
-                </div>
-
-            </div>
-
-
-
             <!-- VEGETARIAN -->
 
             <div class="category-card vegetarian"
@@ -1134,7 +991,6 @@
                          alt="Vegetarian" />
 
                 </div>
-
 
                 <div class="category-info">
 
@@ -1151,7 +1007,6 @@
             </div>
 
 
-
             <!-- VEGAN -->
 
             <div class="category-card vegan"
@@ -1164,7 +1019,6 @@
                          alt="Vegan" />
 
                 </div>
-
 
                 <div class="category-info">
 
@@ -1181,7 +1035,6 @@
             </div>
 
 
-
             <!-- MEAT -->
 
             <div class="category-card meat"
@@ -1194,7 +1047,6 @@
                          alt="Meat" />
 
                 </div>
-
 
                 <div class="category-info">
 
@@ -1211,7 +1063,6 @@
             </div>
 
 
-
             <!-- FISH -->
 
             <div class="category-card fish"
@@ -1225,7 +1076,6 @@
                          alt="Fish" />
 
                 </div>
-
 
                 <div class="category-info">
 
@@ -1272,75 +1122,10 @@
 
 
 
-                <!-- MEAL TYPE -->
+                <!-- DISH TYPE -->
 
                 <div class="filter-title">
-                    Meal Type
-                </div>
-
-
-                <label class="filter-option">
-
-                    <span class="filter-option-left">
-
-                        <input type="checkbox"
-                               class="meal-filter"
-                               value="breakfast" />
-
-                        Breakfast
-
-                    </span>
-
-                    <span class="filter-count">
-                        @breakfastCount
-                    </span>
-
-                </label>
-
-
-                <label class="filter-option">
-
-                    <span class="filter-option-left">
-
-                        <input type="checkbox"
-                               class="meal-filter"
-                               value="lunch" />
-
-                        Lunch
-
-                    </span>
-
-                    <span class="filter-count">
-                        @lunchCount
-                    </span>
-
-                </label>
-
-
-                <label class="filter-option">
-
-                    <span class="filter-option-left">
-
-                        <input type="checkbox"
-                               class="meal-filter"
-                               value="dinner" />
-
-                        Dinner
-
-                    </span>
-
-                    <span class="filter-count">
-                        @dinnerCount
-                    </span>
-
-                </label>
-
-
-
-                <!-- DIET TYPE -->
-
-                <div class="filter-title">
-                    Diet Type
+                    Dish Type
                 </div>
 
 
@@ -1629,41 +1414,9 @@
                         .ToLowerInvariant();
 
 
-                        string mealType =
-                        mealTypes.ContainsKey(dish.Name)
-                        ? mealTypes[dish.Name]
-                        .ToLowerInvariant()
-                        : "";
-
-
-                        string mealDisplay =
-                        string.IsNullOrWhiteSpace(mealType)
-                        ? ""
-                        : char.ToUpper(mealType[0]) +
-                        mealType.Substring(1);
-
-
-                        string mealTagClass =
-                        mealType switch
-                        {
-                            "breakfast"
-                                            => "meal-tag-breakfast",
-
-                            "lunch"
-                                            => "meal-tag-lunch",
-
-                            "dinner"
-                                            => "meal-tag-dinner",
-
-                            _
-                                            => ""
-                        };
-
-
                         <article class="dish-card"
                                  data-name="@dish.Name.ToLowerInvariant()"
                                  data-diet="@dietType"
-                                 data-meal="@mealType"
                                  data-time="@dish.PreparationTime"
                                  data-calories="@dish.Calories">
 
@@ -1698,18 +1451,6 @@
 
 
                                 <div class="dish-tags">
-
-
-                                    @if (!string.IsNullOrWhiteSpace(mealDisplay))
-                                    {
-
-                                        <span class="dish-tag @mealTagClass">
-
-                                            @mealDisplay
-
-                                        </span>
-
-                                    }
 
 
                                     <span class="dish-tag">
@@ -2063,12 +1804,6 @@
                         .toLowerCase();
 
 
-                const meals =
-                    getCheckedValues(
-                        ".meal-filter"
-                    );
-
-
                 const diets =
                     getCheckedValues(
                         ".diet-filter"
@@ -2093,10 +1828,6 @@
                             card.dataset.name;
 
 
-                        const meal =
-                            card.dataset.meal;
-
-
                         const diet =
                             card.dataset.diet;
 
@@ -2116,13 +1847,6 @@
                         const searchMatches =
                             name.includes(
                                 search
-                            );
-
-
-                        const mealMatches =
-                            meals.length === 0 ||
-                            meals.includes(
-                                meal
                             );
 
 
@@ -2149,7 +1873,6 @@
 
                         const shouldShow =
                             searchMatches &&
-                            mealMatches &&
                             dietMatches &&
                             timeMatches &&
                             calorieMatches;
@@ -2194,7 +1917,6 @@
 
                 document
                     .querySelectorAll(
-                        ".meal-filter, " +
                         ".diet-filter, " +
                         ".time-filter"
                     )
@@ -2299,31 +2021,6 @@
                                 "selected"
                             );
 
-
-                            if (
-                                group === "meal"
-                            ) {
-
-
-                                const checkbox =
-                                    document.querySelector(
-                                        '.meal-filter[value="' +
-                                        value +
-                                        '"]'
-                                    );
-
-
-                                if (checkbox) {
-
-                                    checkbox.checked =
-                                        true;
-
-                                }
-
-
-                            }
-
-
                             if (
                                 group === "diet"
                             ) {
@@ -2408,7 +2105,6 @@
 
             document
                 .querySelectorAll(
-                    ".meal-filter, " +
                     ".diet-filter, " +
                     ".time-filter"
                 )
