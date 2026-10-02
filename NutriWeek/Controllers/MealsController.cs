@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using NutriWeek.Data;
 using NutriWeek.Data.Models;
 using NutriWeek.Data.Models.Enums;
+using NutriWeek.ViewModels;
 using NutriWeek.ViewModels.Meals;
 
 namespace NutriWeek.Controllers
@@ -40,7 +41,29 @@ namespace NutriWeek.Controllers
         [HttpGet]
         public IActionResult AddMeal()
         {
-            return View();
+            IEnumerable<DropdownViewModel> dishes = _dbContext.Dishes
+                .Select(d => new DropdownViewModel
+                {
+                    Id = d.Id,
+                    Name = d.Name
+                })
+                .ToList();
+
+            IEnumerable<DropdownViewModel> dailyMenus = _dbContext.DailyMenus
+                .Select(dm => new DropdownViewModel
+                {
+                    Id = dm.Id,
+                    Name = dm.Date.ToString("yyyy-MM-dd")
+                })
+                .ToList();
+
+            AddMealViewModel model = new AddMealViewModel
+            {
+                Dishes = dishes,
+                DailyMenus = dailyMenus
+            };
+
+            return View(model);
         }
 
         [HttpPost]
