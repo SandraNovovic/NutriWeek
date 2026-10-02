@@ -39,8 +39,8 @@ namespace NutriWeek.Controllers
         [HttpGet]
         public IActionResult AddDish()
         {
-            IEnumerable<CategoryDropdownViewModel> dishTypes = Enum.GetValues<DishType>()
-                .Select(dt => new CategoryDropdownViewModel
+            IEnumerable<DropdownViewModel> dishTypes = Enum.GetValues<DishType>()
+                .Select(dt => new DropdownViewModel
                 {
                     Id = (int)dt,
                     Name = dt.ToString()
