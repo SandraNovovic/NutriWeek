@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using NutriWeek.Data;
 using NutriWeek.Data.Models;
 using NutriWeek.Data.Models.Enums;
+using NutriWeek.ViewModels.Meals;
 
 namespace NutriWeek.Controllers
 {
@@ -15,8 +16,22 @@ namespace NutriWeek.Controllers
         }
         public IActionResult Index()
         {
-            List<Meal> meals = _dbContext.Meals.Include(m=>m.Dish).Include(m=>m.DailyMenu)
-                .OrderBy(m=>m.DailyMenu.Date).ThenBy(m=>m.MealType).ToList();
+            List<MealIndexViewModel> meals = _dbContext
+                .Meals
+                .Include(m=>m.Dish)
+                .Include(m=>m.DailyMenu)
+                .OrderBy(m=>m.DailyMenu.Date).ThenBy(m=>m.MealType)
+                .Select(m=>new MealIndexViewModel
+                {
+                    Id = m.Id,
+                    Date = m.DailyMenu.Date,
+                    DishName = m.Dish.Name,
+                    Calories = m.Dish.Calories,
+                    Preparation = m.Dish.PreparationTime,
+                    MealType = m.MealType
+                })
+                .ToList();
+
             return View(meals);
         }
 
