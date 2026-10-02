@@ -49,43 +49,103 @@ namespace NutriWeek.Controllers
                 })
                 .ToList();
 
-            IEnumerable<DropdownViewModel> dailyMenus = _dbContext.DailyMenus
-                .Select(dm => new DropdownViewModel
-                {
-                    Id = dm.Id,
-                    Name = dm.Date.ToString("yyyy-MM-dd")
-                })
-                .ToList();
 
             AddMealViewModel model = new AddMealViewModel
             {
                 Dishes = dishes,
-                DailyMenus = dailyMenus
             };
 
             return View(model);
         }
-
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult AddMeal(AddMealViewModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                model.Dishes = _dbContext.Dishes
+                    .Select(d => new DropdownViewModel
+                    {
+                        Id = d.Id,
+                        Name = d.Name
+                    })
+                    .ToList();
+
+                return View(model);
+            }
+
             try
             {
-                Meal meal=new Meal
+                DateTime selectedDate = model.Date!.Value.Date;
+
+                int difference =
+                    ((int)selectedDate.DayOfWeek -
+                     (int)DayOfWeek.Monday + 7) % 7;
+
+                DateTime weekStartDate =
+                    selectedDate.AddDays(-difference);
+
+
+                WeeklyMenu? weeklyMenu = _dbContext.WeeklyMenus
+                    .FirstOrDefault(w =>
+                        w.WeekStartDate.Date == weekStartDate);
+
+
+                if (weeklyMenu == null)
+                {
+                    weeklyMenu = new WeeklyMenu
+                    {
+                        WeekStartDate = weekStartDate,
+                        Title = $"Week of {weekStartDate:dd.MM.yyyy}"
+                    };
+
+                    _dbContext.WeeklyMenus.Add(weeklyMenu);
+                    _dbContext.SaveChanges();
+                }
+
+
+                DailyMenu? dailyMenu = _dbContext.DailyMenus
+                    .FirstOrDefault(d =>
+                        d.Date.Date == selectedDate);
+
+
+                if (dailyMenu == null)
+                {
+                    dailyMenu = new DailyMenu
+                    {
+                        Date = selectedDate,
+                        WeeklyMenuId = weeklyMenu.Id
+                    };
+
+                    _dbContext.DailyMenus.Add(dailyMenu);
+                    _dbContext.SaveChanges();
+                }
+
+
+                Meal meal = new Meal
                 {
                     DishId = model.DishId,
-                    DailyMenuId = model.DailyMenuId,
-                    MealType = model.MealType
+                    MealType = model.MealType,
+                    DailyMenuId = dailyMenu.Id
                 };
+
 
                 _dbContext.Meals.Add(meal);
                 _dbContext.SaveChanges();
             }
             catch (Exception ex)
             {
-   
+                model.Dishes = _dbContext.Dishes
+                    .Select(d => new DropdownViewModel
+                    {
+                        Id = d.Id,
+                        Name = d.Name
+                    })
+                    .ToList();
+
                 return View(model);
             }
+
 
             return RedirectToAction("Index");
         }
