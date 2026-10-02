@@ -1,116 +1,1728 @@
-﻿@model IEnumerable<NutriWeek.Data.Models.Meal>
+﻿@using NutriWeek.Data.Models.Enums
+@using NutriWeek.ViewModels.Meals
+
+@model IEnumerable<MealIndexViewModel>
 
 @{
     ViewData["Title"] = "Meals";
+
+    List<MealIndexViewModel> meals =
+        Model?.ToList() ?? new List<MealIndexViewModel>();
+
+
+    List<MealIndexViewModel> breakfastMeals =
+        meals
+            .Where(m => m.MealType == MealType.Breakfast)
+            .OrderBy(m => m.Date)
+            .ToList();
+
+
+    List<MealIndexViewModel> lunchMeals =
+        meals
+            .Where(m => m.MealType == MealType.Lunch)
+            .OrderBy(m => m.Date)
+            .ToList();
+
+
+    List<MealIndexViewModel> dinnerMeals =
+        meals
+            .Where(m => m.MealType == MealType.Dinner)
+            .OrderBy(m => m.Date)
+            .ToList();
+
+
+    Dictionary<string, string> dishImages =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            {
+                "Vegan Oatmeal",
+                "/images/DishesImages/vegan_oatmeal.png"
+            },
+
+            {
+                "Vegetarian Pasta",
+                "/images/DishesImages/vegetarian_pasta.png"
+            },
+
+            {
+                "Chicken Rice Bowl",
+                "/images/DishesImages/chicken_rice_bowl.png"
+            },
+
+            {
+                "Salmon with Vegetables",
+                "/images/DishesImages/salmon_with_vegetables.png"
+            },
+
+            {
+                "Lentil Soup",
+                "/images/DishesImages/lentil_soup.png"
+            }
+        };
 }
 
-<div class="container py-4">
 
-    <div class="text-center mb-5">
-        <p class="text-success fw-semibold text-uppercase mb-2">
-            NutriWeek
-        </p>
+<style>
 
-        <h1 class="display-5 fw-bold">
-            Planned Meals
-        </h1>
+    /* =====================================================
+           DEFAULT LAYOUT
+           ===================================================== */
 
-        <p class="text-muted">
-            See all your planned breakfasts, lunches, dinners and snacks.
-        </p>
-
-        <a href="#" class="btn btn-success mt-2">
-            + Add Meal
-        </a>
-    </div>
-
-
-    @if (!Model.Any())
-    {
-        <div class="alert alert-info text-center">
-            No meals have been planned yet.
-        </div>
+    body > header,
+    body > footer {
+        display: none;
     }
-    else
-    {
-        @foreach (var group in Model.GroupBy(m => m.MealType))
-        {
-            <div class="mb-5">
 
-                <div class="d-flex align-items-center mb-3">
-                    <h2 class="fw-bold mb-0">
-                        @group.Key
-                    </h2>
-                </div>
+    body {
+        margin: 0;
+        padding: 0;
+        background: #f7faf5;
+    }
 
-                <div class="table-responsive">
+        body > .container {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
 
-                    <table class="table table-hover align-middle">
+            body > .container > main {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
 
-                        <thead class="table-light">
-                            <tr>
-                                <th>Date</th>
-                                <th>Dish</th>
-                                <th>Calories</th>
-                                <th>Preparation Time</th>
-                                <th class="text-end">Actions</th>
-                            </tr>
-                        </thead>
 
-                        <tbody>
+    /* =====================================================
+           NAVIGATION
+           ===================================================== */
 
-                            @foreach (var meal in group)
-                            {
-                                <tr>
+    .nutri-navbar {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        width: 100%;
+        height: 74px;
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, .97);
+        border-bottom: 1px solid #e7ece5;
+        box-shadow: 0 2px 10px rgba(0,0,0,.025);
+    }
 
-                                    <td>
-                                        @meal.DailyMenu.Date.ToString("dd.MM.yyyy")
-                                    </td>
 
-                                    <td>
-                                        <strong>
-                                            @meal.Dish.Name
-                                        </strong>
-                                    </td>
+    .nav-content {
+        width: min( 1420px, calc(100% - 50px) );
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 28px;
+    }
 
-                                    <td>
-                                        @meal.Dish.Calories kcal
-                                    </td>
 
-                                    <td>
-                                        @meal.Dish.PreparationTime min
-                                    </td>
+    .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #122017;
+        text-decoration: none;
+        font-size: 24px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
 
-                                    <td class="text-end">
 
-                                        <a href="#"
-                                           class="btn btn-outline-success btn-sm">
-                                            Details
-                                        </a>
+        .nav-brand:hover {
+            color: #122017;
+        }
 
-                                        <a href="#"
-                                           class="btn btn-outline-secondary btn-sm">
-                                            Edit
-                                        </a>
 
-                                        <a href="#"
-                                           class="btn btn-outline-danger btn-sm">
-                                            Delete
-                                        </a>
+    .nav-brand-leaf {
+        color: #3c8b45;
+        font-size: 27px;
+    }
 
-                                    </td>
 
-                                </tr>
-                            }
+    .nav-links {
+        margin-left: 22px;
+        margin-right: auto;
+        display: flex;
+        align-items: center;
+        gap: 31px;
+    }
 
-                        </tbody>
 
-                    </table>
+    .nav-link-custom {
+        position: relative;
+        padding: 27px 1px 23px;
+        color: #343c35;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+    }
 
-                </div>
 
-            </div>
+        .nav-link-custom:hover {
+            color: #32803a;
+        }
+
+
+        .nav-link-custom.active {
+            color: #32803a;
+            font-weight: 700;
+        }
+
+
+            .nav-link-custom.active::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 14px;
+                height: 3px;
+                border-radius: 10px;
+                background: #32803a;
+            }
+
+
+    .navbar-search {
+        width: 270px;
+        padding: 9px 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid #dde4da;
+        border-radius: 30px;
+        background: #fbfcfa;
+    }
+
+
+        .navbar-search input {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 13px;
+        }
+
+
+    .nav-user {
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: #eef4eb;
+        color: #456149;
+        font-size: 18px;
+    }
+
+
+    /* =====================================================
+           PAGE
+           ===================================================== */
+
+    .meals-page {
+        position: relative;
+        left: 50%;
+        width: 100vw;
+        min-height: calc(100vh - 74px);
+        margin-left: -50vw;
+        padding: 30px 0 70px;
+        background-image: linear-gradient( rgba(250,252,247,.72), rgba(250,252,247,.82) ), url('@Url.Content("~/images/MealsImages/meals-background.png")');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+
+
+    .meals-container {
+        width: min( 1380px, calc(100% - 50px) );
+        margin: 0 auto;
+    }
+
+
+    /* =====================================================
+           HEADER
+           ===================================================== */
+
+    .page-heading {
+        margin-bottom: 28px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 25px;
+    }
+
+
+    .page-title {
+        margin: 0 0 5px;
+        color: #173024;
+        font-family: Georgia, serif;
+        font-size: 48px;
+        font-weight: 700;
+    }
+
+
+    .page-description {
+        margin: 0;
+        color: #59685d;
+        font-size: 15px;
+        line-height: 1.5;
+    }
+
+
+    .add-meal-button {
+        min-width: 190px;
+        padding: 13px 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border-radius: 13px;
+        background: linear-gradient( 90deg, #31783a, #48934f );
+        color: white;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 800;
+        box-shadow: 0 7px 18px rgba(45,112,52,.18);
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+
+        .add-meal-button:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 9px 22px rgba(45,112,52,.23);
+        }
+
+
+    /* =====================================================
+           SEARCH
+           ===================================================== */
+
+    .meals-search {
+        max-width: 420px;
+        margin-bottom: 22px;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        border: 1px solid #dce4da;
+        border-radius: 28px;
+        background: rgba(255,255,255,.88);
+        box-shadow: 0 3px 10px rgba(0,0,0,.025);
+    }
+
+
+        .meals-search input {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: #334039;
+            font-size: 13px;
+        }
+
+
+    /* =====================================================
+           MEAL SECTION
+           ===================================================== */
+
+    .meal-section {
+        margin-bottom: 22px;
+        overflow: hidden;
+        border: 1px solid rgba(218,226,215,.95);
+        border-radius: 18px;
+        background: rgba(255,255,255,.94);
+        box-shadow: 0 7px 22px rgba(43,68,45,.055);
+    }
+
+
+        .meal-section.filtered-out {
+            display: none;
+        }
+
+
+    .meal-section-header {
+        min-height: 61px;
+        padding: 13px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+
+        .meal-section-header.breakfast {
+            background: linear-gradient( 90deg, #fff5d9, #fff9eb );
+        }
+
+
+        .meal-section-header.lunch {
+            background: linear-gradient( 90deg, #edf7e9, #f4faef );
+        }
+
+
+        .meal-section-header.dinner {
+            background: linear-gradient( 90deg, #fde6e3, #fff1ef );
+        }
+
+
+    .meal-section-title {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #173024;
+        font-family: Georgia, serif;
+        font-size: 28px;
+        font-weight: 700;
+    }
+
+
+    .meal-section-icon {
+        font-family: Arial, sans-serif;
+        font-size: 27px;
+    }
+
+
+    .breakfast .meal-section-icon {
+        color: #e99d14;
+    }
+
+
+    .lunch .meal-section-icon {
+        color: #3f8746;
+    }
+
+
+    .dinner .meal-section-icon {
+        color: #dc5c57;
+    }
+
+
+    .meal-count {
+        min-width: 77px;
+        padding: 7px 13px;
+        border-radius: 25px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+
+    .breakfast .meal-count {
+        background: #ffe9ae;
+        color: #94620a;
+    }
+
+
+    .lunch .meal-count {
+        background: #d9f0cf;
+        color: #35713b;
+    }
+
+
+    .dinner .meal-count {
+        background: #f9d4d0;
+        color: #a44440;
+    }
+
+
+    /* =====================================================
+           TABLE
+           ===================================================== */
+
+    .meal-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+
+        .meal-table thead {
+            background: rgba(250,252,248,.96);
+        }
+
+
+        .meal-table th {
+            padding: 11px 24px;
+            border-bottom: 1px solid #edf0eb;
+            color: #455349;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: left;
+        }
+
+
+            .meal-table th:last-child {
+                text-align: right;
+            }
+
+
+        .meal-table td {
+            padding: 13px 24px;
+            border-bottom: 1px solid #edf0eb;
+            color: #28342b;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+
+        .meal-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+
+        .meal-table tbody tr {
+            transition: background .2s ease;
+        }
+
+
+            .meal-table tbody tr:hover {
+                background: #fbfdf9;
+            }
+
+
+    /* =====================================================
+           DISH
+           ===================================================== */
+
+    .dish-cell {
+        min-width: 270px;
+        display: flex;
+        align-items: center;
+        gap: 13px;
+    }
+
+
+    .dish-image {
+        width: 54px;
+        height: 54px;
+        flex-shrink: 0;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 2px solid white;
+        box-shadow: 0 3px 9px rgba(0,0,0,.10);
+    }
+
+
+    .dish-name {
+        color: #1e3024;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+
+    .meal-date {
+        white-space: nowrap;
+        color: #455148;
+    }
+
+
+    .meal-stat {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        white-space: nowrap;
+    }
+
+
+    .stat-icon {
+        font-size: 15px;
+    }
+
+
+    /* =====================================================
+           ACTIONS
+           ===================================================== */
+
+    .meal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+
+    .action-button {
+        min-width: 77px;
+        padding: 7px 11px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        border-radius: 9px;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 700;
+        transition: transform .18s ease, background .18s ease;
+    }
+
+
+        .action-button:hover {
+            transform: translateY(-1px);
+        }
+
+
+    .details-button {
+        border: 1px solid #bdd4b9;
+        background: #f7fbf4;
+        color: #39733f;
+    }
+
+
+        .details-button:hover {
+            background: #edf7e9;
+            color: #316738;
+        }
+
+
+    .edit-button {
+        border: 1px solid #d5ddd3;
+        background: #f9faf8;
+        color: #536259;
+    }
+
+
+        .edit-button:hover {
+            background: #f0f3ee;
+            color: #465349;
+        }
+
+
+    .delete-button {
+        border: 1px solid #f0b9b5;
+        background: #fff9f8;
+        color: #d4544f;
+    }
+
+
+        .delete-button:hover {
+            background: #fff0ef;
+            color: #c34540;
+        }
+
+
+    /* =====================================================
+           NO MEALS
+           ===================================================== */
+
+    .empty-section {
+        padding: 30px 25px;
+        color: #859087;
+        text-align: center;
+        font-size: 13px;
+    }
+
+
+    .empty-icon {
+        margin-bottom: 7px;
+        font-size: 28px;
+    }
+
+
+    /* =====================================================
+           NO SEARCH RESULTS
+           ===================================================== */
+
+    .no-search-results {
+        display: none;
+        margin-top: 22px;
+        padding: 40px;
+        border: 1px solid #e0e7dd;
+        border-radius: 18px;
+        background: rgba(255,255,255,.92);
+        color: #707b73;
+        text-align: center;
+    }
+
+
+        .no-search-results.show {
+            display: block;
+        }
+
+
+    /* =====================================================
+           RESPONSIVE
+           ===================================================== */
+
+    @@media (max-width: 950px) {
+
+        .navbar-search {
+            display: none;
+        }
+
+        .meal-table th:nth-child(3),
+        .meal-table td:nth-child(3) {
+            display: none;
         }
     }
 
+
+    @@media (max-width: 760px) {
+
+        .nav-links {
+            display: none;
+        }
+
+        .nav-content,
+        .meals-container {
+            width: calc(100% - 24px);
+        }
+
+        .page-heading {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .add-meal-button {
+            width: 100%;
+        }
+
+        .meal-table thead {
+            display: none;
+        }
+
+        .meal-table,
+        .meal-table tbody,
+        .meal-table tr,
+        .meal-table td {
+            width: 100%;
+            display: block;
+        }
+
+            .meal-table tr {
+                padding: 10px 0;
+                border-bottom: 1px solid #e9ede7;
+            }
+
+            .meal-table td {
+                padding: 7px 18px;
+                border: none;
+            }
+
+        .meal-actions {
+            justify-content: flex-start;
+        }
+    }
+
+</style>
+
+
+
+<!-- =====================================================
+     NAVIGATION
+     ===================================================== -->
+
+<nav class="nutri-navbar">
+
+    <div class="nav-content">
+
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="nav-brand">
+
+            <span class="nav-brand-leaf">
+                🌿
+            </span>
+
+            NutriWeek
+
+        </a>
+
+
+
+        <div class="nav-links">
+
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="nav-link-custom">
+
+                Home
+
+            </a>
+
+
+            <a asp-controller="Dishes"
+               asp-action="Index"
+               class="nav-link-custom">
+
+                Dishes
+
+            </a>
+
+
+            <a asp-controller="DailyMenus"
+               asp-action="Index"
+               class="nav-link-custom">
+
+                Daily Menu
+
+            </a>
+
+
+            <a asp-controller="WeeklyMenus"
+               asp-action="Index"
+               class="nav-link-custom">
+
+                Weekly Menu
+
+            </a>
+
+
+            <a asp-controller="Meals"
+               asp-action="Index"
+               class="nav-link-custom active">
+
+                Meals
+
+            </a>
+
+
+        </div>
+
+
+
+        <div class="navbar-search">
+
+            🔍
+
+            <input id="navbarMealSearch"
+                   type="text"
+                   placeholder="Search meals..." />
+
+        </div>
+
+
+
+        <div class="nav-user">
+            ♙
+        </div>
+
+
+    </div>
+
+</nav>
+
+
+
+<!-- =====================================================
+     PAGE
+     ===================================================== -->
+
+<div class="meals-page">
+
+    <div class="meals-container">
+
+
+        <!-- =================================================
+             HEADER
+             ================================================= -->
+
+        <div class="page-heading">
+
+
+            <div>
+
+                <h1 class="page-title">
+                    Meals
+                </h1>
+
+
+                <p class="page-description">
+
+                    Here you can see all your planned meals.
+                    Add, edit or remove meals from your plan.
+
+                </p>
+
+            </div>
+
+
+
+            <a asp-controller="Meals"
+               asp-action="AddMeal"
+               class="add-meal-button">
+
+                ＋ Add Meal
+
+            </a>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             SEARCH
+             ================================================= -->
+
+        <div class="meals-search">
+
+            🔍
+
+            <input id="mealSearch"
+                   type="text"
+                   placeholder="Search meals..." />
+
+        </div>
+
+
+
+        <!-- =================================================
+             BREAKFAST
+             ================================================= -->
+
+        <section class="meal-section"
+                 data-section="breakfast">
+
+
+            <div class="meal-section-header breakfast">
+
+
+                <h2 class="meal-section-title">
+
+                    <span class="meal-section-icon">
+                        ☀
+                    </span>
+
+                    Breakfast
+
+                </h2>
+
+
+                <span class="meal-count">
+
+                    @breakfastMeals.Count
+                    @(breakfastMeals.Count == 1 ? "meal" : "meals")
+
+                </span>
+
+
+            </div>
+
+
+
+            @if (breakfastMeals.Any())
+            {
+
+                <table class="meal-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Date
+                            </th>
+
+                            <th>
+                                Dish
+                            </th>
+
+                            <th>
+                                Calories
+                            </th>
+
+                            <th>
+                                Preparation Time
+                            </th>
+
+                            <th>
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                        @foreach (MealIndexViewModel meal in breakfastMeals)
+                        {
+                            string imagePath =
+                            dishImages.ContainsKey(meal.DishName)
+                            ? dishImages[meal.DishName]
+                            : "/images/DishesImages/unadded.png";
+
+
+                            <tr class="meal-row"
+                                data-name="@meal.DishName.ToLowerInvariant()">
+
+
+                                <td class="meal-date">
+
+                                    @meal.Date.ToString("dd.MM.yyyy")
+
+                                </td>
+
+
+
+                                <td>
+
+                                    <div class="dish-cell">
+
+
+                                        <img src="@imagePath"
+                                             class="dish-image"
+                                             alt="@meal.DishName"
+                                             onerror="this.onerror=null; this.src='/images/DishesImages/unadded.png';" />
+
+
+                                        <div>
+
+                                            <div class="dish-name">
+
+                                                @meal.DishName
+
+                                            </div>
+
+                                        </div>
+
+
+                                    </div>
+
+                                </td>
+
+
+
+                                <td>
+
+                                    <span class="meal-stat">
+
+                                        <span class="stat-icon">
+                                            🔥
+                                        </span>
+
+                                        @meal.Calories kcal
+
+                                    </span>
+
+                                </td>
+
+
+
+                                <td>
+
+                                    <span class="meal-stat">
+
+                                        <span class="stat-icon">
+                                            ◷
+                                        </span>
+
+                                        @meal.Preparation min
+
+                                    </span>
+
+                                </td>
+
+
+
+                                <td>
+
+                                    <div class="meal-actions">
+
+
+                                        <a asp-controller="Meals"
+                                           asp-action="Details"
+                                           asp-route-id="@meal.Id"
+                                           class="action-button details-button">
+
+                                            👁 Details
+
+                                        </a>
+
+
+                                        <a asp-controller="Meals"
+                                           asp-action="Edit"
+                                           asp-route-id="@meal.Id"
+                                           class="action-button edit-button">
+
+                                            ✎ Edit
+
+                                        </a>
+
+
+                                        <a asp-controller="Meals"
+                                           asp-action="Delete"
+                                           asp-route-id="@meal.Id"
+                                           class="action-button delete-button">
+
+                                            🗑 Delete
+
+                                        </a>
+
+
+                                    </div>
+
+                                </td>
+
+
+                            </tr>
+                        }
+
+
+                    </tbody>
+
+                </table>
+
+            }
+            else
+            {
+
+                <div class="empty-section">
+
+                    <div class="empty-icon">
+                        ☀
+                    </div>
+
+                    No breakfast meals added yet.
+
+                </div>
+
+            }
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             LUNCH
+             ================================================= -->
+
+        <section class="meal-section"
+                 data-section="lunch">
+
+
+            <div class="meal-section-header lunch">
+
+
+                <h2 class="meal-section-title">
+
+                    <span class="meal-section-icon">
+                        🍴
+                    </span>
+
+                    Lunch
+
+                </h2>
+
+
+                <span class="meal-count">
+
+                    @lunchMeals.Count
+                    @(lunchMeals.Count == 1 ? "meal" : "meals")
+
+                </span>
+
+
+            </div>
+
+
+
+            @if (lunchMeals.Any())
+            {
+
+                <table class="meal-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Date
+                            </th>
+
+                            <th>
+                                Dish
+                            </th>
+
+                            <th>
+                                Calories
+                            </th>
+
+                            <th>
+                                Preparation Time
+                            </th>
+
+                            <th>
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                        @foreach (MealIndexViewModel meal in lunchMeals)
+                        {
+                            string imagePath =
+                            dishImages.ContainsKey(meal.DishName)
+                            ? dishImages[meal.DishName]
+                            : "/images/DishesImages/unadded.png";
+
+
+                            <tr class="meal-row"
+                                data-name="@meal.DishName.ToLowerInvariant()">
+
+
+                                <td class="meal-date">
+
+                                    @meal.Date.ToString("dd.MM.yyyy")
+
+                                </td>
+
+
+
+                                <td>
+
+                                    <div class="dish-cell">
+
+
+                                        <img src="@imagePath"
+                                             class="dish-image"
+                                             alt="@meal.DishName"
+                                             onerror="this.onerror=null; this.src='/images/DishesImages/unadded.png';" />
+
+
+                                        <div class="dish-name">
+
+                                            @meal.DishName
+
+                                        </div>
+
+
+                                    </div>
+
+                                </td>
+
+
+
+                                <td>
+
+                                    <span class="meal-stat">
+
+                                        <span class="stat-icon">
+                                            🔥
+                                        </span>
+
+                                        @meal.Calories kcal
+
+                                    </span>
+
+                                </td>
+
+
+
+                                <td>
+
+                                    <span class="meal-stat">
+
+                                        <span class="stat-icon">
+                                            ◷
+                                        </span>
+
+                                        @meal.Preparation min
+
+                                    </span>
+
+                                </td>
+
+
+
+                                <td>
+
+                                    <div class="meal-actions">
+
+
+                                        <a asp-controller="Meals"
+                                           asp-action="Details"
+                                           asp-route-id="@meal.Id"
+                                           class="action-button details-button">
+
+                                            👁 Details
+
+                                        </a>
+
+
+                                        <a asp-controller="Meals"
+                                           asp-action="Edit"
+                                           asp-route-id="@meal.Id"
+                                           class="action-button edit-button">
+
+                                            ✎ Edit
+
+                                        </a>
+
+
+                                        <a asp-controller="Meals"
+                                           asp-action="Delete"
+                                           asp-route-id="@meal.Id"
+                                           class="action-button delete-button">
+
+                                            🗑 Delete
+
+                                        </a>
+
+
+                                    </div>
+
+                                </td>
+
+
+                            </tr>
+                        }
+
+
+                    </tbody>
+
+                </table>
+
+            }
+            else
+            {
+
+                <div class="empty-section">
+
+                    <div class="empty-icon">
+                        🍴
+                    </div>
+
+                    No lunch meals added yet.
+
+                </div>
+
+            }
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             DINNER
+             ================================================= -->
+
+        <section class="meal-section"
+                 data-section="dinner">
+
+
+            <div class="meal-section-header dinner">
+
+
+                <h2 class="meal-section-title">
+
+                    <span class="meal-section-icon">
+                        ◒
+                    </span>
+
+                    Dinner
+
+                </h2>
+
+
+                <span class="meal-count">
+
+                    @dinnerMeals.Count
+                    @(dinnerMeals.Count == 1 ? "meal" : "meals")
+
+                </span>
+
+
+            </div>
+
+
+
+            @if (dinnerMeals.Any())
+            {
+
+                <table class="meal-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Date
+                            </th>
+
+                            <th>
+                                Dish
+                            </th>
+
+                            <th>
+                                Calories
+                            </th>
+
+                            <th>
+                                Preparation Time
+                            </th>
+
+                            <th>
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                        @foreach (MealIndexViewModel meal in dinnerMeals)
+                        {
+                            string imagePath =
+                            dishImages.ContainsKey(meal.DishName)
+                            ? dishImages[meal.DishName]
+                            : "/images/DishesImages/unadded.png";
+
+
+                            <tr class="meal-row"
+                                data-name="@meal.DishName.ToLowerInvariant()">
+
+
+                                <td class="meal-date">
+
+                                    @meal.Date.ToString("dd.MM.yyyy")
+
+                                </td>
+
+
+
+                                <td>
+
+                                    <div class="dish-cell">
+
+
+                                        <img src="@imagePath"
+                                             class="dish-image"
+                                             alt="@meal.DishName"
+                                             onerror="this.onerror=null; this.src='/images/DishesImages/unadded.png';" />
+
+
+                                        <div class="dish-name">
+
+                                            @meal.DishName
+
+                                        </div>
+
+
+                                    </div>
+
+                                </td>
+
+
+
+                                <td>
+
+                                    <span class="meal-stat">
+
+                                        <span class="stat-icon">
+                                            🔥
+                                        </span>
+
+                                        @meal.Calories kcal
+
+                                    </span>
+
+                                </td>
+
+
+
+                                <td>
+
+                                    <span class="meal-stat">
+
+                                        <span class="stat-icon">
+                                            ◷
+                                        </span>
+
+                                        @meal.Preparation min
+
+                                    </span>
+
+                                </td>
+
+
+
+                                <td>
+
+                                    <div class="meal-actions">
+
+
+                                        <a asp-controller="Meals"
+                                           asp-action="Details"
+                                           asp-route-id="@meal.Id"
+                                           class="action-button details-button">
+
+                                            👁 Details
+
+                                        </a>
+
+
+                                        <a asp-controller="Meals"
+                                           asp-action="Edit"
+                                           asp-route-id="@meal.Id"
+                                           class="action-button edit-button">
+
+                                            ✎ Edit
+
+                                        </a>
+
+
+                                        <a asp-controller="Meals"
+                                           asp-action="Delete"
+                                           asp-route-id="@meal.Id"
+                                           class="action-button delete-button">
+
+                                            🗑 Delete
+
+                                        </a>
+
+
+                                    </div>
+
+                                </td>
+
+
+                            </tr>
+                        }
+
+
+                    </tbody>
+
+                </table>
+
+            }
+            else
+            {
+
+                <div class="empty-section">
+
+                    <div class="empty-icon">
+                        ◒
+                    </div>
+
+                    No dinner meals added yet.
+
+                </div>
+
+            }
+
+
+        </section>
+
+
+
+        <div id="noSearchResults"
+             class="no-search-results">
+
+            <h4>
+                No meals found
+            </h4>
+
+            <p>
+                Try searching for another dish.
+            </p>
+
+        </div>
+
+
+    </div>
+
 </div>
+
+
+
+<script>
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+
+            const searchInput =
+                document.getElementById(
+                    "mealSearch"
+                );
+
+
+            const navbarSearchInput =
+                document.getElementById(
+                    "navbarMealSearch"
+                );
+
+
+            const mealRows =
+                Array.from(
+                    document.querySelectorAll(
+                        ".meal-row"
+                    )
+                );
+
+
+            const sections =
+                Array.from(
+                    document.querySelectorAll(
+                        ".meal-section"
+                    )
+                );
+
+
+            const noSearchResults =
+                document.getElementById(
+                    "noSearchResults"
+                );
+
+
+
+            function applySearch() {
+
+
+                const search =
+                    searchInput
+                        .value
+                        .trim()
+                        .toLowerCase();
+
+
+                let totalVisible =
+                    0;
+
+
+                mealRows.forEach(
+                    row => {
+
+
+                        const name =
+                            row.dataset.name;
+
+
+                        const matches =
+                            name.includes(
+                                search
+                            );
+
+
+                        row.style.display =
+                            matches
+                                ? ""
+                                : "none";
+
+
+                        if (matches) {
+
+                            totalVisible++;
+
+                        }
+
+
+                    }
+                );
+
+
+
+                sections.forEach(
+                    section => {
+
+
+                        const rows =
+                            Array.from(
+                                section.querySelectorAll(
+                                    ".meal-row"
+                                )
+                            );
+
+
+                        if (
+                            rows.length === 0
+                        ) {
+
+                            section.classList.remove(
+                                "filtered-out"
+                            );
+
+                            return;
+
+                        }
+
+
+                        const hasVisibleRows =
+                            rows.some(
+                                row =>
+                                    row.style.display !==
+                                    "none"
+                            );
+
+
+                        section.classList.toggle(
+                            "filtered-out",
+                            !hasVisibleRows
+                        );
+
+
+                    }
+                );
+
+
+                noSearchResults
+                    .classList
+                    .toggle(
+                        "show",
+                        totalVisible === 0 &&
+                        mealRows.length > 0
+                    );
+
+
+            }
+
+
+
+            searchInput.addEventListener(
+                "input",
+                function () {
+
+
+                    navbarSearchInput.value =
+                        this.value;
+
+
+                    applySearch();
+
+
+                }
+            );
+
+
+
+            navbarSearchInput
+                .addEventListener(
+                    "input",
+                    function () {
+
+
+                        searchInput.value =
+                            this.value;
+
+
+                        applySearch();
+
+
+                    }
+                );
+
+
+        }
+    );
+
+</script>
