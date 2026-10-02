@@ -28,6 +28,6 @@ namespace NutriWeek.ViewModels.Dishes
         
         public DishType DishType { get; set; }
 
-        public IEnumerable<CategoryDropdownViewModel> DishTypes { get; set; }= new List<CategoryDropdownViewModel>();
+        public IEnumerable<DropdownViewModel> DishTypes { get; set; }= new List<DropdownViewModel>();
     }
 }
