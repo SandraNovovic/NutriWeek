@@ -14,6 +14,8 @@ namespace NutriWeek.Controllers
         {
             _dbContext = dbContext;
         }
+
+        [HttpGet]
         public IActionResult Index()
         {
             List<MealIndexViewModel> meals = _dbContext
@@ -33,6 +35,36 @@ namespace NutriWeek.Controllers
                 .ToList();
 
             return View(meals);
+        }
+
+        [HttpGet]
+        public IActionResult AddMeal()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult AddMeal(AddMealViewModel model)
+        {
+            try
+            {
+                Meal meal=new Meal
+                {
+                    DishId = model.DishId,
+                    DailyMenuId = model.DailyMenuId,
+                    MealType = model.MealType
+                };
+
+                _dbContext.Meals.Add(meal);
+                _dbContext.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+   
+                return View(model);
+            }
+
+            return RedirectToAction("Index");
         }
 
         public IActionResult Details(int id)
