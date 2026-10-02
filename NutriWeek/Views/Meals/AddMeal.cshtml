@@ -1,0 +1,1570 @@
+﻿@using NutriWeek.Data.Models.Enums
+@using NutriWeek.ViewModels.Meals
+
+@model AddMealViewModel
+
+@{
+    ViewData["Title"] = "Add Meal";
+}
+
+<style>
+
+    body > header,
+    body > footer {
+        display: none;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background: #f7faf5;
+    }
+
+    body > .container {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    body > .container > main {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+
+    /* =====================================================
+       NAVBAR
+       ===================================================== */
+
+    .nutri-navbar {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+
+        width: 100%;
+        height: 74px;
+
+        display: flex;
+        align-items: center;
+
+        background: rgba(255,255,255,.97);
+
+        border-bottom: 1px solid #e7ece5;
+
+        box-shadow:
+            0 2px 10px rgba(0,0,0,.025);
+    }
+
+    .nav-content {
+        width: min(1420px, calc(100% - 50px));
+
+        margin: 0 auto;
+
+        display: flex;
+        align-items: center;
+
+        gap: 28px;
+    }
+
+    .nav-brand {
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+
+        color: #122017;
+
+        text-decoration: none;
+
+        font-size: 24px;
+        font-weight: 800;
+
+        white-space: nowrap;
+    }
+
+    .nav-brand:hover {
+        color: #122017;
+    }
+
+    .nav-brand-leaf {
+        color: #3c8b45;
+
+        font-size: 27px;
+    }
+
+    .nav-links {
+        margin-left: 22px;
+        margin-right: auto;
+
+        display: flex;
+        align-items: center;
+
+        gap: 31px;
+    }
+
+    .nav-link-custom {
+        position: relative;
+
+        padding: 27px 1px 23px;
+
+        color: #343c35;
+
+        text-decoration: none;
+
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .nav-link-custom:hover {
+        color: #32803a;
+    }
+
+    .nav-link-custom.active {
+        color: #32803a;
+
+        font-weight: 700;
+    }
+
+    .nav-link-custom.active::after {
+        content: "";
+
+        position: absolute;
+
+        left: 0;
+        right: 0;
+        bottom: 14px;
+
+        height: 3px;
+
+        border-radius: 10px;
+
+        background: #32803a;
+    }
+
+    .navbar-search {
+        width: 270px;
+
+        padding: 9px 15px;
+
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+
+        border: 1px solid #dde4da;
+
+        border-radius: 30px;
+
+        background: #fbfcfa;
+    }
+
+    .navbar-search input {
+        width: 100%;
+
+        border: none;
+        outline: none;
+
+        background: transparent;
+
+        font-size: 13px;
+    }
+
+    .nav-user {
+        width: 38px;
+        height: 38px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        flex-shrink: 0;
+
+        border-radius: 50%;
+
+        background: #eef4eb;
+
+        color: #456149;
+
+        font-size: 18px;
+    }
+
+
+    /* =====================================================
+       PAGE BACKGROUND
+       ===================================================== */
+
+    .add-meal-page {
+        position: relative;
+
+        left: 50%;
+
+        width: 100vw;
+        min-height: calc(100vh - 74px);
+
+        margin-left: -50vw;
+
+        padding-bottom: 70px;
+
+        background-image:
+            linear-gradient(
+                rgba(250,252,247,.70),
+                rgba(250,252,247,.80)
+            ),
+            url('@Url.Content("~/images/MealsImages/meals-background.png")');
+
+        background-size: cover;
+
+        background-position: center;
+
+        background-attachment: fixed;
+    }
+
+
+    /* =====================================================
+       PAGE HEADER
+       ===================================================== */
+
+    .page-header {
+        padding: 34px 0 25px;
+    }
+
+    .page-width {
+        width: min(1280px, calc(100% - 50px));
+
+        margin: 0 auto;
+    }
+
+    .breadcrumb-row {
+        margin-bottom: 20px;
+
+        display: flex;
+        align-items: center;
+
+        gap: 9px;
+
+        color: #617267;
+
+        font-size: 13px;
+    }
+
+    .breadcrumb-row a {
+        color: #4d7452;
+
+        text-decoration: none;
+    }
+
+    .breadcrumb-row a:hover {
+        color: #2f7b35;
+    }
+
+    .page-title {
+        margin: 0 0 8px;
+
+        color: #173024;
+
+        font-family: Georgia, serif;
+
+        font-size: 46px;
+        font-weight: 700;
+    }
+
+    .page-subtitle {
+        max-width: 620px;
+
+        margin: 0;
+
+        color: #59685d;
+
+        font-size: 16px;
+
+        line-height: 1.6;
+    }
+
+
+    /* =====================================================
+       FORM SHELL
+       ===================================================== */
+
+    .meal-form-shell {
+        width: min(1160px, calc(100% - 50px));
+
+        margin: 8px auto 0;
+
+        padding: 28px;
+
+        border: 1px solid rgba(218,227,214,.9);
+
+        border-radius: 24px;
+
+        background: rgba(255,255,255,.93);
+
+        box-shadow:
+            0 15px 45px rgba(56,85,58,.09);
+
+        backdrop-filter: blur(3px);
+    }
+
+    .form-layout {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 1.45fr)
+            minmax(320px, .85fr);
+
+        gap: 28px;
+    }
+
+
+    /* =====================================================
+       LEFT SIDE
+       ===================================================== */
+
+    .form-section {
+        padding: 10px 12px;
+    }
+
+    .section-heading {
+        margin-bottom: 7px;
+
+        display: flex;
+        align-items: center;
+
+        gap: 12px;
+
+        color: #173024;
+
+        font-family: Georgia, serif;
+
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .section-heading-icon {
+        width: 42px;
+        height: 42px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 12px;
+
+        background: #eaf5e6;
+
+        color: #337b3b;
+
+        font-family: Arial, sans-serif;
+
+        font-size: 20px;
+    }
+
+    .section-description {
+        margin: 0 0 30px 54px;
+
+        color: #728078;
+
+        font-size: 13px;
+    }
+
+
+    /* =====================================================
+       FORM GROUP
+       ===================================================== */
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-label-custom {
+        margin-bottom: 8px;
+
+        display: flex;
+        align-items: center;
+
+        gap: 9px;
+
+        color: #23382b;
+
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .field-icon {
+        width: 31px;
+
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        color: #44834a;
+
+        font-size: 20px;
+    }
+
+    .field-wrapper {
+        position: relative;
+    }
+
+    .form-select-custom {
+        width: 100%;
+
+        min-height: 58px;
+
+        padding: 12px 46px 12px 18px;
+
+        border: 1px solid #d5dfd3;
+
+        border-radius: 14px;
+
+        background: rgba(255,255,255,.96);
+
+        color: #27342b;
+
+        font-size: 14px;
+
+        outline: none;
+
+        transition:
+            border-color .2s ease,
+            box-shadow .2s ease;
+    }
+
+    .form-select-custom:focus {
+        border-color: #6aa970;
+
+        box-shadow:
+            0 0 0 4px rgba(67,139,74,.09);
+    }
+
+    .validation-message {
+        display: block;
+
+        margin-top: 5px;
+
+        margin-left: 4px;
+
+        color: #c74f4f;
+
+        font-size: 11px;
+    }
+
+    .validation-summary {
+        margin-bottom: 18px;
+
+        color: #c74f4f;
+
+        font-size: 12px;
+    }
+
+
+    /* =====================================================
+       MEAL TYPE COLORS
+       ===================================================== */
+
+    .meal-type-preview {
+        margin-top: 9px;
+
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+
+        color: #7a847d;
+
+        font-size: 12px;
+    }
+
+    .meal-dot {
+        width: 9px;
+        height: 9px;
+
+        border-radius: 50%;
+
+        background: #e9a629;
+    }
+
+
+    /* =====================================================
+       RIGHT PREVIEW
+       ===================================================== */
+
+    .preview-card {
+        min-height: 100%;
+
+        padding: 25px;
+
+        border: 1px solid #e3eadf;
+
+        border-radius: 20px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(243,249,239,.97),
+                rgba(253,254,251,.97)
+            );
+    }
+
+    .preview-heading {
+        margin-bottom: 5px;
+
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+
+        color: #173024;
+
+        font-family: Georgia, serif;
+
+        font-size: 22px;
+
+        font-weight: 700;
+    }
+
+    .preview-description {
+        margin: 0 0 22px;
+
+        color: #758078;
+
+        font-size: 12px;
+    }
+
+    .preview-image-wrapper {
+        height: 190px;
+
+        margin-bottom: 20px;
+
+        overflow: hidden;
+
+        border-radius: 16px;
+
+        background: #eef1ec;
+
+        box-shadow:
+            0 5px 16px rgba(0,0,0,.05);
+    }
+
+    .preview-image {
+        width: 100%;
+        height: 100%;
+
+        display: block;
+
+        object-fit: cover;
+    }
+
+    .preview-title {
+        margin-bottom: 16px;
+
+        color: #173024;
+
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .preview-divider {
+        height: 1px;
+
+        margin-bottom: 15px;
+
+        background: #dfe7dc;
+    }
+
+    .preview-row {
+        padding: 10px 2px;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 20px;
+
+        border-bottom: 1px solid rgba(222,231,219,.7);
+
+        font-size: 13px;
+    }
+
+    .preview-row:last-child {
+        border-bottom: none;
+    }
+
+    .preview-label {
+        display: flex;
+
+        align-items: center;
+
+        gap: 8px;
+
+        color: #657168;
+    }
+
+    .preview-value {
+        color: #26342a;
+
+        font-weight: 700;
+
+        text-align: right;
+    }
+
+    .preview-empty {
+        color: #9aa39c;
+
+        font-weight: 500;
+    }
+
+
+    /* =====================================================
+       HELP BOX
+       ===================================================== */
+
+    .help-box {
+        margin-top: 17px;
+
+        padding: 15px;
+
+        border-radius: 14px;
+
+        background: rgba(255,255,255,.67);
+
+        color: #66736a;
+
+        font-size: 11px;
+
+        line-height: 1.6;
+    }
+
+    .help-box strong {
+        color: #3d6942;
+    }
+
+
+    /* =====================================================
+       ACTIONS
+       ===================================================== */
+
+    .form-divider {
+        height: 1px;
+
+        margin: 27px 0 20px;
+
+        background: #e4e9e2;
+    }
+
+    .form-actions {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+    }
+
+    .cancel-button {
+        min-width: 180px;
+
+        padding: 12px 23px;
+
+        border: 1px solid #75a279;
+
+        border-radius: 14px;
+
+        background: white;
+
+        color: #436a47;
+
+        text-decoration: none;
+
+        font-size: 14px;
+        font-weight: 700;
+
+        text-align: center;
+
+        transition:
+            background .2s ease,
+            transform .2s ease;
+    }
+
+    .cancel-button:hover {
+        background: #f4f9f1;
+
+        color: #365b3a;
+
+        transform: translateY(-1px);
+    }
+
+    .submit-button {
+        min-width: 210px;
+
+        padding: 13px 25px;
+
+        border: none;
+
+        border-radius: 14px;
+
+        background:
+            linear-gradient(
+                90deg,
+                #397f40,
+                #4c9a52
+            );
+
+        color: white;
+
+        font-size: 14px;
+        font-weight: 800;
+
+        cursor: pointer;
+
+        box-shadow:
+            0 6px 16px rgba(48,119,56,.18);
+
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease;
+    }
+
+    .submit-button:hover {
+        transform: translateY(-1px);
+
+        box-shadow:
+            0 8px 20px rgba(48,119,56,.24);
+    }
+
+
+    /* =====================================================
+       RESPONSIVE
+       ===================================================== */
+
+    @@media (max-width: 1000px) {
+
+        .form-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .preview-card {
+            min-height: auto;
+        }
+
+        .navbar-search {
+            display: none;
+        }
+
+    }
+
+    @@media (max-width: 780px) {
+
+        .nav-links {
+            gap: 15px;
+
+            margin-left: 8px;
+        }
+
+        .nav-link-custom {
+            font-size: 12px;
+        }
+
+    }
+
+    @@media (max-width: 700px) {
+
+        .page-width,
+        .meal-form-shell {
+            width: calc(100% - 24px);
+        }
+
+        .nav-content {
+            width: calc(100% - 24px);
+        }
+
+        .nav-links {
+            display: none;
+        }
+
+        .meal-form-shell {
+            padding: 17px;
+        }
+
+        .page-title {
+            font-size: 36px;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .cancel-button,
+        .submit-button {
+            width: 100%;
+        }
+
+    }
+
+</style>
+
+
+<!-- =====================================================
+     NAVIGATION
+     ===================================================== -->
+
+<nav class="nutri-navbar">
+
+    <div class="nav-content">
+
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="nav-brand">
+
+            <span class="nav-brand-leaf">
+                🌿
+            </span>
+
+            NutriWeek
+
+        </a>
+
+
+        <div class="nav-links">
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="nav-link-custom">
+
+                Home
+
+            </a>
+
+
+            <a asp-controller="Dishes"
+               asp-action="Index"
+               class="nav-link-custom">
+
+                Dishes
+
+            </a>
+
+
+            <a asp-controller="DailyMenus"
+               asp-action="Index"
+               class="nav-link-custom">
+
+                Daily Menu
+
+            </a>
+
+
+            <a asp-controller="WeeklyMenus"
+               asp-action="Index"
+               class="nav-link-custom">
+
+                Weekly Menu
+
+            </a>
+
+
+            <a asp-controller="Meals"
+               asp-action="Index"
+               class="nav-link-custom active">
+
+                Meals
+
+            </a>
+
+        </div>
+
+
+        <div class="navbar-search">
+
+            🔍
+
+            <input type="text"
+                   placeholder="Search..." />
+
+        </div>
+
+
+        <div class="nav-user">
+            ♙
+        </div>
+
+
+    </div>
+
+</nav>
+
+
+
+<!-- =====================================================
+     PAGE
+     ===================================================== -->
+
+<div class="add-meal-page">
+
+
+    <!-- =================================================
+         HEADER
+         ================================================= -->
+
+    <section class="page-header">
+
+        <div class="page-width">
+
+
+            <div class="breadcrumb-row">
+
+                <a asp-controller="Home"
+                   asp-action="Index">
+
+                    Home
+
+                </a>
+
+                <span>›</span>
+
+
+                <a asp-controller="Meals"
+                   asp-action="Index">
+
+                    Meals
+
+                </a>
+
+                <span>›</span>
+
+                <span>
+                    Add Meal
+                </span>
+
+            </div>
+
+
+            <h1 class="page-title">
+                Add Meal
+            </h1>
+
+
+            <p class="page-subtitle">
+
+                Choose a dish, meal type and day
+                to add it to your meal plan.
+
+            </p>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         FORM
+         ================================================= -->
+
+    <form asp-controller="Meals"
+          asp-action="AddMeal"
+          method="post"
+          class="meal-form-shell">
+
+
+        @Html.AntiForgeryToken()
+
+
+        <div asp-validation-summary="ModelOnly"
+             class="validation-summary">
+        </div>
+
+
+
+        <div class="form-layout">
+
+
+            <!-- =================================================
+                 LEFT SIDE
+                 ================================================= -->
+
+            <div class="form-section">
+
+
+                <div class="section-heading">
+
+                    <span class="section-heading-icon">
+                        ☷
+                    </span>
+
+                    Meal Information
+
+                </div>
+
+
+                <p class="section-description">
+
+                    Fill in the details below
+                    to add a new meal to your plan.
+
+                </p>
+
+
+
+                <!-- =============================================
+                     MEAL TYPE
+                     ============================================= -->
+
+                <div class="form-group">
+
+
+                    <label asp-for="MealType"
+                           class="form-label-custom">
+
+                        <span class="field-icon">
+                            🍴
+                        </span>
+
+                        Meal Type
+
+                    </label>
+
+
+                    <div class="field-wrapper">
+
+
+                        <select asp-for="MealType"
+                                asp-items="Html.GetEnumSelectList<MealType>()"
+                                id="mealTypeSelect"
+                                class="form-select-custom">
+
+                            <option value="">
+                                Select meal type
+                            </option>
+
+                        </select>
+
+
+                    </div>
+
+
+                    <span asp-validation-for="MealType"
+                          class="validation-message">
+                    </span>
+
+
+                </div>
+
+
+
+                <!-- =============================================
+                     DISH
+                     ============================================= -->
+
+                <div class="form-group">
+
+
+                    <label asp-for="DishId"
+                           class="form-label-custom">
+
+                        <span class="field-icon">
+                            🍽
+                        </span>
+
+                        Dish
+
+                    </label>
+
+
+                    <div class="field-wrapper">
+
+
+                        <select asp-for="DishId"
+                                id="dishSelect"
+                                class="form-select-custom">
+
+                            <option value="">
+                                Select dish
+                            </option>
+
+
+                            @foreach (var dish in Model.Dishes)
+                            {
+                                <option value="@dish.Id">
+                                    @dish.Name
+                                </option>
+                            }
+
+
+                        </select>
+
+
+                    </div>
+
+
+                    <span asp-validation-for="DishId"
+                          class="validation-message">
+                    </span>
+
+
+                </div>
+
+
+
+                <!-- =============================================
+                     DAILY MENU / DATE
+                     ============================================= -->
+
+                <div class="form-group">
+
+
+                    <label asp-for="DailyMenuId"
+                           class="form-label-custom">
+
+                        <span class="field-icon">
+                            📅
+                        </span>
+
+                        Day
+
+                    </label>
+
+
+                    <div class="field-wrapper">
+
+
+                        <select asp-for="DailyMenuId"
+                                id="dailyMenuSelect"
+                                class="form-select-custom">
+
+                            <option value="">
+                                Select day
+                            </option>
+
+
+                            @foreach (var dailyMenu in Model.DailyMenus)
+                            {
+                                <option value="@dailyMenu.Id">
+                                    @dailyMenu.Name
+                                </option>
+                            }
+
+
+                        </select>
+
+
+                    </div>
+
+
+                    <span asp-validation-for="DailyMenuId"
+                          class="validation-message">
+                    </span>
+
+
+                </div>
+
+
+
+                <!-- INFO -->
+
+                <div class="help-box">
+
+                    <strong>How it works:</strong>
+
+                    choose one of your existing dishes,
+                    decide whether it will be breakfast,
+                    lunch or dinner, and select the
+                    Daily Menu where it should be added.
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 RIGHT SIDE
+                 ================================================= -->
+
+            <aside class="preview-card">
+
+
+                <div class="preview-heading">
+
+                    👁
+
+                    Meal Preview
+
+                </div>
+
+
+                <p class="preview-description">
+
+                    Here is a summary of your selection.
+
+                </p>
+
+
+
+                <!-- PLACEHOLDER IMAGE -->
+
+                <div class="preview-image-wrapper">
+
+
+                    <img src="~/images/DishesImages/unadded.png"
+                         class="preview-image"
+                         alt="Meal preview" />
+
+
+                </div>
+
+
+
+                <!-- SELECTED DISH -->
+
+                <div id="previewDishName"
+                     class="preview-title">
+
+                    Select a dish
+
+                </div>
+
+
+                <div class="preview-divider"></div>
+
+
+
+                <!-- MEAL TYPE -->
+
+                <div class="preview-row">
+
+
+                    <div class="preview-label">
+
+                        🍴 Meal Type
+
+                    </div>
+
+
+                    <div id="previewMealType"
+                         class="preview-value preview-empty">
+
+                        Not selected
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- DISH -->
+
+                <div class="preview-row">
+
+
+                    <div class="preview-label">
+
+                        🍽 Dish
+
+                    </div>
+
+
+                    <div id="previewDish"
+                         class="preview-value preview-empty">
+
+                        Not selected
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- DAY -->
+
+                <div class="preview-row">
+
+
+                    <div class="preview-label">
+
+                        📅 Day
+
+                    </div>
+
+
+                    <div id="previewDay"
+                         class="preview-value preview-empty">
+
+                        Not selected
+
+                    </div>
+
+
+                </div>
+
+
+            </aside>
+
+
+        </div>
+
+
+
+        <div class="form-divider"></div>
+
+
+
+        <!-- =================================================
+             BUTTONS
+             ================================================= -->
+
+        <div class="form-actions">
+
+
+            <a asp-controller="Meals"
+               asp-action="Index"
+               class="cancel-button">
+
+                Cancel
+
+            </a>
+
+
+            <button type="submit"
+                    class="submit-button">
+
+                ＋ Add Meal
+
+            </button>
+
+
+        </div>
+
+
+    </form>
+
+
+</div>
+
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+
+                const mealTypeSelect =
+                    document.getElementById(
+                        "mealTypeSelect"
+                    );
+
+
+                const dishSelect =
+                    document.getElementById(
+                        "dishSelect"
+                    );
+
+
+                const dailyMenuSelect =
+                    document.getElementById(
+                        "dailyMenuSelect"
+                    );
+
+
+                const previewMealType =
+                    document.getElementById(
+                        "previewMealType"
+                    );
+
+
+                const previewDish =
+                    document.getElementById(
+                        "previewDish"
+                    );
+
+
+                const previewDishName =
+                    document.getElementById(
+                        "previewDishName"
+                    );
+
+
+                const previewDay =
+                    document.getElementById(
+                        "previewDay"
+                    );
+
+
+
+                function getSelectedText(
+                    selectElement
+                ) {
+
+                    if (
+                        !selectElement.value
+                    ) {
+
+                        return null;
+
+                    }
+
+
+                    return selectElement
+                        .options[
+                            selectElement.selectedIndex
+                        ]
+                        .text
+                        .trim();
+
+                }
+
+
+
+                function updatePreview() {
+
+
+                    const mealType =
+                        getSelectedText(
+                            mealTypeSelect
+                        );
+
+
+                    const dish =
+                        getSelectedText(
+                            dishSelect
+                        );
+
+
+                    const day =
+                        getSelectedText(
+                            dailyMenuSelect
+                        );
+
+
+
+                    if (mealType) {
+
+                        previewMealType.textContent =
+                            mealType;
+
+                        previewMealType
+                            .classList
+                            .remove(
+                                "preview-empty"
+                            );
+
+                    }
+                    else {
+
+                        previewMealType.textContent =
+                            "Not selected";
+
+                        previewMealType
+                            .classList
+                            .add(
+                                "preview-empty"
+                            );
+
+                    }
+
+
+
+                    if (dish) {
+
+                        previewDish.textContent =
+                            dish;
+
+                        previewDishName.textContent =
+                            dish;
+
+                        previewDish
+                            .classList
+                            .remove(
+                                "preview-empty"
+                            );
+
+                    }
+                    else {
+
+                        previewDish.textContent =
+                            "Not selected";
+
+                        previewDishName.textContent =
+                            "Select a dish";
+
+                        previewDish
+                            .classList
+                            .add(
+                                "preview-empty"
+                            );
+
+                    }
+
+
+
+                    if (day) {
+
+                        previewDay.textContent =
+                            day;
+
+                        previewDay
+                            .classList
+                            .remove(
+                                "preview-empty"
+                            );
+
+                    }
+                    else {
+
+                        previewDay.textContent =
+                            "Not selected";
+
+                        previewDay
+                            .classList
+                            .add(
+                                "preview-empty"
+                            );
+
+                    }
+
+
+                }
+
+
+
+                mealTypeSelect.addEventListener(
+                    "change",
+                    updatePreview
+                );
+
+
+                dishSelect.addEventListener(
+                    "change",
+                    updatePreview
+                );
+
+
+                dailyMenuSelect.addEventListener(
+                    "change",
+                    updatePreview
+                );
+
+
+                updatePreview();
+
+
+            }
+        );
+
+    </script>
+
+}
