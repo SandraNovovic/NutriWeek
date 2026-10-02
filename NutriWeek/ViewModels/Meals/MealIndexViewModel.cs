@@ -1,4 +1,6 @@
-﻿namespace NutriWeek.ViewModels.Meals
+﻿using NutriWeek.Data.Models.Enums;
+
+namespace NutriWeek.ViewModels.Meals
 {
     public class MealIndexViewModel
     {
@@ -12,6 +14,6 @@
 
         public int Preparation { get; set; }
 
-
+        public MealType MealType { get; set; }
     }
 }
