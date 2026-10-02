@@ -41,16 +41,29 @@ namespace NutriWeek.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddDish(Dish dish) 
+        public IActionResult AddDish(AddDishViewModel model) 
         {
             try
             {
+                Dish dish = new Dish
+                {
+                    Name = model.Name,
+                    Description = model.Description,
+                    Ingredients = model.Ingredients,
+                    Instructions = model.Instructions,
+                    Calories = model.Calories,
+                    PreparationTime = model.PreparationTime,
+                    Portions = model.Portions,
+                    ImageUrl = model.ImageUrl,
+                    DishType = model.DishType
+                };
                 _dbContext.Dishes.Add(dish);
                 _dbContext.SaveChanges();
             }
             catch (Exception ex)
             {
-                return View(dish);
+
+                return View(model);
             }
 
             return RedirectToAction("Index");
