@@ -14,4 +14,10 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ViewModels\Meals\" />
+    <Folder Include="ViewModels\DailyMenus\" />
+    <Folder Include="ViewModels\WeeklyMenus\" />
+  </ItemGroup>
+
 </Project>

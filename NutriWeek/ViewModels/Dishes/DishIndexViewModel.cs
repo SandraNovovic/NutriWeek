@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NutriWeek.ViewModels.Dishes
 {
-    public class DishesIndexViewModel
+    public class DishIndexViewModel
     {
 
         public int Id { get; set; }
