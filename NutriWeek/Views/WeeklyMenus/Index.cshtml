@@ -1,38 +1,1511 @@
-﻿@using NutriWeek.Data.Models;
-@model IEnumerable<WeeklyMenu>
+﻿@using System.Globalization
+@using NutriWeek.ViewModels.WeeklyMenus
+@using NutriWeek.ViewModels.DailyMenus
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>All Weekly Menus</h1>
+@model IEnumerable<WeeklyMenuIndexViewModel>
 
-    <a href="#" class="btn btn-success">
-        Add Weekly Menu
-    </a>
-    <a href="#" class="btn btn-success">
-        Delete Weekly Menu
-    </a>
-</div>
+@{
+    ViewData["Title"] = "Weekly Menu";
 
-@foreach (var weeklyMenu in Model)
-{
-    <h3>@weeklyMenu.Id</h3>
+    List<WeeklyMenuIndexViewModel> weeklyMenus =
+        Model?
+            .OrderBy(w => w.StartDate)
+            .ToList()
+        ?? new List<WeeklyMenuIndexViewModel>();
 
-    <p>@weeklyMenu.WeekStartDate</p>
+    Dictionary<string, string> dishImages =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "Vegan Oatmeal", "/images/DishesImages/vegan_oatmeal.png" },
+            { "Vegetarian Pasta", "/images/DishesImages/vegetarian_pasta.png" },
+            { "Chicken Rice Bowl", "/images/DishesImages/chicken_rice_bowl.png" },
+            { "Salmon with Vegetables", "/images/DishesImages/salmon_with_vegetables.png" },
+            { "Lentil Soup", "/images/DishesImages/lentil_soup.png" }
+        };
+}
 
-    @foreach (var dailyMenu in weeklyMenu.DailyMenus)
-    {
-        <p>
-            <strong>@dailyMenu.Date</strong>
+<style>
 
-            @foreach (var meal in dailyMenu.Meals)
-            {
-            <p>
-                <strong>@meal.MealType:</strong>
-                @meal.Dish.Name
-                - @meal.Dish.Calories kcal
-            </p>
-            }
-        </p>
+    body > header,
+    body > footer {
+        display: none;
     }
 
-    <hr />
+    body {
+        margin: 0;
+        padding: 0;
+        background: #f7faf5;
+    }
+
+        body > .container {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+            body > .container > main {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+
+    /* =====================================================
+           NAVBAR
+           ===================================================== */
+
+    .nutri-navbar {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        width: 100%;
+        height: 74px;
+        display: flex;
+        align-items: center;
+        background: rgba(255,255,255,.97);
+        border-bottom: 1px solid #e7ece5;
+        box-shadow: 0 2px 10px rgba(0,0,0,.025);
+    }
+
+    .nav-content {
+        width: min(1420px, calc(100% - 50px));
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 28px;
+    }
+
+    .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #122017;
+        text-decoration: none;
+        font-size: 24px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+        .nav-brand:hover {
+            color: #122017;
+        }
+
+    .nav-brand-leaf {
+        color: #3c8b45;
+        font-size: 27px;
+    }
+
+    .nav-links {
+        margin-left: 22px;
+        margin-right: auto;
+        display: flex;
+        align-items: center;
+        gap: 31px;
+    }
+
+    .nav-link-custom {
+        position: relative;
+        padding: 27px 1px 23px;
+        color: #343c35;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+        .nav-link-custom:hover {
+            color: #32803a;
+        }
+
+        .nav-link-custom.active {
+            color: #32803a;
+            font-weight: 700;
+        }
+
+            .nav-link-custom.active::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 14px;
+                height: 3px;
+                border-radius: 10px;
+                background: #32803a;
+            }
+
+    .navbar-search {
+        width: 270px;
+        padding: 9px 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid #dde4da;
+        border-radius: 30px;
+        background: #fbfcfa;
+    }
+
+        .navbar-search input {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 13px;
+        }
+
+    .nav-user {
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: #eef4eb;
+        color: #456149;
+        font-size: 18px;
+    }
+
+
+    /* =====================================================
+           PAGE
+           ===================================================== */
+
+    .weekly-page {
+        position: relative;
+        left: 50%;
+        width: 100vw;
+        min-height: calc(100vh - 74px);
+        margin-left: -50vw;
+        padding: 30px 0 70px;
+        background-image: linear-gradient( rgba(250,252,247,.82), rgba(250,252,247,.90) ), url('@Url.Content("~/images/MealsImages/meals-background.png")');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+
+    .weekly-container {
+        width: min(1500px, calc(100% - 42px));
+        margin: 0 auto;
+    }
+
+    .page-header {
+        margin-bottom: 20px;
+    }
+
+    .page-title {
+        margin: 0 0 5px;
+        color: #173024;
+        font-family: Georgia, serif;
+        font-size: 48px;
+        font-weight: 700;
+    }
+
+    .page-subtitle {
+        margin: 0;
+        color: #59685d;
+        font-size: 15px;
+    }
+
+
+    /* =====================================================
+           WEEK TOOLBAR
+           ===================================================== */
+
+    .week-toolbar {
+        margin: 4px 0 18px;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .week-controls {
+        grid-column: 2;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .week-nav-btn {
+        width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #dce4da;
+        border-radius: 11px;
+        background: white;
+        color: #2f6f37;
+        font-size: 25px;
+        cursor: pointer;
+        transition: .2s ease;
+    }
+
+        .week-nav-btn:hover:not(:disabled) {
+            background: #f2f8ef;
+            transform: translateY(-1px);
+        }
+
+        .week-nav-btn:disabled {
+            opacity: .35;
+            cursor: default;
+        }
+
+    .week-picker {
+        min-width: 330px;
+        height: 42px;
+        padding: 0 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid #dce4da;
+        border-radius: 11px;
+        background: white;
+    }
+
+        .week-picker select {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: #243229;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+    .top-add-meal {
+        grid-column: 3;
+        justify-self: end;
+        padding: 12px 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border-radius: 11px;
+        background: linear-gradient( 90deg, #397f40, #4c9a52 );
+        color: white;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 800;
+        box-shadow: 0 7px 18px rgba(48,119,56,.18);
+        transition: .2s ease;
+    }
+
+        .top-add-meal:hover {
+            color: white;
+            transform: translateY(-1px);
+        }
+
+
+    /* =====================================================
+           SUMMARY
+           ===================================================== */
+
+    .week-panel {
+        display: none;
+    }
+
+        .week-panel.active {
+            display: block;
+        }
+
+    .summary-card {
+        margin-bottom: 18px;
+        padding: 16px 18px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        border: 1px solid #e3e9e0;
+        border-radius: 15px;
+        background: rgba(255,255,255,.95);
+        box-shadow: 0 4px 14px rgba(0,0,0,.025);
+    }
+
+    .summary-item {
+        min-height: 62px;
+        padding: 5px 28px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        border-right: 1px solid #e8ede6;
+    }
+
+        .summary-item:last-child {
+            border-right: none;
+        }
+
+    .summary-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        font-size: 24px;
+    }
+
+        .summary-icon.calories {
+            background: #fff0e5;
+        }
+
+        .summary-icon.time {
+            background: #eaf8e7;
+        }
+
+        .summary-icon.meals {
+            background: #f2ebff;
+        }
+
+        .summary-icon.portions {
+            background: #e8f3ff;
+        }
+
+    .summary-value {
+        color: #1e3024;
+        font-size: 19px;
+        font-weight: 900;
+    }
+
+    .summary-label {
+        margin-top: 4px;
+        color: #838d85;
+        font-size: 12px;
+    }
+
+
+    /* =====================================================
+           WEEK GRID
+           ===================================================== */
+
+    .week-grid-wrapper {
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
+
+    .week-grid {
+        min-width: 1260px;
+        display: grid;
+        grid-template-columns: repeat(7, minmax(165px, 1fr));
+        gap: 10px;
+    }
+
+    .day-column {
+        overflow: hidden;
+        border: 1px solid #dfe6dc;
+        border-radius: 16px;
+        background: rgba(255,255,255,.95);
+        box-shadow: 0 3px 11px rgba(0,0,0,.025);
+    }
+
+    .day-header {
+        padding: 14px 12px 12px;
+        border-bottom: 1px solid #edf0eb;
+        text-align: center;
+    }
+
+    .day-name {
+        color: #173024;
+        font-size: 15px;
+        font-weight: 900;
+    }
+
+    .day-date {
+        margin-top: 3px;
+        color: #758078;
+        font-size: 11px;
+    }
+
+    .day-stats {
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        color: #647068;
+        font-size: 10px;
+    }
+
+
+    /* =====================================================
+           MEALS
+           ===================================================== */
+
+    .week-meal-group {
+        margin: 8px;
+        overflow: hidden;
+        border: 1px solid #edf0eb;
+        border-radius: 12px;
+        background: white;
+    }
+
+    .week-meal-heading {
+        padding: 8px 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: 900;
+    }
+
+        .week-meal-heading.breakfast {
+            background: #fff2d9;
+            color: #986516;
+        }
+
+        .week-meal-heading.lunch {
+            background: #e9f7e5;
+            color: #39793f;
+        }
+
+        .week-meal-heading.dinner {
+            background: #e7f2ff;
+            color: #3478b9;
+        }
+
+    .week-meal-card {
+        overflow: hidden;
+        background: #fff;
+    }
+
+        .week-meal-card + .week-meal-card {
+            border-top: 1px solid #edf0eb;
+        }
+
+    .week-meal-image {
+        width: 100%;
+        height: 90px;
+        display: block;
+        object-fit: cover;
+        background: #f0f2ee;
+    }
+
+    .week-meal-body {
+        padding: 8px 9px 10px;
+    }
+
+    .week-meal-name {
+        color: #1c2a20;
+        font-size: 11px;
+        font-weight: 900;
+        line-height: 1.3;
+    }
+
+    .week-meal-meta {
+        margin-top: 7px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        color: #727d74;
+        font-size: 9px;
+    }
+
+    .empty-week-meal {
+        padding: 16px 8px;
+        color: #a0aaa2;
+        text-align: center;
+        font-size: 10px;
+    }
+
+    .day-footer {
+        padding: 10px 12px 13px;
+        border-top: 1px solid #edf0eb;
+        color: #68736b;
+        font-size: 10px;
+    }
+
+        .day-footer div + div {
+            margin-top: 4px;
+        }
+
+
+    /* =====================================================
+           BOTTOM ADD
+           ===================================================== */
+
+    .add-another {
+        margin-top: 16px;
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 13px;
+        border: 1px dashed #cfd9cc;
+        border-radius: 15px;
+        background: rgba(255,255,255,.75);
+        text-decoration: none;
+    }
+
+    .add-another-plus {
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #3f8b46;
+        color: white;
+        font-size: 24px;
+    }
+
+    .add-another-title {
+        display: block;
+        color: #49574d;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .add-another-subtitle {
+        display: block;
+        margin-top: 2px;
+        color: #949d96;
+        font-size: 10px;
+    }
+
+    .no-weeks {
+        padding: 70px 25px;
+        border: 1px solid #e1e8de;
+        border-radius: 18px;
+        background: rgba(255,255,255,.94);
+        text-align: center;
+        color: #707b73;
+    }
+
+
+    @@media (max-width: 1050px) {
+
+        .navbar-search {
+            display: none;
+        }
+
+        .summary-card {
+            grid-template-columns: repeat(2,1fr);
+        }
+
+        .summary-item:nth-child(2) {
+            border-right: none;
+        }
+    }
+
+
+    @@media (max-width: 760px) {
+
+        .nav-content,
+        .weekly-container {
+            width: calc(100% - 24px);
+        }
+
+        .nav-links {
+            display: none;
+        }
+
+        .week-toolbar {
+            grid-template-columns: 1fr;
+        }
+
+        .week-controls,
+        .top-add-meal {
+            grid-column: 1;
+        }
+
+        .week-controls {
+            width: 100%;
+        }
+
+        .week-picker {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .top-add-meal {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .summary-card {
+            grid-template-columns: 1fr;
+        }
+
+        .summary-item {
+            border-right: none;
+            border-bottom: 1px solid #e8ede6;
+        }
+
+            .summary-item:last-child {
+                border-bottom: none;
+            }
+    }
+
+</style>
+
+
+<!-- =====================================================
+     NAVBAR
+     ===================================================== -->
+
+<nav class="nutri-navbar">
+
+    <div class="nav-content">
+
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="nav-brand">
+
+            <span class="nav-brand-leaf">
+                🌿
+            </span>
+
+            NutriWeek
+
+        </a>
+
+
+        <div class="nav-links">
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="nav-link-custom">
+
+                Home
+
+            </a>
+
+            <a asp-controller="Dishes"
+               asp-action="Index"
+               class="nav-link-custom">
+
+                Dishes
+
+            </a>
+
+            <a asp-controller="DailyMenus"
+               asp-action="Index"
+               class="nav-link-custom">
+
+                Daily Menu
+
+            </a>
+
+            <a asp-controller="WeeklyMenus"
+               asp-action="Index"
+               class="nav-link-custom active">
+
+                Weekly Menu
+
+            </a>
+
+            <a asp-controller="Meals"
+               asp-action="Index"
+               class="nav-link-custom">
+
+                Meals
+
+            </a>
+
+        </div>
+
+
+        <div class="navbar-search">
+
+            🔍
+
+            <input type="text"
+                   placeholder="Search..." />
+
+        </div>
+
+
+        <div class="nav-user">
+            ♙
+        </div>
+
+
+    </div>
+
+</nav>
+
+
+<!-- =====================================================
+     PAGE
+     ===================================================== -->
+
+<div class="weekly-page">
+
+    <div class="weekly-container">
+
+
+        <div class="page-header">
+
+            <h1 class="page-title">
+                Weekly Menu
+            </h1>
+
+            <p class="page-subtitle">
+                Plan and organize your meals for the whole week.
+            </p>
+
+        </div>
+
+
+        @if (weeklyMenus.Any())
+        {
+
+            <div class="week-toolbar">
+
+
+                <div class="week-controls">
+
+
+                    <button id="previousWeek"
+                            type="button"
+                            class="week-nav-btn">
+
+                        ‹
+
+                    </button>
+
+
+                    <div class="week-picker">
+
+                        <span>
+                            📅
+                        </span>
+
+
+                        <select id="weeklyMenuSelect">
+
+
+                            @for (int i = 0;
+                                                    i < weeklyMenus.Count;
+                                                    i++)
+                            {
+                                WeeklyMenuIndexViewModel weeklyMenu =
+                                weeklyMenus[i];
+
+
+                                <option value="@i">
+
+                                    @weeklyMenu.StartDate.ToString(
+                                    "dd MMM",
+                                                        CultureInfo.InvariantCulture)
+
+                            -
+
+                            @weeklyMenu.StartDate.ToString(
+                                                        "dd MMM yyyy",
+                                                        CultureInfo.InvariantCulture)
+
+                        </option>
+                                                }
+
+
+                    </select>
+
+
+                </div>
+
+
+                <button id="nextWeek"
+                        type="button"
+                        class="week-nav-btn">
+
+                    ›
+
+                </button>
+
+
+            </div>
+
+
+            <a asp-controller="Meals"
+               asp-action="AddMeal"
+               class="top-add-meal">
+
+                ＋ Add Meal
+
+            </a>
+
+
+        </div>
+
+
+        @for (int weekIndex = 0;
+                weekIndex < weeklyMenus.Count;
+                weekIndex++)
+        {
+            WeeklyMenuIndexViewModel weeklyMenu =
+            weeklyMenus[weekIndex];
+
+
+            List<DailyMenuIndexViewModel> weekDays =
+            weeklyMenu.DailyMenus
+            .OrderBy(d => d.Date)
+            .ToList();
+
+
+            <section class="week-panel @(weekIndex == 0 ? "active" : "")"
+                     data-week-index="@weekIndex">
+
+
+                <!-- SUMMARY -->
+
+                <div class="summary-card">
+
+
+                    <div class="summary-item">
+
+                        <div class="summary-icon calories">
+                            🔥
+                        </div>
+
+                        <div>
+
+                            <div class="summary-value">
+                                @weeklyMenu.TotalCalories.ToString("N0")
+                            </div>
+
+                            <div class="summary-label">
+                                Total calories
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="summary-item">
+
+                        <div class="summary-icon time">
+                            ◷
+                        </div>
+
+                        <div>
+
+                            <div class="summary-value">
+                                @weeklyMenu.TotalPreparationTime min
+                            </div>
+
+                            <div class="summary-label">
+                                Total prep time
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="summary-item">
+
+                        <div class="summary-icon meals">
+                            🍽
+                        </div>
+
+                        <div>
+
+                            <div class="summary-value">
+                                @weeklyMenu.TotalMeals
+                            </div>
+
+                            <div class="summary-label">
+                                Total meals
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="summary-item">
+
+                        <div class="summary-icon portions">
+                            👥
+                        </div>
+
+                        <div>
+
+                            <div class="summary-value">
+                                @weeklyMenu.TotalPortions
+                            </div>
+
+                            <div class="summary-label">
+                                Total servings
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="week-grid-wrapper">
+
+                    <div class="week-grid">
+
+
+                        @for (int dayOffset = 0;
+                                            dayOffset < 7;
+                                            dayOffset++)
+                        {
+                            DateTime currentDate =
+                            weeklyMenu.StartDate
+                            .Date
+                            .AddDays(dayOffset);
+
+
+                            DailyMenuIndexViewModel? dailyMenu =
+                            weekDays.FirstOrDefault(
+                            d => d.Date.Date == currentDate
+                            );
+
+
+                            int dayCalories =
+                            dailyMenu?.Calories ?? 0;
+
+                            int dayTime =
+                            dailyMenu?.PreparationTime ?? 0;
+
+                            int dayMeals =
+                            dailyMenu?.TotalMeals ?? 0;
+
+                            int dayPortions =
+                            dailyMenu?.Portions ?? 0;
+
+
+                            <article class="day-column">
+
+
+                                <div class="day-header">
+
+
+                                    <div class="day-name">
+
+                                        @currentDate.ToString(
+                                        "dddd",
+                                                                CultureInfo.InvariantCulture)
+
+                            </div>
+
+
+                            <div class="day-date">
+
+                                @currentDate.ToString(
+                                                                "dd MMM yyyy",
+                                                                CultureInfo.InvariantCulture)
+
+                            </div>
+
+
+                            <div class="day-stats">
+
+                                <span>
+                                    🔥 @dayCalories kcal
+                                </span>
+
+                                <span>
+                                    ◷ @dayTime min
+                                </span>
+
+                            </div>
+
+
+                        </div>
+
+
+                        <!-- BREAKFAST -->
+
+                        <div class="week-meal-group">
+
+
+                            <div class="week-meal-heading breakfast">
+
+                                ☀ Breakfast
+
+                            </div>
+
+
+                            @if (dailyMenu != null &&
+                                                        dailyMenu.BreakfastMeals != null &&
+                                                        dailyMenu.BreakfastMeals.Any())
+                            {
+
+                                @foreach (
+                                                            DailyMenuMealViewModel meal
+                                                            in dailyMenu.BreakfastMeals)
+                                {
+                                    string imagePath;
+
+                                    if (!string.IsNullOrWhiteSpace(meal.ImageUrl))
+                                    {
+                                        imagePath = meal.ImageUrl;
+                                    }
+                                    else if (dishImages.ContainsKey(meal.DishName))
+                                    {
+                                        imagePath = dishImages[meal.DishName];
+                                    }
+                                    else
+                                    {
+                                        imagePath = "/images/DishesImages/unadded.png";
+                                    }
+
+
+                                    <div class="week-meal-card">
+
+
+                                        <img src="@imagePath"
+                                             alt="@meal.DishName"
+                                             class="week-meal-image"
+                                             onerror="this.onerror=null; this.src='/images/DishesImages/unadded.png';" />
+
+
+                                        <div class="week-meal-body">
+
+                                            <div class="week-meal-name">
+                                                @meal.DishName
+                                            </div>
+
+                                            <div class="week-meal-meta">
+
+                                                <span>
+                                                    🔥 @meal.Calories kcal
+                                                </span>
+
+                                                <span>
+                                                    ◷ @meal.PreparationTime min
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+
+                                    </div>
+                                }
+
+                            }
+                            else
+                            {
+
+                                <div class="empty-week-meal">
+                                    No breakfast
+                                </div>
+
+                            }
+
+
+                        </div>
+
+
+                        <!-- LUNCH -->
+
+                        <div class="week-meal-group">
+
+
+                            <div class="week-meal-heading lunch">
+
+                                🍴 Lunch
+
+                            </div>
+
+
+                            @if (dailyMenu != null &&
+                                                        dailyMenu.LunchMeals != null &&
+                                                        dailyMenu.LunchMeals.Any())
+                            {
+
+                                @foreach (
+                                                            DailyMenuMealViewModel meal
+                                                            in dailyMenu.LunchMeals)
+                                {
+                                    string imagePath;
+
+                                    if (!string.IsNullOrWhiteSpace(meal.ImageUrl))
+                                    {
+                                        imagePath = meal.ImageUrl;
+                                    }
+                                    else if (dishImages.ContainsKey(meal.DishName))
+                                    {
+                                        imagePath = dishImages[meal.DishName];
+                                    }
+                                    else
+                                    {
+                                        imagePath = "/images/DishesImages/unadded.png";
+                                    }
+
+
+                                    <div class="week-meal-card">
+
+
+                                        <img src="@imagePath"
+                                             alt="@meal.DishName"
+                                             class="week-meal-image"
+                                             onerror="this.onerror=null; this.src='/images/DishesImages/unadded.png';" />
+
+
+                                        <div class="week-meal-body">
+
+                                            <div class="week-meal-name">
+                                                @meal.DishName
+                                            </div>
+
+                                            <div class="week-meal-meta">
+
+                                                <span>
+                                                    🔥 @meal.Calories kcal
+                                                </span>
+
+                                                <span>
+                                                    ◷ @meal.PreparationTime min
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+
+                                    </div>
+                                }
+
+                            }
+                            else
+                            {
+
+                                <div class="empty-week-meal">
+                                    No lunch
+                                </div>
+
+                            }
+
+
+                        </div>
+
+
+                        <!-- DINNER -->
+
+                        <div class="week-meal-group">
+
+
+                            <div class="week-meal-heading dinner">
+
+                                ◔ Dinner
+
+                            </div>
+
+
+                            @if (dailyMenu != null &&
+                                                        dailyMenu.DinnerMeals != null &&
+                                                        dailyMenu.DinnerMeals.Any())
+                            {
+
+                                @foreach (
+                                                            DailyMenuMealViewModel meal
+                                                            in dailyMenu.DinnerMeals)
+                                {
+                                    string imagePath;
+
+                                    if (!string.IsNullOrWhiteSpace(meal.ImageUrl))
+                                    {
+                                        imagePath = meal.ImageUrl;
+                                    }
+                                    else if (dishImages.ContainsKey(meal.DishName))
+                                    {
+                                        imagePath = dishImages[meal.DishName];
+                                    }
+                                    else
+                                    {
+                                        imagePath = "/images/DishesImages/unadded.png";
+                                    }
+
+
+                                    <div class="week-meal-card">
+
+
+                                        <img src="@imagePath"
+                                             alt="@meal.DishName"
+                                             class="week-meal-image"
+                                             onerror="this.onerror=null; this.src='/images/DishesImages/unadded.png';" />
+
+
+                                        <div class="week-meal-body">
+
+                                            <div class="week-meal-name">
+                                                @meal.DishName
+                                            </div>
+
+                                            <div class="week-meal-meta">
+
+                                                <span>
+                                                    🔥 @meal.Calories kcal
+                                                </span>
+
+                                                <span>
+                                                    ◷ @meal.PreparationTime min
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+
+                                    </div>
+                                }
+
+                            }
+                            else
+                            {
+
+                                <div class="empty-week-meal">
+                                    No dinner
+                                </div>
+
+                            }
+
+
+                        </div>
+
+
+                        <div class="day-footer">
+
+                            <div>
+
+                                🍽 @dayMeals
+                                @(dayMeals == 1
+                                                                ? "meal"
+                                                                : "meals")
+
+                            </div>
+
+                            <div>
+
+                                👥 @dayPortions
+                                @(dayPortions == 1
+                                                                ? "serving"
+                                                                : "servings")
+
+                            </div>
+
+                        </div>
+
+
+                    </article>
+                                        }
+
+
+                </div>
+
+            </div>
+
+
+            <a asp-controller="Meals"
+               asp-action="AddMeal"
+               class="add-another">
+
+
+                <span class="add-another-plus">
+                    +
+                </span>
+
+
+                <span>
+
+                    <span class="add-another-title">
+                        Add a meal to your weekly menu
+                    </span>
+
+                    <span class="add-another-subtitle">
+                        Choose from your dishes and plan a balanced week.
+                    </span>
+
+                </span>
+
+
+            </a>
+
+
+        </section>
+                }
+
+                }
+                else
+        {
+
+            <div class="no-weeks">
+
+
+                <div style="font-size:42px; margin-bottom:12px;">
+                    📅
+                </div>
+
+
+                <h3>
+                    No weekly menus yet
+                </h3>
+
+
+                <p>
+                    Add a meal and your weekly menu will appear here.
+                </p>
+
+
+                <a asp-controller="Meals"
+                   asp-action="AddMeal"
+                   class="top-add-meal">
+
+                    ＋ Add Meal
+
+                </a>
+
+
+            </div>
+
+        }
+
+
+    </div>
+
+</div>
+
+
+@if (weeklyMenus.Any())
+{
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+
+                const weekSelect =
+                    document.getElementById(
+                        "weeklyMenuSelect"
+                    );
+
+
+                const previousButton =
+                    document.getElementById(
+                        "previousWeek"
+                    );
+
+
+                const nextButton =
+                    document.getElementById(
+                        "nextWeek"
+                    );
+
+
+                const panels =
+                    Array.from(
+                        document.querySelectorAll(
+                            ".week-panel"
+                        )
+                    );
+
+
+                let currentIndex = 0;
+
+
+                function showWeek(
+                    index
+                ) {
+
+
+                    if (
+                        index < 0 ||
+                        index >= panels.length
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    currentIndex =
+                        index;
+
+
+                    panels.forEach(
+                        function (
+                            panel,
+                            panelIndex
+                        ) {
+
+
+                            panel.classList.toggle(
+                                "active",
+                                panelIndex === currentIndex
+                            );
+
+
+                        }
+                    );
+
+
+                    weekSelect.value =
+                        currentIndex;
+
+
+                    previousButton.disabled =
+                        currentIndex === 0;
+
+
+                    nextButton.disabled =
+                        currentIndex ===
+                        panels.length - 1;
+
+
+                }
+
+
+                previousButton.addEventListener(
+                    "click",
+                    function () {
+
+
+                        showWeek(
+                            currentIndex - 1
+                        );
+
+
+                    }
+                );
+
+
+                nextButton.addEventListener(
+                    "click",
+                    function () {
+
+
+                        showWeek(
+                            currentIndex + 1
+                        );
+
+
+                    }
+                );
+
+
+                weekSelect.addEventListener(
+                    "change",
+                    function () {
+
+
+                        showWeek(
+                            Number(
+                                this.value
+                            )
+                        );
+
+
+                    }
+                );
+
+
+                showWeek(0);
+
+
+            }
+        );
+
+    </script>
+
 }
