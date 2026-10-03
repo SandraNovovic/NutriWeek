@@ -26,7 +26,7 @@ namespace NutriWeek.Controllers
                     StartDate = w.WeekStartDate,
                     TotalCalories = w.DailyMenus.SelectMany(d=>d.Meals).Sum(m=>m.Dish.Calories),
                     TotalPreparationTime = w.DailyMenus.SelectMany(d => d.Meals).Sum(m => m.Dish.PreparationTime),
-                    TotalMeals = w.DailyMenus.Sum(d => d.Meals.Count),
+                    TotalMeals = w.DailyMenus.SelectMany(d => d.Meals).Count(),
                     TotalPortions = w.DailyMenus.SelectMany(d => d.Meals).Sum(m => m.Dish.Portions),
                     DailyMenus = w.DailyMenus.OrderBy(d=>d.Date)
                     .Select(d => new DailyMenuIndexViewModel
