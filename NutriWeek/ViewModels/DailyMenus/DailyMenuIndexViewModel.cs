@@ -14,8 +14,8 @@
 
         public IEnumerable<DailyMenuMealViewModel> BreakfastMeals { get; set; } = new List<DailyMenuMealViewModel>();
 
-        public IEnumerable<DropdownViewModel> LunchMeals { get; set; } = new List<DropdownViewModel>();
+        public IEnumerable<DailyMenuMealViewModel> LunchMeals { get; set; } = new List<DailyMenuMealViewModel>();
 
-        public IEnumerable<DropdownViewModel> DinnerMeals { get; set; } = new List<DropdownViewModel>();
+        public IEnumerable<DailyMenuMealViewModel> DinnerMeals { get; set; } = new List<DailyMenuMealViewModel>();
     }
 }
