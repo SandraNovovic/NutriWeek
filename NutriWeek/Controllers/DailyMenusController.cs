@@ -91,6 +91,8 @@ namespace NutriWeek.Controllers
             return View(dailyMenus);
         }
 
+
+
         public IActionResult Details(int id)
         {
             return View();
