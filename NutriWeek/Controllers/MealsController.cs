@@ -57,8 +57,9 @@ namespace NutriWeek.Controllers
 
             return View(model);
         }
+
+
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult AddMeal(AddMealViewModel model)
         {
             if (!ModelState.IsValid)
