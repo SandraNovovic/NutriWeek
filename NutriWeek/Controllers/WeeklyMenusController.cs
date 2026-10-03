@@ -24,10 +24,10 @@ namespace NutriWeek.Controllers
                 {
                     Id = w.Id,
                     StartDate = w.WeekStartDate,
-                    TotalCalories = w.DailyMenus.Sum(d => d.Meals.Sum(m => m.Dish.Calories)),
-                    TotalPreparationTime = w.DailyMenus.Sum(d => d.Meals.Sum(m => m.Dish.PreparationTime)),
+                    TotalCalories = w.DailyMenus.SelectMany(d=>d.Meals).Sum(m=>m.Dish.Calories),
+                    TotalPreparationTime = w.DailyMenus.SelectMany(d => d.Meals).Sum(m => m.Dish.PreparationTime),
                     TotalMeals = w.DailyMenus.Sum(d => d.Meals.Count),
-                    TotalPortions = w.DailyMenus.Sum(d => d.Meals.Sum(m => m.Dish.Portions)),
+                    TotalPortions = w.DailyMenus.SelectMany(d => d.Meals).Sum(m => m.Dish.Portions),
                     DailyMenus = w.DailyMenus.OrderBy(d=>d.Date)
                     .Select(d => new DailyMenuIndexViewModel
                     {
