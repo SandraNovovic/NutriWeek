@@ -1,31 +1,1786 @@
-﻿@using NutriWeek.Data.Models;
-@model IEnumerable<DailyMenu>
+﻿@using System.Globalization
+@using NutriWeek.ViewModels.DailyMenus
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>All Daily Menus</h1>
+@model IEnumerable<DailyMenuIndexViewModel>
 
-    <a href="#" class="btn btn-success">
-        Add Daily Menu
-    </a>
-    <a href="#" class="btn btn-success">
-        Delete Daily Menu
-    </a>
-</div>
+@{
+    ViewData["Title"] = "Daily Menu";
 
-@foreach (var dailyMenu in Model)
-{
-    <h3>@dailyMenu.Id</h3>
+    List<DailyMenuIndexViewModel> dailyMenus =
+        Model?
+            .OrderBy(d => d.Date)
+            .ToList()
+        ?? new List<DailyMenuIndexViewModel>();
 
-    <p>@dailyMenu.Date.ToString("dd/MM/yyyy")</p>
+    Dictionary<string, string> dishImages =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "Vegan Oatmeal", "/images/DishesImages/vegan_oatmeal.png" },
+            { "Vegetarian Pasta", "/images/DishesImages/vegetarian_pasta.png" },
+            { "Chicken Rice Bowl", "/images/DishesImages/chicken_rice_bowl.png" },
+            { "Salmon with Vegetables", "/images/DishesImages/salmon_with_vegetables.png" },
+            { "Lentil Soup", "/images/DishesImages/lentil_soup.png" }
+        };
+}
 
-    @foreach (var meal in dailyMenu.Meals)
-    {
-        <p>
-            <strong>@meal.MealType:</strong>
-            @meal.Dish.Name
-            - @meal.Dish.Calories kcal
-        </p>
+<style>
+
+    /* =====================================================
+           DEFAULT MVC LAYOUT
+           ===================================================== */
+
+    body > header,
+    body > footer {
+        display: none;
     }
 
-    <hr />
+    body {
+        margin: 0;
+        padding: 0;
+        background: #f7faf5;
+    }
+
+        body > .container {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+            body > .container > main {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+
+    /* =====================================================
+           NAVBAR
+           ===================================================== */
+
+    .nutri-navbar {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        width: 100%;
+        height: 74px;
+        display: flex;
+        align-items: center;
+        background: rgba(255,255,255,.97);
+        border-bottom: 1px solid #e7ece5;
+        box-shadow: 0 2px 10px rgba(0,0,0,.025);
+    }
+
+    .nav-content {
+        width: min(1420px, calc(100% - 50px));
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 28px;
+    }
+
+    .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #122017;
+        text-decoration: none;
+        font-size: 24px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+        .nav-brand:hover {
+            color: #122017;
+        }
+
+    .nav-brand-leaf {
+        color: #3c8b45;
+        font-size: 27px;
+    }
+
+    .nav-links {
+        margin-left: 22px;
+        margin-right: auto;
+        display: flex;
+        align-items: center;
+        gap: 31px;
+    }
+
+    .nav-link-custom {
+        position: relative;
+        padding: 27px 1px 23px;
+        color: #343c35;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+        .nav-link-custom:hover {
+            color: #32803a;
+        }
+
+        .nav-link-custom.active {
+            color: #32803a;
+            font-weight: 700;
+        }
+
+            .nav-link-custom.active::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 14px;
+                height: 3px;
+                border-radius: 10px;
+                background: #32803a;
+            }
+
+    .navbar-search {
+        width: 270px;
+        padding: 9px 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid #dde4da;
+        border-radius: 30px;
+        background: #fbfcfa;
+    }
+
+        .navbar-search input {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 13px;
+        }
+
+    .nav-user {
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: #eef4eb;
+        color: #456149;
+        font-size: 18px;
+    }
+
+
+    /* =====================================================
+           PAGE
+           ===================================================== */
+
+    .daily-page {
+        position: relative;
+        left: 50%;
+        width: 100vw;
+        min-height: calc(100vh - 74px);
+        margin-left: -50vw;
+        padding: 30px 0 70px;
+        background-image: linear-gradient( rgba(250,252,247,.78), rgba(250,252,247,.88) ), url('@Url.Content("~/images/MealsImages/meals-background.png")');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+
+    .daily-container {
+        width: min(1380px, calc(100% - 50px));
+        margin: 0 auto;
+    }
+
+
+    /* =====================================================
+           HEADER
+           ===================================================== */
+
+    .page-header {
+        margin-bottom: 20px;
+    }
+
+    .page-title {
+        margin: 0 0 5px;
+        color: #173024;
+        font-family: Georgia, serif;
+        font-size: 48px;
+        font-weight: 700;
+    }
+
+    .page-subtitle {
+        margin: 0;
+        color: #59685d;
+        font-size: 15px;
+    }
+
+
+    /* =====================================================
+           DATE NAVIGATION
+           ===================================================== */
+
+    .date-toolbar {
+        margin: 4px 0 18px;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .date-controls {
+        grid-column: 2;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .date-nav-btn {
+        width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #dce4da;
+        border-radius: 11px;
+        background: white;
+        color: #2f6f37;
+        font-size: 25px;
+        cursor: pointer;
+        transition: .2s ease;
+    }
+
+        .date-nav-btn:hover:not(:disabled) {
+            background: #f2f8ef;
+            transform: translateY(-1px);
+        }
+
+        .date-nav-btn:disabled {
+            opacity: .35;
+            cursor: default;
+        }
+
+    .date-picker {
+        min-width: 330px;
+        height: 42px;
+        padding: 0 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid #dce4da;
+        border-radius: 11px;
+        background: white;
+    }
+
+        .date-picker select {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: #243229;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+    .top-add-meal {
+        grid-column: 3;
+        justify-self: end;
+        padding: 12px 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border-radius: 11px;
+        background: linear-gradient( 90deg, #397f40, #4c9a52 );
+        color: white;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 800;
+        box-shadow: 0 7px 18px rgba(48,119,56,.18);
+        transition: .2s ease;
+    }
+
+        .top-add-meal:hover {
+            color: white;
+            transform: translateY(-1px);
+        }
+
+
+    /* =====================================================
+           DAY PANEL
+           ===================================================== */
+
+    .day-panel {
+        display: none;
+    }
+
+        .day-panel.active {
+            display: block;
+        }
+
+
+    /* =====================================================
+           SUMMARY
+           ===================================================== */
+
+    .summary-card {
+        margin-bottom: 18px;
+        padding: 16px 18px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        border: 1px solid #e3e9e0;
+        border-radius: 15px;
+        background: rgba(255,255,255,.95);
+        box-shadow: 0 4px 14px rgba(0,0,0,.025);
+    }
+
+    .summary-item {
+        min-height: 62px;
+        padding: 5px 28px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        border-right: 1px solid #e8ede6;
+    }
+
+        .summary-item:last-child {
+            border-right: none;
+        }
+
+    .summary-icon {
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 24px;
+    }
+
+        .summary-icon.calories {
+            background: #fff0e5;
+        }
+
+        .summary-icon.time {
+            background: #eaf8e7;
+        }
+
+        .summary-icon.meals {
+            background: #f2ebff;
+        }
+
+        .summary-icon.portions {
+            background: #e8f3ff;
+        }
+
+    .summary-value {
+        color: #1e3024;
+        font-size: 19px;
+        font-weight: 900;
+        line-height: 1.1;
+    }
+
+    .summary-label {
+        margin-top: 4px;
+        color: #838d85;
+        font-size: 12px;
+    }
+
+
+    /* =====================================================
+           MEAL SECTIONS
+           ===================================================== */
+
+    .meal-section {
+        margin-bottom: 16px;
+        overflow: hidden;
+        border: 1px solid #e2e8df;
+        border-radius: 15px;
+        background: rgba(255,255,255,.96);
+        box-shadow: 0 4px 13px rgba(0,0,0,.025);
+    }
+
+    .meal-section-header {
+        min-height: 57px;
+        padding: 11px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+        .meal-section-header.breakfast {
+            background: linear-gradient( 90deg, #fff4df, #fff8ee );
+        }
+
+        .meal-section-header.lunch {
+            background: linear-gradient( 90deg, #eaf8e5, #f2faed );
+        }
+
+        .meal-section-header.dinner {
+            background: linear-gradient( 90deg, #e9f4ff, #f0f7ff );
+        }
+
+    .meal-section-title {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #173024;
+        font-family: Georgia, serif;
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .meal-section-icon {
+        font-family: Arial, sans-serif;
+        font-size: 25px;
+    }
+
+    .section-summary {
+        color: #5f6961;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+
+    /* =====================================================
+           MEAL ROW
+           ===================================================== */
+
+    .meal-row {
+        padding: 13px 18px;
+        display: grid;
+        grid-template-columns: 230px minmax(0,1fr) auto;
+        align-items: center;
+        gap: 20px;
+        border-top: 1px solid #edf0eb;
+    }
+
+    .meal-image {
+        width: 230px;
+        height: 132px;
+        object-fit: cover;
+        border-radius: 12px;
+        background: #f1f1ef;
+    }
+
+    .meal-info {
+        min-width: 0;
+    }
+
+    .meal-name {
+        margin-bottom: 8px;
+        color: #173024;
+        font-size: 18px;
+        font-weight: 900;
+    }
+
+    .meal-tags {
+        margin-bottom: 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+    }
+
+    .meal-tag {
+        padding: 4px 10px;
+        border-radius: 20px;
+        background: #edf6e9;
+        color: #33713b;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+        .meal-tag.breakfast-tag {
+            background: #fff1d9;
+            color: #a96f12;
+        }
+
+        .meal-tag.lunch-tag {
+            background: #f1f7e9;
+            color: #49814d;
+        }
+
+        .meal-tag.dinner-tag {
+            background: #e7f2ff;
+            color: #347fc1;
+        }
+
+    .meal-description {
+        margin-bottom: 12px;
+        color: #7b857d;
+        font-size: 12px;
+        line-height: 1.45;
+    }
+
+    .meal-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 22px;
+        color: #5c665e;
+        font-size: 12px;
+    }
+
+    .meal-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .meal-action {
+        padding: 10px 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        border: 1px solid #d9e0d6;
+        border-radius: 9px;
+        background: #fff;
+        color: #435849;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+        .meal-action:hover {
+            background: #f4f8f2;
+            color: #315e37;
+        }
+
+        .meal-action.delete {
+            width: 42px;
+            padding-left: 0;
+            padding-right: 0;
+            color: #d85050;
+            border-color: #ecd6d6;
+        }
+
+    .empty-meal {
+        padding: 28px;
+        border-top: 1px solid #edf0eb;
+        color: #8b958d;
+        text-align: center;
+        font-size: 13px;
+    }
+
+
+    /* =====================================================
+           ADD ANOTHER
+           ===================================================== */
+
+    .add-another {
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 13px;
+        border: 1px dashed #cfd9cc;
+        border-radius: 15px;
+        background: rgba(255,255,255,.75);
+        text-decoration: none;
+    }
+
+        .add-another:hover {
+            background: rgba(255,255,255,.95);
+        }
+
+    .add-another-plus {
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #3f8b46;
+        color: white;
+        font-size: 24px;
+    }
+
+    .add-another-title {
+        display: block;
+        color: #49574d;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .add-another-subtitle {
+        display: block;
+        margin-top: 2px;
+        color: #949d96;
+        font-size: 10px;
+    }
+
+
+    /* =====================================================
+           EMPTY PAGE
+           ===================================================== */
+
+    .no-days {
+        padding: 70px 25px;
+        border: 1px solid #e1e8de;
+        border-radius: 18px;
+        background: rgba(255,255,255,.94);
+        text-align: center;
+        color: #707b73;
+    }
+
+    .no-days-icon {
+        margin-bottom: 12px;
+        font-size: 42px;
+    }
+
+
+    /* =====================================================
+           RESPONSIVE
+           ===================================================== */
+
+    @@media (max-width: 1050px) {
+
+        .navbar-search {
+            display: none;
+        }
+
+        .summary-card {
+            grid-template-columns: repeat(2,1fr);
+        }
+
+        .summary-item:nth-child(2) {
+            border-right: none;
+        }
+
+        .meal-row {
+            grid-template-columns: 180px minmax(0,1fr);
+        }
+
+        .meal-image {
+            width: 180px;
+            height: 115px;
+        }
+
+        .meal-actions {
+            grid-column: 2;
+        }
+    }
+
+
+    @@media (max-width: 760px) {
+
+        .nav-content,
+        .daily-container {
+            width: calc(100% - 24px);
+        }
+
+        .nav-links {
+            display: none;
+        }
+
+        .date-toolbar {
+            grid-template-columns: 1fr;
+        }
+
+        .date-controls,
+        .top-add-meal {
+            grid-column: 1;
+        }
+
+        .date-controls {
+            width: 100%;
+        }
+
+        .date-picker {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .top-add-meal {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .summary-card {
+            grid-template-columns: 1fr;
+        }
+
+        .summary-item {
+            border-right: none;
+            border-bottom: 1px solid #e8ede6;
+        }
+
+            .summary-item:last-child {
+                border-bottom: none;
+            }
+
+        .meal-row {
+            grid-template-columns: 1fr;
+        }
+
+        .meal-image {
+            width: 100%;
+            height: 210px;
+        }
+
+        .meal-actions {
+            grid-column: 1;
+        }
+
+        .section-summary {
+            display: none;
+        }
+    }
+
+</style>
+
+
+<!-- =====================================================
+     NAVBAR
+     ===================================================== -->
+
+<nav class="nutri-navbar">
+
+    <div class="nav-content">
+
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="nav-brand">
+
+            <span class="nav-brand-leaf">
+                🌿
+            </span>
+
+            NutriWeek
+
+        </a>
+
+
+        <div class="nav-links">
+
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="nav-link-custom">
+
+                Home
+
+            </a>
+
+
+            <a asp-controller="Dishes"
+               asp-action="Index"
+               class="nav-link-custom">
+
+                Dishes
+
+            </a>
+
+
+            <a asp-controller="DailyMenus"
+               asp-action="Index"
+               class="nav-link-custom active">
+
+                Daily Menu
+
+            </a>
+
+
+            <a asp-controller="WeeklyMenus"
+               asp-action="Index"
+               class="nav-link-custom">
+
+                Weekly Menu
+
+            </a>
+
+
+            <a asp-controller="Meals"
+               asp-action="Index"
+               class="nav-link-custom">
+
+                Meals
+
+            </a>
+
+
+        </div>
+
+
+        <div class="navbar-search">
+
+            🔍
+
+            <input type="text"
+                   placeholder="Search..." />
+
+        </div>
+
+
+        <div class="nav-user">
+            ♙
+        </div>
+
+
+    </div>
+
+</nav>
+
+
+<!-- =====================================================
+     PAGE
+     ===================================================== -->
+
+<div class="daily-page">
+
+    <div class="daily-container">
+
+
+        <div class="page-header">
+
+            <h1 class="page-title">
+                Daily Menu
+            </h1>
+
+            <p class="page-subtitle">
+                Plan and organize your meals for each day.
+            </p>
+
+        </div>
+
+
+        @if (dailyMenus.Any())
+        {
+
+            <!-- DATE NAVIGATION -->
+
+            <div class="date-toolbar">
+
+
+                <div class="date-controls">
+
+
+                    <button id="previousDay"
+                            type="button"
+                            class="date-nav-btn">
+
+                        ‹
+
+                    </button>
+
+
+                    <div class="date-picker">
+
+                        <span>
+                            📅
+                        </span>
+
+
+                        <select id="dailyMenuDateSelect">
+
+
+                            @for (int i = 0;
+                                                    i < dailyMenus.Count;
+                                                    i++)
+                            {
+                                DailyMenuIndexViewModel dailyMenu =
+                                dailyMenus[i];
+
+
+                                <option value="@i">
+
+                                    @dailyMenu.Date.ToString(
+                                    "dddd, dd MMMM yyyy",
+                                                        CultureInfo.InvariantCulture)
+
+                        </option>
+                                                }
+
+
+                    </select>
+
+
+                </div>
+
+
+                <button id="nextDay"
+                        type="button"
+                        class="date-nav-btn">
+
+                    ›
+
+                </button>
+
+
+            </div>
+
+
+            <a asp-controller="Meals"
+               asp-action="AddMeal"
+               class="top-add-meal">
+
+                ＋ Add Meal
+
+            </a>
+
+
+        </div>
+
+
+        @for (int dayIndex = 0;
+                dayIndex < dailyMenus.Count;
+                dayIndex++)
+        {
+            DailyMenuIndexViewModel dailyMenu =
+            dailyMenus[dayIndex];
+
+
+            int breakfastCalories =
+            dailyMenu.BreakfastMeals
+            .Sum(m => m.Calories);
+
+            int breakfastTime =
+            dailyMenu.BreakfastMeals
+            .Sum(m => m.PreparationTime);
+
+            int breakfastPortions =
+            dailyMenu.BreakfastMeals
+            .Sum(m => m.Portions);
+
+
+            int lunchCalories =
+            dailyMenu.LunchMeals
+            .Sum(m => m.Calories);
+
+            int lunchTime =
+            dailyMenu.LunchMeals
+            .Sum(m => m.PreparationTime);
+
+            int lunchPortions =
+            dailyMenu.LunchMeals
+            .Sum(m => m.Portions);
+
+
+            int dinnerCalories =
+            dailyMenu.DinnerMeals
+            .Sum(m => m.Calories);
+
+            int dinnerTime =
+            dailyMenu.DinnerMeals
+            .Sum(m => m.PreparationTime);
+
+            int dinnerPortions =
+            dailyMenu.DinnerMeals
+            .Sum(m => m.Portions);
+
+
+            <section class="day-panel @(dayIndex == 0 ? "active" : "")"
+                     data-day-index="@dayIndex">
+
+
+                <!-- SUMMARY -->
+
+                <div class="summary-card">
+
+
+                    <div class="summary-item">
+
+                        <div class="summary-icon calories">
+                            🔥
+                        </div>
+
+                        <div>
+
+                            <div class="summary-value">
+                                @dailyMenu.Calories.ToString("N0")
+                            </div>
+
+                            <div class="summary-label">
+                                Total calories
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="summary-item">
+
+                        <div class="summary-icon time">
+                            ◷
+                        </div>
+
+                        <div>
+
+                            <div class="summary-value">
+                                @dailyMenu.PreparationTime min
+                            </div>
+
+                            <div class="summary-label">
+                                Total prep time
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="summary-item">
+
+                        <div class="summary-icon meals">
+                            🍽
+                        </div>
+
+                        <div>
+
+                            <div class="summary-value">
+                                @dailyMenu.TotalMeals
+                            </div>
+
+                            <div class="summary-label">
+                                Meals
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="summary-item">
+
+                        <div class="summary-icon portions">
+                            👥
+                        </div>
+
+                        <div>
+
+                            <div class="summary-value">
+                                @dailyMenu.Portions
+                            </div>
+
+                            <div class="summary-label">
+                                Total servings
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- BREAKFAST -->
+
+                <section class="meal-section">
+
+
+                    <div class="meal-section-header breakfast">
+
+
+                        <h2 class="meal-section-title">
+
+                            <span class="meal-section-icon">
+                                ☀
+                            </span>
+
+                            Breakfast
+
+                        </h2>
+
+
+                        <div class="section-summary">
+
+                            @breakfastCalories kcal
+
+                            &nbsp; | &nbsp;
+
+                            @breakfastTime min
+
+                            &nbsp; | &nbsp;
+
+                            @breakfastPortions
+                            @(breakfastPortions == 1
+                                                    ? "serving"
+                                                    : "servings")
+
+                    </div>
+
+
+                    </div>
+
+
+                @if (dailyMenu.BreakfastMeals.Any())
+                    {
+
+                        @foreach (
+                                        DailyMenuMealViewModel meal
+                                        in dailyMenu.BreakfastMeals)
+                        {
+                            string imagePath;
+
+                            if (!string.IsNullOrWhiteSpace(meal.ImageUrl))
+                            {
+                                imagePath = meal.ImageUrl;
+                            }
+                            else if (dishImages.ContainsKey(meal.DishName))
+                            {
+                                imagePath = dishImages[meal.DishName];
+                            }
+                            else
+                            {
+                                imagePath = "/images/DishesImages/unadded.png";
+                            }
+
+
+                        <div class="meal-row">
+
+
+                            <img src="@imagePath"
+                                 alt="@meal.DishName"
+                                 class="meal-image"
+                                 onerror="this.onerror=null; this.src='/images/DishesImages/unadded.png';" />
+
+
+                            <div class="meal-info">
+
+
+                                <div class="meal-name">
+                                    @meal.DishName
+                                </div>
+
+
+                                <div class="meal-tags">
+
+                                    <span class="meal-tag">
+                                        @meal.DishType
+                                    </span>
+
+                                    <span class="meal-tag breakfast-tag">
+                                        Breakfast
+                                    </span>
+
+                                </div>
+
+
+                                <div class="meal-description">
+                                    @meal.Description
+                                </div>
+
+
+                                <div class="meal-meta">
+
+                                    <span>
+                                        🔥 @meal.Calories kcal
+                                    </span>
+
+                                    <span>
+                                        ◷ @meal.PreparationTime min
+                                    </span>
+
+                                    <span>
+
+                                        👥 @meal.Portions
+
+                                        @(meal.Portions == 1
+                                                                        ? "serving"
+                                                                        : "servings")
+
+                            </span>
+
+                                    </div>
+
+
+                                </div>
+
+
+                                <div class="meal-actions">
+
+
+                                    <a asp-controller="Meals"
+                                       asp-action="Edit"
+                                       asp-route-id="@meal.MealId"
+                                       class="meal-action">
+
+                                        ✎ Edit
+
+                                    </a>
+
+
+                                    <a asp-controller="Meals"
+                                       asp-action="Delete"
+                                       asp-route-id="@meal.MealId"
+                                       class="meal-action delete">
+
+                                        🗑
+
+                                    </a>
+
+
+                                </div>
+
+
+                            </div>
+                                }
+
+                    }
+                    else
+                    {
+
+                        <div class="empty-meal">
+                            No breakfast added for this day.
+                        </div>
+
+                    }
+
+
+            </section>
+
+
+            <!-- LUNCH -->
+
+            <section class="meal-section">
+
+
+                <div class="meal-section-header lunch">
+
+
+                    <h2 class="meal-section-title">
+
+                        <span class="meal-section-icon">
+                            🍴
+                        </span>
+
+                        Lunch
+
+                    </h2>
+
+
+                    <div class="section-summary">
+
+                        @lunchCalories kcal
+
+                        &nbsp; | &nbsp;
+
+                        @lunchTime min
+
+                        &nbsp; | &nbsp;
+
+                        @lunchPortions
+                        @(lunchPortions == 1
+                                                ? "serving"
+                                                : "servings")
+
+                    </div>
+
+
+                    </div>
+
+
+                @if (dailyMenu.LunchMeals.Any())
+                    {
+
+                        @foreach (
+                                        DailyMenuMealViewModel meal
+                                        in dailyMenu.LunchMeals)
+                        {
+                            string imagePath;
+
+                            if (!string.IsNullOrWhiteSpace(meal.ImageUrl))
+                            {
+                                imagePath = meal.ImageUrl;
+                            }
+                            else if (dishImages.ContainsKey(meal.DishName))
+                            {
+                                imagePath = dishImages[meal.DishName];
+                            }
+                            else
+                            {
+                                imagePath = "/images/DishesImages/unadded.png";
+                            }
+
+
+                        <div class="meal-row">
+
+
+                            <img src="@imagePath"
+                                 alt="@meal.DishName"
+                                 class="meal-image"
+                                 onerror="this.onerror=null; this.src='/images/DishesImages/unadded.png';" />
+
+
+                            <div class="meal-info">
+
+
+                                <div class="meal-name">
+                                    @meal.DishName
+                                </div>
+
+
+                                <div class="meal-tags">
+
+                                    <span class="meal-tag">
+                                        @meal.DishType
+                                    </span>
+
+                                    <span class="meal-tag lunch-tag">
+                                        Lunch
+                                    </span>
+
+                                </div>
+
+
+                                <div class="meal-description">
+                                    @meal.Description
+                                </div>
+
+
+                                <div class="meal-meta">
+
+                                    <span>
+                                        🔥 @meal.Calories kcal
+                                    </span>
+
+                                    <span>
+                                        ◷ @meal.PreparationTime min
+                                    </span>
+
+                                    <span>
+
+                                        👥 @meal.Portions
+
+                                        @(meal.Portions == 1
+                                                                        ? "serving"
+                                                                        : "servings")
+
+                            </span>
+
+                                    </div>
+
+
+                                </div>
+
+
+                                <div class="meal-actions">
+
+
+                                    <a asp-controller="Meals"
+                                       asp-action="Edit"
+                                       asp-route-id="@meal.MealId"
+                                       class="meal-action">
+
+                                        ✎ Edit
+
+                                    </a>
+
+
+                                    <a asp-controller="Meals"
+                                       asp-action="Delete"
+                                       asp-route-id="@meal.MealId"
+                                       class="meal-action delete">
+
+                                        🗑
+
+                                    </a>
+
+
+                                </div>
+
+
+                            </div>
+                                }
+
+                    }
+                    else
+                    {
+
+                        <div class="empty-meal">
+                            No lunch added for this day.
+                        </div>
+
+                    }
+
+
+            </section>
+
+
+            <!-- DINNER -->
+
+            <section class="meal-section">
+
+
+                <div class="meal-section-header dinner">
+
+
+                    <h2 class="meal-section-title">
+
+                        <span class="meal-section-icon">
+                            ◔
+                        </span>
+
+                        Dinner
+
+                    </h2>
+
+
+                    <div class="section-summary">
+
+                        @dinnerCalories kcal
+
+                        &nbsp; | &nbsp;
+
+                        @dinnerTime min
+
+                        &nbsp; | &nbsp;
+
+                        @dinnerPortions
+                        @(dinnerPortions == 1
+                                                ? "serving"
+                                                : "servings")
+
+                    </div>
+
+
+                    </div>
+
+
+                @if (dailyMenu.DinnerMeals.Any())
+                    {
+
+                        @foreach (
+                                        DailyMenuMealViewModel meal
+                                        in dailyMenu.DinnerMeals)
+                        {
+                            string imagePath;
+
+                            if (!string.IsNullOrWhiteSpace(meal.ImageUrl))
+                            {
+                                imagePath = meal.ImageUrl;
+                            }
+                            else if (dishImages.ContainsKey(meal.DishName))
+                            {
+                                imagePath = dishImages[meal.DishName];
+                            }
+                            else
+                            {
+                                imagePath = "/images/DishesImages/unadded.png";
+                            }
+
+
+                        <div class="meal-row">
+
+
+                            <img src="@imagePath"
+                                 alt="@meal.DishName"
+                                 class="meal-image"
+                                 onerror="this.onerror=null; this.src='/images/DishesImages/unadded.png';" />
+
+
+                            <div class="meal-info">
+
+
+                                <div class="meal-name">
+                                    @meal.DishName
+                                </div>
+
+
+                                <div class="meal-tags">
+
+                                    <span class="meal-tag">
+                                        @meal.DishType
+                                    </span>
+
+                                    <span class="meal-tag dinner-tag">
+                                        Dinner
+                                    </span>
+
+                                </div>
+
+
+                                <div class="meal-description">
+                                    @meal.Description
+                                </div>
+
+
+                                <div class="meal-meta">
+
+                                    <span>
+                                        🔥 @meal.Calories kcal
+                                    </span>
+
+                                    <span>
+                                        ◷ @meal.PreparationTime min
+                                    </span>
+
+                                    <span>
+
+                                        👥 @meal.Portions
+
+                                        @(meal.Portions == 1
+                                                                        ? "serving"
+                                                                        : "servings")
+
+                            </span>
+
+                                    </div>
+
+
+                                </div>
+
+
+                                <div class="meal-actions">
+
+
+                                    <a asp-controller="Meals"
+                                       asp-action="Edit"
+                                       asp-route-id="@meal.MealId"
+                                       class="meal-action">
+
+                                        ✎ Edit
+
+                                    </a>
+
+
+                                    <a asp-controller="Meals"
+                                       asp-action="Delete"
+                                       asp-route-id="@meal.MealId"
+                                       class="meal-action delete">
+
+                                        🗑
+
+                                    </a>
+
+
+                                </div>
+
+
+                            </div>
+                                }
+
+                    }
+                    else
+                    {
+
+                        <div class="empty-meal">
+                            No dinner added for this day.
+                        </div>
+
+                    }
+
+
+                </section>
+
+
+                <!-- ADD ANOTHER -->
+
+                <a asp-controller="Meals"
+                   asp-action="AddMeal"
+                   class="add-another">
+
+
+                    <span class="add-another-plus">
+                        +
+                    </span>
+
+
+                    <span>
+
+                        <span class="add-another-title">
+                            Add another meal to this day
+                        </span>
+
+                        <span class="add-another-subtitle">
+                            Choose from your dishes and plan your perfect menu.
+                        </span>
+
+                    </span>
+
+
+                </a>
+
+
+            </section>
+        }
+
+                }
+                else
+        {
+
+            <div class="no-days">
+
+
+                <div class="no-days-icon">
+                    📅
+                </div>
+
+
+                <h3>
+                    No daily menus yet
+                </h3>
+
+
+                <p>
+                    Add your first meal and your daily menu will appear here.
+                </p>
+
+
+                <a asp-controller="Meals"
+                   asp-action="AddMeal"
+                   class="top-add-meal">
+
+                    ＋ Add Meal
+
+                </a>
+
+
+            </div>
+
+        }
+
+
+    </div>
+
+</div>
+
+
+@if (dailyMenus.Any())
+{
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+
+                const dateSelect =
+                    document.getElementById(
+                        "dailyMenuDateSelect"
+                    );
+
+
+                const previousButton =
+                    document.getElementById(
+                        "previousDay"
+                    );
+
+
+                const nextButton =
+                    document.getElementById(
+                        "nextDay"
+                    );
+
+
+                const panels =
+                    Array.from(
+                        document.querySelectorAll(
+                            ".day-panel"
+                        )
+                    );
+
+
+                let currentIndex = 0;
+
+
+                function showDay(
+                    index
+                ) {
+
+
+                    if (
+                        index < 0 ||
+                        index >= panels.length
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    currentIndex =
+                        index;
+
+
+                    panels.forEach(
+                        function (
+                            panel,
+                            panelIndex
+                        ) {
+
+
+                            panel.classList.toggle(
+                                "active",
+                                panelIndex === currentIndex
+                            );
+
+
+                        }
+                    );
+
+
+                    dateSelect.value =
+                        currentIndex;
+
+
+                    previousButton.disabled =
+                        currentIndex === 0;
+
+
+                    nextButton.disabled =
+                        currentIndex ===
+                        panels.length - 1;
+
+
+                }
+
+
+                previousButton.addEventListener(
+                    "click",
+                    function () {
+
+
+                        showDay(
+                            currentIndex - 1
+                        );
+
+
+                    }
+                );
+
+
+                nextButton.addEventListener(
+                    "click",
+                    function () {
+
+
+                        showDay(
+                            currentIndex + 1
+                        );
+
+
+                    }
+                );
+
+
+                dateSelect.addEventListener(
+                    "change",
+                    function () {
+
+
+                        showDay(
+                            Number(
+                                this.value
+                            )
+                        );
+
+
+                    }
+                );
+
+
+                showDay(0);
+
+
+            }
+        );
+
+    </script>
+
 }
