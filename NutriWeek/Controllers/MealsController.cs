@@ -5,7 +5,7 @@ using NutriWeek.Data.Models;
 using NutriWeek.Data.Models.Enums;
 using NutriWeek.ViewModels;
 using NutriWeek.ViewModels.Meals;
-
+using static NutriWeek.Data.TempDateMessages;
 namespace NutriWeek.Controllers
 {
     public class MealsController : Controller
@@ -106,7 +106,7 @@ namespace NutriWeek.Controllers
 
                     _dbContext.DailyMenus.Add(dailyMenu);
                     _dbContext.SaveChanges();
-                    TempData["SuccessMessage"] = "Daily menu created successfully!";
+                    TempData["SuccessMessage"] = AddDailyMenuSuccessMessage;
                 }
 
 
@@ -120,13 +120,13 @@ namespace NutriWeek.Controllers
 
                 _dbContext.Meals.Add(meal);
                 _dbContext.SaveChanges();
-                TempData["SuccessMessage"] = "Meal added successfully!";
+                TempData["SuccessMessage"] = AddMealSuccessMessage;
             }
             catch (Exception ex)
             {
                 model.Dishes = LoadDishes();
 
-                TempData["ErrorMessage"] = $"An error occurred while adding the meal: {ex.Message}";
+                TempData["ErrorMessage"] = AddMealErrorMessage;
                 return View(model);
             }
 
