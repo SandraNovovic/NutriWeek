@@ -39,24 +39,25 @@ namespace NutriWeek.Controllers
         [HttpGet]
         public IActionResult AddDish()
         {
-            IEnumerable<DropdownViewModel> dishTypes = Enum.GetValues<DishType>()
-                .Select(dt => new DropdownViewModel
-                {
-                    Id = (int)dt,
-                    Name = dt.ToString()
-                })
-                .ToList();
 
-            AddDishViewModel model = new AddDishViewModel
+
+            AddDishViewModel DishTypes = new AddDishViewModel
             {
-                DishTypes = dishTypes,
+                DishTypes = LoadDishTypes()
             };
-            return View(model);
+            return View(DishTypes);
         }
 
         [HttpPost]
         public IActionResult AddDish(AddDishViewModel model) 
         {
+            if (!ModelState.IsValid)
+            {
+                model.DishTypes = LoadDishTypes();
+                return View(model);
+            }
+
+
             try
             {
                 Dish dish = new Dish
@@ -73,10 +74,11 @@ namespace NutriWeek.Controllers
                 };
                 _dbContext.Dishes.Add(dish);
                 _dbContext.SaveChanges();
+                TempData["SuccessMessage"] = "Dish added successfully!";
             }
             catch (Exception ex)
             {
-
+                TempData["ErrorMessage"] = $"An error occurred while adding the dish: {ex.Message}";
                 return View(model);
             }
 
@@ -85,6 +87,17 @@ namespace NutriWeek.Controllers
         public IActionResult Details(int id)
         {
             return View();
+        }
+
+        private IEnumerable<DropdownViewModel> LoadDishTypes()
+        {
+            return Enum.GetValues<DishType>()
+                .Select(dt => new DropdownViewModel
+                {
+                    Id = (int)dt,
+                    Name = dt.ToString()
+                })
+                .ToList();
         }
     }
 }
