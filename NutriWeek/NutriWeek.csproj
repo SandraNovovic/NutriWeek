@@ -15,9 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ViewModels\Meals\" />
-    <Folder Include="ViewModels\DailyMenus\" />
-    <Folder Include="ViewModels\WeeklyMenus\" />
+    <Folder Include="wwwroot\images\MealsImages\" />
   </ItemGroup>
 
 </Project>

@@ -52,7 +52,7 @@ namespace NutriWeek.Controllers
 
 
         [HttpPost]
-        public IActionResult AddMeal(AddMealViewModel model)
+        public IActionResult AddMeal(AddMealViewModel model) 
         {
             if (!ModelState.IsValid)
             {
