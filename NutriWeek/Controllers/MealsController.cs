@@ -41,21 +41,13 @@ namespace NutriWeek.Controllers
         [HttpGet]
         public IActionResult AddMeal()
         {
-            IEnumerable<DropdownViewModel> dishes = _dbContext.Dishes
-                .Select(d => new DropdownViewModel
-                {
-                    Id = d.Id,
-                    Name = d.Name
-                })
-                .ToList();
 
-
-            AddMealViewModel model = new AddMealViewModel
+            AddMealViewModel dishes = new AddMealViewModel
             {
-                Dishes = dishes,
+                Dishes = LoadDishes(),
             };
 
-            return View(model);
+            return View(dishes);
         }
 
 
@@ -64,13 +56,7 @@ namespace NutriWeek.Controllers
         {
             if (!ModelState.IsValid)
             {
-                model.Dishes = _dbContext.Dishes
-                    .Select(d => new DropdownViewModel
-                    {
-                        Id = d.Id,
-                        Name = d.Name
-                    })
-                    .ToList();
+                model.Dishes = LoadDishes();
 
                 return View(model);
             }
@@ -120,6 +106,7 @@ namespace NutriWeek.Controllers
 
                     _dbContext.DailyMenus.Add(dailyMenu);
                     _dbContext.SaveChanges();
+                    TempData["SuccessMessage"] = "Daily menu created successfully!";
                 }
 
 
@@ -133,17 +120,13 @@ namespace NutriWeek.Controllers
 
                 _dbContext.Meals.Add(meal);
                 _dbContext.SaveChanges();
+                TempData["SuccessMessage"] = "Meal added successfully!";
             }
             catch (Exception ex)
             {
-                model.Dishes = _dbContext.Dishes
-                    .Select(d => new DropdownViewModel
-                    {
-                        Id = d.Id,
-                        Name = d.Name
-                    })
-                    .ToList();
+                model.Dishes = LoadDishes();
 
+                TempData["ErrorMessage"] = $"An error occurred while adding the meal: {ex.Message}";
                 return View(model);
             }
 
@@ -154,6 +137,17 @@ namespace NutriWeek.Controllers
         public IActionResult Details(int id)
         {
             return View();
+        }
+
+        private IEnumerable<DropdownViewModel> LoadDishes()
+        {
+            return  _dbContext.Dishes
+               .Select(d => new DropdownViewModel
+               {
+                   Id = d.Id,
+                   Name = d.Name
+               })
+               .ToList();
         }
     }
 }
