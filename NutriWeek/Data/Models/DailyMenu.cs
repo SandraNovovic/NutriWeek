@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-
+using static NutriWeek.Data.AppConstants;
 namespace NutriWeek.Data.Models
 {
     public class DailyMenu
