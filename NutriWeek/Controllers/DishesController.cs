@@ -85,6 +85,50 @@ namespace NutriWeek.Controllers
 
             return RedirectToAction("Index");
         }
+
+
+        [HttpGet]
+        IActionResult Edit(int id)
+        {     
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Edit(int id)
+        {
+            var dish = _dbContext.Dishes.FirstOrDefault(d => d.Id == id);
+            if (dish == null)
+            {
+                return NotFound();
+            }
+            AddDishViewModel model = new AddDishViewModel
+            {
+                Id = dish.Id,
+                Name = dish.Name,
+                Description = dish.Description,
+                Ingredients = dish.Ingredients,
+                Instructions = dish.Instructions,
+                Calories = dish.Calories,
+                PreparationTime = dish.PreparationTime,
+                Portions = dish.Portions,
+                ImageUrl = dish.ImageUrl,
+                DishType = dish.DishType,
+                DishTypes = LoadDishTypes()
+            };
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult Delete(int id)
+        {
+            return View;
+        }
+
+        [HttpPost]
+        public IActionResult Delete(int id)
+        {
+            return View();
+        }
         public IActionResult Details(int id)
         {
             return View();
