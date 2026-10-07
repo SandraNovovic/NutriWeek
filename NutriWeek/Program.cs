@@ -10,7 +10,9 @@ namespace NutriWeek
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddDbContext<NutriWeekDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(builder.Configuration
+                .GetConnectionString("SqlServerDev") ??
+                throw new InvalidOperationException("Connection string is not valid!")));
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
