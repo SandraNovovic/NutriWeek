@@ -88,9 +88,8 @@ namespace NutriWeek.Controllers
             return RedirectToAction("Index");
         }
 
-
         [HttpGet]
-        IActionResult Edit([FromRoute] int? id)
+        public IActionResult Edit([FromRoute] int? id)
         {     
             if(!id.HasValue || id.Value <= 0)
             {

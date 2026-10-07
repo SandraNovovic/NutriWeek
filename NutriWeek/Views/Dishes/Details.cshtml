@@ -1,5 +1,654 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using NutriWeek.ViewModels.Dishes
+@model DishDetailsViewModel
+
 @{
+    ViewData["Title"] = "Dish Details";
+
+    string imagePath =
+        !string.IsNullOrWhiteSpace(Model.ImageUrl)
+            ? Model.ImageUrl
+            : "/images/DishesImages/unadded.png";
 }
+
+<style>
+    body > header,
+    body > footer {
+        display: none;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background: #f7faf5;
+    }
+
+        body > .container {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+            body > .container > main {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+    .nutri-navbar {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        width: 100%;
+        height: 74px;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #e9eee7;
+        background: rgba(255,255,255,.98);
+        box-shadow: 0 2px 10px rgba(0,0,0,.025);
+    }
+
+    .nav-content {
+        width: min(1420px, calc(100% - 50px));
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 28px;
+    }
+
+    .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #111b14;
+        text-decoration: none;
+        font-size: 24px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+        .nav-brand:hover {
+            color: #111b14;
+        }
+
+    .nav-brand-leaf {
+        color: #2f7b35;
+        font-size: 27px;
+    }
+
+    .nav-links {
+        margin-left: 22px;
+        margin-right: auto;
+        display: flex;
+        align-items: center;
+        gap: 31px;
+    }
+
+    .nav-link-custom {
+        position: relative;
+        padding: 27px 1px 23px;
+        color: #343c35;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+        .nav-link-custom:hover {
+            color: #2f7b35;
+        }
+
+        .nav-link-custom.active {
+            color: #2f7b35;
+            font-weight: 700;
+        }
+
+            .nav-link-custom.active::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 14px;
+                height: 3px;
+                border-radius: 8px;
+                background: #2f7b35;
+            }
+
+    .navbar-search {
+        width: 270px;
+        padding: 9px 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid #dde4da;
+        border-radius: 30px;
+        background: #fbfcfa;
+    }
+
+        .navbar-search input {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 13px;
+        }
+
+    .nav-user {
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: #f1f5ef;
+        color: #415144;
+        font-size: 18px;
+    }
+
+    .details-page {
+        position: relative;
+        left: 50%;
+        width: 100vw;
+        min-height: calc(100vh - 74px);
+        margin-left: -50vw;
+        padding-bottom: 70px;
+        background-image: linear-gradient(rgba(249,252,247,.88), rgba(249,252,247,.92)), url('@Url.Content("~/images/DishesImages/add_dish_background.png")');
+        background-size: cover;
+        background-position: center top;
+        background-attachment: fixed;
+    }
+
+    .page-heading-area {
+        padding: 28px 0 30px;
+        background: linear-gradient( 90deg, rgba(239,247,234,.92), rgba(255,255,255,.55) );
+        border-bottom: 1px solid rgba(221,230,218,.8);
+    }
+
+    .page-width {
+        width: min(1380px, calc(100% - 50px));
+        margin: 0 auto;
+    }
+
+    .breadcrumb-row {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #56805a;
+        font-size: 13px;
+    }
+
+        .breadcrumb-row a {
+            color: #56805a;
+            text-decoration: none;
+        }
+
+    .page-title {
+        margin: 0 0 8px;
+        color: #102018;
+        font-size: 41px;
+        font-weight: 800;
+    }
+
+    .page-subtitle {
+        margin: 0;
+        color: #516256;
+        font-size: 16px;
+    }
+
+    .details-shell {
+        width: min(1180px, calc(100% - 50px));
+        margin: 28px auto 0;
+        padding: 24px;
+        border: 1px solid rgba(224,231,221,.95);
+        border-radius: 24px;
+        background: rgba(255,255,255,.95);
+        box-shadow: 0 12px 40px rgba(38,61,41,.07);
+    }
+
+    .details-layout {
+        display: grid;
+        grid-template-columns: 390px minmax(0,1fr);
+        gap: 30px;
+        align-items: start;
+    }
+
+    .dish-image {
+        width: 100%;
+        height: 430px;
+        object-fit: cover;
+        border-radius: 18px;
+        border: 1px solid #e2e8df;
+        background: #eee;
+    }
+
+    .dish-title {
+        margin: 0 0 10px;
+        color: #152219;
+        font-size: 34px;
+        font-weight: 900;
+    }
+
+    .tags {
+        margin-bottom: 22px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .tag {
+        padding: 6px 12px;
+        border-radius: 20px;
+        background: #edf6e9;
+        color: #34723b;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .stats-grid {
+        margin-bottom: 25px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid #e6ece4;
+        border-radius: 14px;
+        background: #fafcf9;
+    }
+
+    .stat-icon {
+        font-size: 23px;
+    }
+
+    .stat-value {
+        color: #1c2a20;
+        font-size: 18px;
+        font-weight: 900;
+    }
+
+    .stat-label {
+        color: #7a857c;
+        font-size: 10px;
+    }
+
+    .detail-section {
+        padding: 20px 0;
+        border-top: 1px solid #e8ede6;
+    }
+
+        .detail-section:first-of-type {
+            border-top: none;
+        }
+
+    .detail-heading {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #203026;
+        font-size: 17px;
+        font-weight: 900;
+    }
+
+    .detail-text {
+        margin: 0;
+        color: #5d695f;
+        font-size: 13px;
+        line-height: 1.7;
+        white-space: pre-line;
+    }
+
+    .detail-box {
+        padding: 16px;
+        border-radius: 13px;
+        background: #f7faf5;
+        border: 1px solid #e6ece4;
+    }
+
+    .actions {
+        margin-top: 24px;
+        padding-top: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        border-top: 1px solid #e7ece5;
+    }
+
+    .actions-right {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-custom {
+        padding: 11px 19px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 800;
+        transition: .2s ease;
+    }
+
+    .btn-back {
+        background: #edf0ec;
+        color: #344138;
+    }
+
+    .btn-edit {
+        border: 1px solid #87aa88;
+        background: white;
+        color: #315f35;
+    }
+
+    .btn-delete {
+        border: 1px solid #e9a9a9;
+        background: #fff7f7;
+        color: #d54c4c;
+    }
+
+    .btn-custom:hover {
+        transform: translateY(-1px);
+    }
+
+    @@media (max-width: 900px) {
+        .details-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .dish-image {
+            height: 350px;
+        }
+
+        .navbar-search {
+            display: none;
+        }
+    }
+
+    @@media (max-width: 700px) {
+        .page-width,
+        .details-shell,
+        .nav-content {
+            width: calc(100% - 24px);
+        }
+
+        .nav-links {
+            display: none;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .actions-right {
+            flex-direction: column;
+        }
+
+        .btn-custom {
+            text-align: center;
+        }
+    }
+</style>
+
+<nav class="nutri-navbar">
+
+    <div class="nav-content">
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="nav-brand">
+
+            <span class="nav-brand-leaf">🌿</span>
+            NutriWeek
+
+        </a>
+
+        <div class="nav-links">
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="nav-link-custom">
+                Home
+            </a>
+
+            <a asp-controller="Dishes"
+               asp-action="Index"
+               class="nav-link-custom active">
+                Dishes
+            </a>
+
+            <a asp-controller="DailyMenus"
+               asp-action="Index"
+               class="nav-link-custom">
+                Daily Menu
+            </a>
+
+            <a asp-controller="WeeklyMenus"
+               asp-action="Index"
+               class="nav-link-custom">
+                Weekly Menu
+            </a>
+
+            <a asp-controller="Meals"
+               asp-action="Index"
+               class="nav-link-custom">
+                Meals
+            </a>
+
+        </div>
+
+        <div class="navbar-search">
+            🔍
+            <input type="text"
+                   placeholder="Search dishes..." />
+        </div>
+
+        <div class="nav-user">
+            ♙
+        </div>
+
+    </div>
+
+</nav>
+
+<div class="details-page">
+
+    <section class="page-heading-area">
+
+        <div class="page-width">
+
+            <div class="breadcrumb-row">
+
+                <a asp-controller="Dishes"
+                   asp-action="Index">
+                    Dishes
+                </a>
+
+                <span>›</span>
+
+                <span>Dish Details</span>
+
+            </div>
+
+            <h1 class="page-title">
+                Dish Details
+            </h1>
+
+            <p class="page-subtitle">
+                View detailed information about this recipe.
+            </p>
+
+        </div>
+
+    </section>
+
+    <div class="details-shell">
+
+        <div class="details-layout">
+
+            <div>
+
+                <img src="@imagePath"
+                     alt="@Model.Name"
+                     class="dish-image"
+                     onerror="this.onerror=null; this.src='/images/DishesImages/unadded.png';" />
+
+            </div>
+
+            <div>
+
+                <h2 class="dish-title">
+                    @Model.Name
+                </h2>
+
+                <div class="tags">
+                    <span class="tag">
+                        @Model.DishType
+                    </span>
+                </div>
+
+                <div class="stats-grid">
+
+                    <div class="stat-card">
+
+                        <span class="stat-icon">🔥</span>
+
+                        <div>
+                            <div class="stat-value">
+                                @Model.Calories
+                            </div>
+                            <div class="stat-label">
+                                kcal
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="stat-card">
+
+                        <span class="stat-icon">◷</span>
+
+                        <div>
+                            <div class="stat-value">
+                                @Model.PreparationTime
+                            </div>
+                            <div class="stat-label">
+                                minutes
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="stat-card">
+
+                        <span class="stat-icon">👥</span>
+
+                        <div>
+                            <div class="stat-value">
+                                @Model.Portions
+                            </div>
+                            <div class="stat-label">
+                                servings
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="detail-section">
+
+                    <div class="detail-heading">
+                        📄 Description
+                    </div>
+
+                    <p class="detail-text">
+                        @(string.IsNullOrWhiteSpace(Model.Description)
+                                                ? "No description available."
+                                                : Model.Description)
+                    </p>
+
+                </div>
+
+                <div class="detail-section">
+
+                    <div class="detail-heading">
+                        🥬 Ingredients
+                    </div>
+
+                    <div class="detail-box">
+
+                        <p class="detail-text">
+                            @Model.Ingredients
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="detail-section">
+
+                    <div class="detail-heading">
+                        📋 Instructions
+                    </div>
+
+                    <div class="detail-box">
+
+                        <p class="detail-text">
+                            @Model.Instructions
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="actions">
+
+            <a asp-controller="Dishes"
+               asp-action="Index"
+               class="btn-custom btn-back">
+
+                ← Back to Dishes
+
+            </a>
+
+            <div class="actions-right">
+
+                <a asp-controller="Dishes"
+                   asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   class="btn-custom btn-edit">
+
+                    ✎ Edit Dish
+
+                </a>
+
+                <a asp-controller="Dishes"
+                   asp-action="Delete"
+                   asp-route-id="@Model.Id"
+                   class="btn-custom btn-delete">
+
+                    🗑 Delete Dish
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
