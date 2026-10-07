@@ -10,9 +10,11 @@ namespace NutriWeek.Controllers
     public class DishesController : Controller
     {
         private readonly NutriWeekDbContext _dbContext;
-        public DishesController(NutriWeekDbContext dbContext)
+        private readonly ILogger _logger;
+        public DishesController(NutriWeekDbContext dbContext,ILogger logger)
         {
             _dbContext = dbContext;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -88,34 +90,92 @@ namespace NutriWeek.Controllers
 
 
         [HttpGet]
-        IActionResult Edit(int id)
+        IActionResult Edit([FromRoute] int? id)
         {     
-            return View();
+            if(!id.HasValue || id.Value <= 0)
+            {
+                return BadRequest("There was an error with your request!"); "
+            }
+
+            AddDishViewModel? dish = _dbContext.Dishes
+                .Where(d=> d.Id == id.Value)
+                .Select(d=>new AddDishViewModel()
+                {
+                    Name = d.Name,
+                    Description = d.Description,
+                    Ingredients= d.Ingredients,
+                    Instructions = d.Instructions,
+                    Calories = d.Calories,
+                    PreparationTime = d.PreparationTime,
+                    Portions = d.Portions,
+                    ImageUrl = d.ImageUrl,
+                    DishType=d.DishType
+                })
+                .SingleOrDefault();
+
+            if(dish == null)
+            {
+                return NotFound("Dish not found.");
+            }
+
+            dish.DishTypes = LoadDishTypes();
+
+            return View(dish);
         }
 
         [HttpPost]
-        public IActionResult Edit(int id)
+        public IActionResult Edit([FromRoute] int? id,AddDishViewModel dish)
         {
-            var dish = _dbContext.Dishes.FirstOrDefault(d => d.Id == id);
-            if (dish == null)
+            if(!ModelState.IsValid==false)
+            {
+                dish.DishTypes = LoadDishTypes();
+                return View(dish);
+            }
+
+            bool dishTypeExists= Enum.IsDefined(typeof(DishType),dish.DishTypes);
+
+            if(!dishTypeExists)
+            {
+                ModelState.AddModelError(nameof(dish.DishType), "Selected dish type does not exist.");
+                dish.DishTypes= LoadDishTypes();
+                return View(dish);
+            }
+
+            if(!id.HasValue || id.Value<=0)
+            {
+                return BadRequest();
+
+            }
+
+            Dish? dishToEdit=_dbContext.Dishes.Find(id);
+
+            if(dishToEdit == null)
             {
                 return NotFound();
             }
-            AddDishViewModel model = new AddDishViewModel
+
+            try
             {
-                Id = dish.Id,
-                Name = dish.Name,
-                Description = dish.Description,
-                Ingredients = dish.Ingredients,
-                Instructions = dish.Instructions,
-                Calories = dish.Calories,
-                PreparationTime = dish.PreparationTime,
-                Portions = dish.Portions,
-                ImageUrl = dish.ImageUrl,
-                DishType = dish.DishType,
-                DishTypes = LoadDishTypes()
-            };
-            return View(model);
+                dishToEdit.Name = dish.Name;
+                dishToEdit.Description = dish.Description;
+                dishToEdit.Ingredients = dish.Ingredients;
+                dishToEdit.Instructions = dish.Instructions;
+                dishToEdit.Calories = dish.Calories;
+                dishToEdit.PreparationTime = dish.PreparationTime;
+                dishToEdit.Portions = dish.Portions;
+                dishToEdit.ImageUrl = dish.ImageUrl;
+                dishToEdit.DishType = dish.DishType;
+
+                _dbContext.SaveChanges();
+                TempData["Succes"] = UpdateDishSuccessMessage;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical("An error occurred.");
+                TempData["Error"] = UpdateDishErrorMessage;
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
