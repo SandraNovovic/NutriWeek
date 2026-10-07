@@ -179,16 +179,61 @@ namespace NutriWeek.Controllers
         }
 
         [HttpGet]
-        public IActionResult Delete(int id)
+        public IActionResult Delete([FromRoute] int? id)
         {
-            return View;
+            if (!id.HasValue || id.Value <= 0)
+            {
+                return BadRequest("There was an error with your request! Try again!");
+            }
+
+            DeleteDishViewModel? deletingDish = _dbContext.Dishes
+                .Select(d => new DeleteDishViewModel()
+                {
+                    Id = d.Id,
+                    Name = d.Name,
+                })
+                .SingleOrDefault(d => d.Id == id);
+
+            if (deletingDish == null)
+            {
+                return NotFound();
+            }
+
+            return View(deletingDish);
         }
 
         [HttpPost]
-        public IActionResult Delete(int id)
+        public IActionResult Delete([FromRoute] int? id, DeleteDishViewModel dish)
         {
-            return View();
+            if (!id.HasValue || id.Value <= 0)
+            {
+                return BadRequest("There was an error with your request! Try again!");
+            }
+
+            Dish? dishToDelete = _dbContext.Dishes.Find(id);
+            if (dishToDelete == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+
+                _dbContext.Dishes.Remove(dishToDelete);
+                _dbContext.SaveChanges();
+                TempData["Success"] = DeleteDishSuccessMessage;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical("An error occurred while deleting the game. Please try again.");
+
+                TempData["Error"] = DeleteDishErrorMessage;
+
+            }
+
+            return RedirectToAction(nameof(Index));
         }
+
         public IActionResult Details(int id)
         {
             return View();
