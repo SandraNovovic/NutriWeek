@@ -94,7 +94,7 @@ namespace NutriWeek.Controllers
         {     
             if(!id.HasValue || id.Value <= 0)
             {
-                return BadRequest("There was an error with your request!"); "
+                return BadRequest("There was an error with your request!"); 
             }
 
             AddDishViewModel? dish = _dbContext.Dishes

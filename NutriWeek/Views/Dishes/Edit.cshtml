@@ -1,5 +1,1378 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using NutriWeek.ViewModels.Dishes
+
+@model AddDishViewModel
+
 @{
+    ViewData["Title"] = "Edit Dish";
+}
+
+<style>
+
+    body > header {
+        display: none;
+    }
+
+    body > footer {
+        display: none;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background: #f7faf5;
+    }
+
+        body > .container {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+            body > .container > main {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+
+    /* =====================================================
+                   NAVIGATION
+                   ===================================================== */
+
+    .nutri-navbar {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        width: 100%;
+        height: 74px;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #e9eee7;
+        background: rgba(255,255,255,.98);
+        box-shadow: 0 2px 10px rgba(0,0,0,.025);
+    }
+
+    .nav-content {
+        width: min(1420px, calc(100% - 50px));
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 28px;
+    }
+
+    .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #111b14;
+        text-decoration: none;
+        font-size: 24px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+        .nav-brand:hover {
+            color: #111b14;
+        }
+
+    .nav-brand-leaf {
+        color: #2f7b35;
+        font-size: 27px;
+    }
+
+    .nav-links {
+        margin-left: 22px;
+        margin-right: auto;
+        display: flex;
+        align-items: center;
+        gap: 31px;
+    }
+
+    .nav-link-custom {
+        position: relative;
+        padding: 27px 1px 23px;
+        color: #343c35;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+        .nav-link-custom:hover {
+            color: #2f7b35;
+        }
+
+        .nav-link-custom.active {
+            color: #2f7b35;
+            font-weight: 700;
+        }
+
+            .nav-link-custom.active::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 14px;
+                height: 3px;
+                border-radius: 8px;
+                background: #2f7b35;
+            }
+
+    .navbar-search {
+        width: 270px;
+        padding: 9px 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid #dde4da;
+        border-radius: 30px;
+        background: #fbfcfa;
+    }
+
+        .navbar-search input {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 13px;
+        }
+
+    .nav-user {
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: #f1f5ef;
+        color: #415144;
+        font-size: 18px;
+    }
+
+
+    /* =====================================================
+                   PAGE
+                   ===================================================== */
+
+    .add-dish-page {
+        position: relative;
+        left: 50%;
+        width: 100vw;
+        min-height: calc(100vh - 74px);
+        margin-left: -50vw;
+        padding-bottom: 70px;
+        background-image: linear-gradient( rgba(249,252,247,.88), rgba(249,252,247,.91) ), url('@Url.Content("~/images/DishesImages/add_dish_background.png")');
+        background-size: cover;
+        background-position: center top;
+        background-attachment: fixed;
+    }
+
+
+    /* =====================================================
+                   HEADER
+                   ===================================================== */
+
+    .page-heading-area {
+        padding: 28px 0 30px;
+        background: linear-gradient( 90deg, rgba(239,247,234,.92), rgba(255,255,255,.55) );
+        border-bottom: 1px solid rgba(221,230,218,.8);
+    }
+
+    .page-width {
+        width: min(1380px, calc(100% - 50px));
+        margin: 0 auto;
+    }
+
+    .breadcrumb-row {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #56805a;
+        font-size: 13px;
+    }
+
+        .breadcrumb-row a {
+            color: #56805a;
+            text-decoration: none;
+        }
+
+            .breadcrumb-row a:hover {
+                color: #2f7b35;
+            }
+
+    .page-title {
+        margin: 0 0 8px;
+        color: #102018;
+        font-size: 41px;
+        font-weight: 800;
+    }
+
+    .page-subtitle {
+        margin: 0;
+        color: #516256;
+        font-size: 16px;
+    }
+
+
+    /* =====================================================
+                   MAIN FORM
+                   ===================================================== */
+
+    .form-shell {
+        width: min(1380px, calc(100% - 50px));
+        margin: 25px auto 0;
+        padding: 18px;
+        border: 1px solid rgba(224,231,221,.95);
+        border-radius: 24px;
+        background: rgba(255,255,255,.94);
+        box-shadow: 0 12px 40px rgba(38,61,41,.07);
+    }
+
+    .form-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(310px, .85fr);
+        gap: 20px;
+    }
+
+
+    /* =====================================================
+                   FORM CARD
+                   ===================================================== */
+
+    .form-card {
+        padding: 24px;
+        border: 1px solid #e6ece4;
+        border-radius: 18px;
+        background: rgba(255,255,255,.97);
+        box-shadow: 0 4px 16px rgba(0,0,0,.025);
+    }
+
+    .section-title {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #17231a;
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .section-icon {
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #e6f4e2;
+        color: #2f8a39;
+        font-size: 18px;
+    }
+
+
+    /* =====================================================
+                   INPUTS
+                   ===================================================== */
+
+    .form-grid-two {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .form-grid-three {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-label-custom {
+        display: block;
+        margin-bottom: 7px;
+        color: #17231a;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .required {
+        color: #d84c4c;
+    }
+
+    .form-control-custom,
+    .form-select-custom {
+        width: 100%;
+        min-height: 46px;
+        padding: 10px 13px;
+        border: 1px solid #d9e1d7;
+        border-radius: 10px;
+        background: #fff;
+        color: #273128;
+        font-size: 13px;
+        outline: none;
+        transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+        .form-control-custom:focus,
+        .form-select-custom:focus {
+            border-color: #68a66e;
+            box-shadow: 0 0 0 3px rgba(67,135,74,.08);
+        }
+
+    textarea.form-control-custom {
+        min-height: 95px;
+        resize: vertical;
+    }
+
+    textarea.large-textarea {
+        min-height: 145px;
+    }
+
+    .validation-message {
+        display: block;
+        margin-top: 4px;
+        color: #c94d4d;
+        font-size: 11px;
+    }
+
+    .validation-summary {
+        margin-bottom: 15px;
+        color: #c94d4d;
+        font-size: 12px;
+    }
+
+    .form-divider {
+        height: 1px;
+        margin: 4px 0 22px;
+        background: #edf0eb;
+    }
+
+
+    /* =====================================================
+                   IMAGE
+                   ===================================================== */
+
+    .image-card {
+        padding: 22px;
+        border: 1px solid #e6ece4;
+        border-radius: 18px;
+        background: rgba(250,252,249,.96);
+    }
+
+    .upload-area {
+        position: relative;
+        min-height: 145px;
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 2px dashed #bdcbb9;
+        border-radius: 14px;
+        background: rgba(255,255,255,.80);
+        cursor: pointer;
+        text-align: center;
+        transition: border-color .2s ease, background .2s ease;
+    }
+
+        .upload-area:hover {
+            border-color: #5f9e65;
+            background: #fbfef9;
+        }
+
+        .upload-area input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+    .upload-icon {
+        margin-bottom: 6px;
+        color: #456052;
+        font-size: 34px;
+    }
+
+    .upload-title {
+        margin-bottom: 4px;
+        color: #26342a;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .upload-text {
+        color: #7b887f;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+
+    /* IMAGE PREVIEW */
+
+    .image-preview-wrapper {
+        position: relative;
+        margin-top: 15px;
+        display: block;
+    }
+
+    .image-preview {
+        width: 100%;
+        height: 210px;
+        display: block;
+        object-fit: cover;
+        border: 1px solid #e1e7df;
+        border-radius: 14px;
+        background: #eeeeee;
+    }
+
+    .remove-image {
+        position: absolute;
+        top: 9px;
+        right: 9px;
+        width: 31px;
+        height: 31px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        border-radius: 50%;
+        background: #24364b;
+        color: white;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+
+    /* =====================================================
+                   TIPS
+                   ===================================================== */
+
+    .tips-card {
+        margin-top: 16px;
+        padding: 20px;
+        border: 1px solid #e5eee1;
+        border-radius: 18px;
+        background: linear-gradient( 135deg, rgba(242,249,238,.98), rgba(250,253,248,.95) );
+    }
+
+    .tips-title {
+        margin-bottom: 13px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #243429;
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .tips-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+        .tips-list li {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            color: #58675b;
+            font-size: 12px;
+        }
+
+    .check {
+        color: #46a150;
+        font-weight: 800;
+    }
+
+
+    /* =====================================================
+                   BUTTONS
+                   ===================================================== */
+
+    .form-actions {
+        margin-top: 17px;
+        padding: 0 2px 2px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+    }
+
+    .back-button {
+        min-width: 170px;
+        padding: 11px 20px;
+        border: none;
+        border-radius: 28px;
+        background: #edf0ec;
+        color: #344138;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 700;
+        text-align: center;
+    }
+
+        .back-button:hover {
+            background: #e4e8e2;
+            color: #344138;
+        }
+
+    .submit-button {
+        min-width: 190px;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 28px;
+        background: linear-gradient( 90deg, #379842, #47a94f );
+        color: white;
+        font-size: 14px;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 5px 14px rgba(47,123,53,.18);
+    }
+
+        .submit-button:hover {
+            background: linear-gradient( 90deg, #31883a, #3d9846 );
+        }
+
+
+    /* =====================================================
+                   RESPONSIVE
+                   ===================================================== */
+
+    @@media (max-width: 1050px) {
+
+        .form-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .navbar-search {
+            display: none;
+        }
+    }
+
+    @@media (max-width: 850px) {
+
+        .nav-links {
+            gap: 16px;
+            margin-left: 10px;
+        }
+
+        .nav-link-custom {
+            font-size: 12px;
+        }
+
+        .form-grid-three {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 700px) {
+
+        .page-width,
+        .form-shell {
+            width: calc(100% - 24px);
+        }
+
+        .nav-content {
+            width: calc(100% - 24px);
+        }
+
+        .nav-links {
+            display: none;
+        }
+
+        .page-title {
+            font-size: 32px;
+        }
+
+        .form-grid-two {
+            grid-template-columns: 1fr;
+        }
+
+        .form-card {
+            padding: 18px;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .back-button,
+        .submit-button {
+            width: 100%;
+        }
+    }
+
+</style>
+
+
+<!-- =====================================================
+     NAVIGATION
+     ===================================================== -->
+
+<nav class="nutri-navbar">
+
+    <div class="nav-content">
+
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="nav-brand">
+
+            <span class="nav-brand-leaf">
+                🌿
+            </span>
+
+            NutriWeek
+
+        </a>
+
+
+        <div class="nav-links">
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="nav-link-custom">
+
+                Home
+
+            </a>
+
+
+            <a asp-controller="Dishes"
+               asp-action="Index"
+               class="nav-link-custom active">
+
+                Dishes
+
+            </a>
+
+
+            <a asp-controller="DailyMenus"
+               asp-action="Index"
+               class="nav-link-custom">
+
+                Daily Menu
+
+            </a>
+
+
+            <a asp-controller="WeeklyMenus"
+               asp-action="Index"
+               class="nav-link-custom">
+
+                Weekly Menu
+
+            </a>
+
+
+            <a asp-controller="Meals"
+               asp-action="Index"
+               class="nav-link-custom">
+
+                Meals
+
+            </a>
+
+        </div>
+
+
+        <div class="navbar-search">
+
+            🔍
+
+            <input type="text"
+                   placeholder="Search dishes..." />
+
+        </div>
+
+
+        <div class="nav-user">
+            ♙
+        </div>
+
+
+    </div>
+
+</nav>
+
+
+<!-- =====================================================
+     PAGE
+     ===================================================== -->
+
+<div class="add-dish-page">
+
+
+    <!-- PAGE HEADER -->
+
+    <section class="page-heading-area">
+
+        <div class="page-width">
+
+
+            <div class="breadcrumb-row">
+
+                <a asp-controller="Dishes"
+                   asp-action="Index">
+
+                    Dishes
+
+                </a>
+
+                <span>
+                    ›
+                </span>
+
+                <span>
+                    Edit Dish
+                </span>
+
+            </div>
+
+
+            <h1 class="page-title">
+                Edit Dish
+            </h1>
+
+
+            <p class="page-subtitle">
+
+                Update the recipe information
+                and save your changes.
+
+            </p>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         FORM
+         ===================================================== -->
+
+    <form asp-controller="Dishes"
+          asp-action="Edit"
+          asp-route-id="@ViewContext.RouteData.Values["id"]"
+          method="post"
+          enctype="multipart/form-data"
+          class="form-shell">
+
+        @Html.AntiForgeryToken()
+
+        <input asp-for="ImageUrl"
+               type="hidden" />
+
+
+        <div asp-validation-summary="ModelOnly"
+             class="validation-summary">
+        </div>
+
+
+        <div class="form-layout">
+
+
+            <!-- =================================================
+                 LEFT
+                 ================================================= -->
+
+            <div class="form-card">
+
+
+                <div class="section-title">
+
+                    <span class="section-icon">
+                        🍽
+                    </span>
+
+                    Dish Information
+
+                </div>
+
+
+
+                <!-- NAME + TYPE -->
+
+                <div class="form-grid-two">
+
+
+                    <div class="form-group">
+
+                        <label asp-for="Name"
+                               class="form-label-custom">
+
+                            Name
+                            <span class="required">*</span>
+
+                        </label>
+
+
+                        <input asp-for="Name"
+                               class="form-control-custom"
+                               placeholder="e.g. Quinoa Salad" />
+
+
+                        <span asp-validation-for="Name"
+                              class="validation-message">
+                        </span>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label asp-for="DishType"
+                               class="form-label-custom">
+
+                            Dish Type
+                            <span class="required">*</span>
+
+                        </label>
+
+
+                        <select asp-for="DishType"
+                                class="form-select-custom">
+
+                            <option value="">
+                                Select type
+                            </option>
+
+                            @foreach (var type in Model.DishTypes)
+                            {
+                                <option value="@type.Id">
+                                    @type.Name
+                                </option>
+                            }
+
+                        </select>
+
+
+                        <span asp-validation-for="DishType"
+                              class="validation-message">
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- DESCRIPTION -->
+
+                <div class="form-group">
+
+                    <label asp-for="Description"
+                           class="form-label-custom">
+
+                        Description
+                        <span class="required">*</span>
+
+                    </label>
+
+
+                    <textarea asp-for="Description"
+                              class="form-control-custom"
+                              placeholder="Write a short description about the dish..."></textarea>
+
+
+                    <span asp-validation-for="Description"
+                          class="validation-message">
+                    </span>
+
+                </div>
+
+
+
+                <!-- CALORIES / TIME / PORTIONS -->
+
+                <div class="form-grid-three">
+
+
+                    <div class="form-group">
+
+                        <label asp-for="Calories"
+                               class="form-label-custom">
+
+                            Calories (kcal)
+                            <span class="required">*</span>
+
+                        </label>
+
+
+                        <input asp-for="Calories"
+                               type="number"
+                               min="0"
+                               class="form-control-custom"
+                               placeholder="e.g. 350" />
+
+
+                        <span asp-validation-for="Calories"
+                              class="validation-message">
+                        </span>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label asp-for="PreparationTime"
+                               class="form-label-custom">
+
+                            Preparation Time (min)
+                            <span class="required">*</span>
+
+                        </label>
+
+
+                        <input asp-for="PreparationTime"
+                               type="number"
+                               min="1"
+                               class="form-control-custom"
+                               placeholder="e.g. 25" />
+
+
+                        <span asp-validation-for="PreparationTime"
+                              class="validation-message">
+                        </span>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label asp-for="Portions"
+                               class="form-label-custom">
+
+                            Portions
+                            <span class="required">*</span>
+
+                        </label>
+
+
+                        <input asp-for="Portions"
+                               type="number"
+                               min="1"
+                               class="form-control-custom"
+                               placeholder="e.g. 2" />
+
+
+                        <span asp-validation-for="Portions"
+                              class="validation-message">
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div class="form-divider"></div>
+
+
+
+                <!-- INGREDIENTS / INSTRUCTIONS -->
+
+                <div class="form-grid-two">
+
+
+                    <div class="form-group">
+
+                        <label asp-for="Ingredients"
+                               class="form-label-custom">
+
+                            🥬 Ingredients
+                            <span class="required">*</span>
+
+                        </label>
+
+
+                        <textarea asp-for="Ingredients"
+                                  class="form-control-custom large-textarea"
+                                  placeholder="Enter ingredients, one per line...
+
+e.g.
+1 cup quinoa
+1 tomato
+1 cucumber"></textarea>
+
+
+                        <span asp-validation-for="Ingredients"
+                              class="validation-message">
+                        </span>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label asp-for="Instructions"
+                               class="form-label-custom">
+
+                            📋 Instructions
+                            <span class="required">*</span>
+
+                        </label>
+
+
+                        <textarea asp-for="Instructions"
+                                  class="form-control-custom large-textarea"
+                                  placeholder="Enter cooking instructions...
+
+e.g.
+1. Cook quinoa.
+2. Chop vegetables.
+3. Mix everything together."></textarea>
+
+
+                        <span asp-validation-for="Instructions"
+                              class="validation-message">
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 RIGHT
+                 ================================================= -->
+
+            <div>
+
+
+                <!-- IMAGE -->
+
+                <div class="image-card">
+
+
+                    <div class="section-title">
+
+                        <span class="section-icon">
+                            🖼
+                        </span>
+
+                        Dish Image
+
+                    </div>
+
+
+
+                    <!-- UPLOAD -->
+
+                    <label class="upload-area"
+                           for="imageInput">
+
+
+                        <input id="imageInput"
+                               type="file"
+                               name="Image"
+                               accept="image/png,image/jpeg,image/webp" />
+
+
+                        <div class="upload-icon">
+                            ☁
+                        </div>
+
+
+                        <div class="upload-title">
+                            Choose an image
+                        </div>
+
+
+                        <div class="upload-text">
+
+                            Click here to browse
+
+                            <br />
+
+                            JPG, PNG or WEBP
+
+                        </div>
+
+
+                    </label>
+
+
+
+                    <!-- IMAGE PREVIEW -->
+
+                    <div id="imagePreviewWrapper"
+                         class="image-preview-wrapper">
+
+
+                        <img id="imagePreview"
+                             src="@(string.IsNullOrWhiteSpace(Model.ImageUrl)
+                                                              ? Url.Content("~/images/DishesImages/unadded.png")
+                                                              : Model.ImageUrl)"
+                             class="image-preview"
+                             alt="@Model.Name"
+                             onerror="this.onerror=null; this.src='/images/DishesImages/unadded.png';" />
+
+
+                        <button id="removeImage"
+                                type="button"
+                                class="remove-image"
+                                title="Remove selected image">
+
+                            ✕
+
+                        </button>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- TIPS -->
+
+                <div class="tips-card">
+
+
+                    <div class="tips-title">
+
+                        💡 Tips for a great dish
+
+                    </div>
+
+
+                    <ul class="tips-list">
+
+
+                        <li>
+
+                            <span class="check">
+                                ✓
+                            </span>
+
+                            Use a clear and appetizing image
+
+                        </li>
+
+
+                        <li>
+
+                            <span class="check">
+                                ✓
+                            </span>
+
+                            Add a detailed but concise description
+
+                        </li>
+
+
+                        <li>
+
+                            <span class="check">
+                                ✓
+                            </span>
+
+                            List all main ingredients
+
+                        </li>
+
+
+                        <li>
+
+                            <span class="check">
+                                ✓
+                            </span>
+
+                            Include step-by-step instructions
+
+                        </li>
+
+
+                        <li>
+
+                            <span class="check">
+                                ✓
+                            </span>
+
+                            Make sure nutrition information is accurate
+
+                        </li>
+
+
+                    </ul>
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             ACTIONS
+             ================================================= -->
+
+        <div class="form-actions">
+
+
+            <a asp-controller="Dishes"
+               asp-action="Index"
+               class="back-button">
+
+                ← Back to Dishes
+
+            </a>
+
+
+            <button type="submit"
+                    class="submit-button">
+
+                ✓ Save Changes
+
+            </button>
+
+
+        </div>
+
+
+    </form>
+
+
+</div>
+
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+
+                const imageInput =
+                    document.getElementById(
+                        "imageInput"
+                    );
+
+
+                const imagePreview =
+                    document.getElementById(
+                        "imagePreview"
+                    );
+
+
+                const removeImageButton =
+                    document.getElementById(
+                        "removeImage"
+                    );
+
+
+                const defaultImage =
+                    @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                        string.IsNullOrWhiteSpace(Model.ImageUrl)
+                                ? "/images/DishesImages/unadded.png"
+                                : Model.ImageUrl
+                                ));
+
+
+
+            /* =========================================
+               SELECT IMAGE
+               ========================================= */
+
+            imageInput.addEventListener(
+                "change",
+                function () {
+
+
+                    const file =
+                        this.files[0];
+
+
+                    if (!file) {
+
+                        imagePreview.src =
+                            defaultImage;
+
+                        return;
+
+                    }
+
+
+                    const reader =
+                        new FileReader();
+
+
+                    reader.onload =
+                        function (event) {
+
+
+                            imagePreview.src =
+                                event.target.result;
+
+
+                        };
+
+
+                    reader.readAsDataURL(
+                        file
+                    );
+
+
+                }
+            );
+
+
+
+            /* =========================================
+               REMOVE SELECTED IMAGE
+               ========================================= */
+
+            removeImageButton.addEventListener(
+                "click",
+                function () {
+
+
+                    imageInput.value =
+                        "";
+
+
+                    imagePreview.src =
+                        defaultImage;
+
+
+                }
+            );
+
+
+        }
+    );
+
+</script>
+
 }
