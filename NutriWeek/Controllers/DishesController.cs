@@ -234,9 +234,39 @@ namespace NutriWeek.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Details(int id)
+        [HttpGet]
+        public IActionResult Details([FromRoute] int? id)
         {
-            return View();
+            if (!id.HasValue || id.Value <= 0)
+            {
+                return BadRequest(
+                    "There was an error with your request!"
+                );
+            }
+
+            DetailsDishViewModel? dish = _dbContext.Dishes
+                .Where(d => d.Id == id.Value)
+                .Select(d => new DetailsDishViewModel
+                {
+                    Id = d.Id,
+                    Name = d.Name,
+                    Description = d.Description,
+                    Ingredients = d.Ingredients,
+                    Instructions = d.Instructions,
+                    Calories = d.Calories,
+                    PreparationTime = d.PreparationTime,
+                    Portions = d.Portions,
+                    ImageUrl = d.ImageUrl,
+                    DishType = d.DishType
+                })
+                .SingleOrDefault();
+
+            if (dish == null)
+            {
+                return NotFound("Dish not found.");
+            }
+
+            return View(dish);
         }
 
         private IEnumerable<DropdownViewModel> LoadDishTypes()
