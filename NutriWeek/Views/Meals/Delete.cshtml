@@ -1,5 +1,637 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using NutriWeek.ViewModels.Meals
+
+@model DeleteMealViewModel
+
 @{
+    ViewData["Title"] = "Delete Meal";
+
+    Dictionary<string, string> dishImages =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "Vegan Oatmeal", "/images/DishesImages/vegan_oatmeal.png" },
+            { "Vegetarian Pasta", "/images/DishesImages/vegetarian_pasta.png" },
+            { "Chicken Rice Bowl", "/images/DishesImages/chicken_rice_bowl.png" },
+            { "Salmon with Vegetables", "/images/DishesImages/salmon_with_vegetables.png" },
+            { "Lentil Soup", "/images/DishesImages/lentil_soup.png" }
+        };
+
+    string imagePath;
+
+    if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+    {
+        imagePath = Model.ImageUrl;
+    }
+    else if (dishImages.ContainsKey(Model.DishName))
+    {
+        imagePath = dishImages[Model.DishName];
+    }
+    else
+    {
+        imagePath = "/images/DishesImages/unadded.png";
+    }
 }
+
+<style>
+
+    body > header,
+    body > footer {
+        display: none;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background: #f7faf5;
+    }
+
+        body > .container {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+            body > .container > main {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+
+    /* =====================================================
+           NAVBAR
+           ===================================================== */
+
+    .nutri-navbar {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        width: 100%;
+        height: 74px;
+        display: flex;
+        align-items: center;
+        background: rgba(255,255,255,.97);
+        border-bottom: 1px solid #e7ece5;
+        box-shadow: 0 2px 10px rgba(0,0,0,.025);
+    }
+
+    .nav-content {
+        width: min(1420px, calc(100% - 50px));
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 28px;
+    }
+
+    .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #122017;
+        text-decoration: none;
+        font-size: 24px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+        .nav-brand:hover {
+            color: #122017;
+        }
+
+    .nav-brand-leaf {
+        color: #3c8b45;
+        font-size: 27px;
+    }
+
+    .nav-links {
+        margin-left: 22px;
+        margin-right: auto;
+        display: flex;
+        align-items: center;
+        gap: 31px;
+    }
+
+    .nav-link-custom {
+        position: relative;
+        padding: 27px 1px 23px;
+        color: #343c35;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+        .nav-link-custom:hover {
+            color: #32803a;
+        }
+
+        .nav-link-custom.active {
+            color: #32803a;
+            font-weight: 700;
+        }
+
+            .nav-link-custom.active::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 14px;
+                height: 3px;
+                border-radius: 10px;
+                background: #32803a;
+            }
+
+    .navbar-search {
+        width: 270px;
+        padding: 9px 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid #dde4da;
+        border-radius: 30px;
+        background: #fbfcfa;
+    }
+
+        .navbar-search input {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 13px;
+        }
+
+    .nav-user {
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: #eef4eb;
+        color: #456149;
+        font-size: 18px;
+    }
+
+
+    /* =====================================================
+           PAGE
+           ===================================================== */
+
+    .delete-page {
+        position: relative;
+        left: 50%;
+        width: 100vw;
+        min-height: calc(100vh - 74px);
+        margin-left: -50vw;
+        padding-bottom: 70px;
+        background-image: linear-gradient( rgba(250,252,247,.76), rgba(250,252,247,.86) ), url('@Url.Content("~/images/MealsImages/meals-background.png")');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+
+    .page-header {
+        padding: 34px 0 25px;
+    }
+
+    .page-width {
+        width: min(1280px, calc(100% - 50px));
+        margin: 0 auto;
+    }
+
+    .breadcrumb-row {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #617267;
+        font-size: 13px;
+    }
+
+        .breadcrumb-row a {
+            color: #4d7452;
+            text-decoration: none;
+        }
+
+    .page-title {
+        margin: 0 0 8px;
+        color: #173024;
+        font-family: Georgia, serif;
+        font-size: 46px;
+        font-weight: 700;
+    }
+
+    .page-subtitle {
+        margin: 0;
+        color: #59685d;
+        font-size: 16px;
+    }
+
+
+    /* =====================================================
+           DELETE CARD
+           ===================================================== */
+
+    .delete-shell {
+        width: min(850px, calc(100% - 50px));
+        margin: 8px auto 0;
+        padding: 28px;
+        border: 1px solid rgba(218,227,214,.95);
+        border-radius: 24px;
+        background: rgba(255,255,255,.96);
+        box-shadow: 0 15px 45px rgba(56,85,58,.09);
+    }
+
+    .warning-box {
+        margin-bottom: 24px;
+        padding: 18px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        border: 1px solid #efcaca;
+        border-radius: 14px;
+        background: linear-gradient( 90deg, #fff0f0, #fff6f6 );
+    }
+
+    .warning-icon {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: #df4c4c;
+        color: white;
+        font-size: 22px;
+        font-weight: 900;
+    }
+
+    .warning-title {
+        margin-bottom: 4px;
+        color: #b72e2e;
+        font-size: 16px;
+        font-weight: 900;
+    }
+
+    .warning-text {
+        margin: 0;
+        color: #b85050;
+        font-size: 12px;
+    }
+
+    .meal-summary {
+        padding: 20px;
+        display: grid;
+        grid-template-columns: 180px minmax(0,1fr);
+        gap: 22px;
+        align-items: center;
+        border: 1px solid #e4ebe1;
+        border-radius: 16px;
+        background: #fafcf9;
+    }
+
+    .meal-image {
+        width: 180px;
+        height: 135px;
+        object-fit: cover;
+        border-radius: 13px;
+        background: #eef1ec;
+    }
+
+    .meal-name {
+        margin: 0 0 8px;
+        color: #17231a;
+        font-size: 24px;
+        font-weight: 900;
+    }
+
+    .meal-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        color: #617066;
+        font-size: 12px;
+    }
+
+        .meal-meta span {
+            padding: 5px 9px;
+            border-radius: 20px;
+            background: #edf5e9;
+        }
+
+    .confirm-text {
+        margin: 22px 0 0;
+        color: #59655c;
+        font-size: 13px;
+        line-height: 1.6;
+        text-align: center;
+    }
+
+    .actions {
+        margin-top: 25px;
+        padding-top: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        border-top: 1px solid #e7ece5;
+    }
+
+    .btn-custom {
+        min-width: 170px;
+        padding: 12px 22px;
+        border-radius: 27px;
+        font-size: 13px;
+        font-weight: 800;
+        text-align: center;
+        cursor: pointer;
+        transition: .2s ease;
+    }
+
+    .cancel-button {
+        border: 1px solid #a7b9a4;
+        background: white;
+        color: #355a39;
+        text-decoration: none;
+    }
+
+    .delete-button {
+        border: none;
+        background: linear-gradient( 90deg, #d94b4b, #ea5b5b );
+        color: white;
+        box-shadow: 0 5px 14px rgba(205,64,64,.18);
+    }
+
+    .btn-custom:hover {
+        transform: translateY(-1px);
+    }
+
+
+    @@media (max-width: 700px) {
+
+        .page-width,
+        .delete-shell,
+        .nav-content {
+            width: calc(100% - 24px);
+        }
+
+        .nav-links {
+            display: none;
+        }
+
+        .navbar-search {
+            display: none;
+        }
+
+        .meal-summary {
+            grid-template-columns: 1fr;
+        }
+
+        .meal-image {
+            width: 100%;
+            height: 220px;
+        }
+
+        .actions {
+            flex-direction: column-reverse;
+        }
+
+        .btn-custom {
+            width: 100%;
+        }
+    }
+
+</style>
+
+
+<nav class="nutri-navbar">
+
+    <div class="nav-content">
+
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="nav-brand">
+
+            <span class="nav-brand-leaf">
+                🌿
+            </span>
+
+            NutriWeek
+
+        </a>
+
+
+        <div class="nav-links">
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="nav-link-custom">
+                Home
+            </a>
+
+            <a asp-controller="Dishes"
+               asp-action="Index"
+               class="nav-link-custom">
+                Dishes
+            </a>
+
+            <a asp-controller="DailyMenus"
+               asp-action="Index"
+               class="nav-link-custom">
+                Daily Menu
+            </a>
+
+            <a asp-controller="WeeklyMenus"
+               asp-action="Index"
+               class="nav-link-custom">
+                Weekly Menu
+            </a>
+
+            <a asp-controller="Meals"
+               asp-action="Index"
+               class="nav-link-custom active">
+                Meals
+            </a>
+
+        </div>
+
+
+        <div class="navbar-search">
+
+            🔍
+
+            <input type="text"
+                   placeholder="Search..." />
+
+        </div>
+
+
+        <div class="nav-user">
+            ♙
+        </div>
+
+
+    </div>
+
+</nav>
+
+
+<div class="delete-page">
+
+
+    <section class="page-header">
+
+        <div class="page-width">
+
+
+            <div class="breadcrumb-row">
+
+                <a asp-controller="Home"
+                   asp-action="Index">
+                    Home
+                </a>
+
+                <span>›</span>
+
+                <a asp-controller="Meals"
+                   asp-action="Index">
+                    Meals
+                </a>
+
+                <span>›</span>
+
+                <span>
+                    Delete Meal
+                </span>
+
+            </div>
+
+
+            <h1 class="page-title">
+                Delete Meal
+            </h1>
+
+
+            <p class="page-subtitle">
+                Confirm that you want to remove this meal from your plan.
+            </p>
+
+
+        </div>
+
+    </section>
+
+
+    <div class="delete-shell">
+
+
+        <div class="warning-box">
+
+            <div class="warning-icon">
+                !
+            </div>
+
+            <div>
+
+                <div class="warning-title">
+                    Confirm Deletion
+                </div>
+
+                <p class="warning-text">
+                    This meal will be permanently removed from the selected day.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="meal-summary">
+
+
+            <img src="@imagePath"
+                 alt="@Model.DishName"
+                 class="meal-image"
+                 onerror="this.onerror=null; this.src='/images/DishesImages/unadded.png';" />
+
+
+            <div>
+
+
+                <h2 class="meal-name">
+                    @Model.DishName
+                </h2>
+
+
+                <div class="meal-meta">
+
+                    <span>
+                        🍴 @Model.MealType
+                    </span>
+
+                    <span>
+                        📅 @Model.Date.ToString("dd.MM.yyyy")
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+        <p class="confirm-text">
+
+            Are you sure you want to remove
+            <strong>@Model.DishName</strong>
+            from your meal plan?
+
+        </p>
+
+
+        <form asp-controller="Meals"
+              asp-action="Delete"
+              asp-route-id="@Model.Id"
+              method="post">
+
+
+            @Html.AntiForgeryToken()
+
+
+            <input asp-for="Id"
+                   type="hidden" />
+
+
+            <div class="actions">
+
+
+                <a asp-controller="Meals"
+                   asp-action="Index"
+                   class="btn-custom cancel-button">
+
+                    ← Cancel
+
+                </a>
+
+
+                <button type="submit"
+                        class="btn-custom delete-button">
+
+                    🗑 Delete Meal
+
+                </button>
+
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+
+</div>

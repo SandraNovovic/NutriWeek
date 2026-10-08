@@ -1,5 +1,753 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using NutriWeek.ViewModels.Meals
+
+@model MealDetailsViewModel
+
 @{
+    ViewData["Title"] = "Meal Details";
+
+    Dictionary<string, string> dishImages =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "Vegan Oatmeal", "/images/DishesImages/vegan_oatmeal.png" },
+            { "Vegetarian Pasta", "/images/DishesImages/vegetarian_pasta.png" },
+            { "Chicken Rice Bowl", "/images/DishesImages/chicken_rice_bowl.png" },
+            { "Salmon with Vegetables", "/images/DishesImages/salmon_with_vegetables.png" },
+            { "Lentil Soup", "/images/DishesImages/lentil_soup.png" }
+        };
+
+    string imagePath;
+
+    if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+    {
+        imagePath = Model.ImageUrl;
+    }
+    else if (dishImages.ContainsKey(Model.DishName))
+    {
+        imagePath = dishImages[Model.DishName];
+    }
+    else
+    {
+        imagePath = "/images/DishesImages/unadded.png";
+    }
 }
+
+<style>
+
+    body > header,
+    body > footer {
+        display: none;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background: #f7faf5;
+    }
+
+        body > .container {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+            body > .container > main {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+
+    /* =====================================================
+           NAVBAR
+           ===================================================== */
+
+    .nutri-navbar {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        width: 100%;
+        height: 74px;
+        display: flex;
+        align-items: center;
+        background: rgba(255,255,255,.97);
+        border-bottom: 1px solid #e7ece5;
+        box-shadow: 0 2px 10px rgba(0,0,0,.025);
+    }
+
+    .nav-content {
+        width: min(1420px, calc(100% - 50px));
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 28px;
+    }
+
+    .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #122017;
+        text-decoration: none;
+        font-size: 24px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+        .nav-brand:hover {
+            color: #122017;
+        }
+
+    .nav-brand-leaf {
+        color: #3c8b45;
+        font-size: 27px;
+    }
+
+    .nav-links {
+        margin-left: 22px;
+        margin-right: auto;
+        display: flex;
+        align-items: center;
+        gap: 31px;
+    }
+
+    .nav-link-custom {
+        position: relative;
+        padding: 27px 1px 23px;
+        color: #343c35;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+        .nav-link-custom:hover {
+            color: #32803a;
+        }
+
+        .nav-link-custom.active {
+            color: #32803a;
+            font-weight: 700;
+        }
+
+            .nav-link-custom.active::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 14px;
+                height: 3px;
+                border-radius: 10px;
+                background: #32803a;
+            }
+
+    .navbar-search {
+        width: 270px;
+        padding: 9px 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid #dde4da;
+        border-radius: 30px;
+        background: #fbfcfa;
+    }
+
+        .navbar-search input {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 13px;
+        }
+
+    .nav-user {
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: #eef4eb;
+        color: #456149;
+        font-size: 18px;
+    }
+
+
+    /* =====================================================
+           PAGE
+           ===================================================== */
+
+    .details-page {
+        position: relative;
+        left: 50%;
+        width: 100vw;
+        min-height: calc(100vh - 74px);
+        margin-left: -50vw;
+        padding-bottom: 70px;
+        background-image: linear-gradient( rgba(250,252,247,.76), rgba(250,252,247,.86) ), url('@Url.Content("~/images/MealsImages/meals-background.png")');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+
+    .page-header {
+        padding: 34px 0 25px;
+    }
+
+    .page-width {
+        width: min(1280px, calc(100% - 50px));
+        margin: 0 auto;
+    }
+
+    .breadcrumb-row {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #617267;
+        font-size: 13px;
+    }
+
+        .breadcrumb-row a {
+            color: #4d7452;
+            text-decoration: none;
+        }
+
+    .page-title {
+        margin: 0 0 8px;
+        color: #173024;
+        font-family: Georgia, serif;
+        font-size: 46px;
+        font-weight: 700;
+    }
+
+    .page-subtitle {
+        margin: 0;
+        color: #59685d;
+        font-size: 16px;
+    }
+
+
+    /* =====================================================
+           DETAILS
+           ===================================================== */
+
+    .details-shell {
+        width: min(1120px, calc(100% - 50px));
+        margin: 6px auto 0;
+        padding: 26px;
+        border: 1px solid rgba(218,227,214,.95);
+        border-radius: 24px;
+        background: rgba(255,255,255,.95);
+        box-shadow: 0 15px 45px rgba(56,85,58,.09);
+    }
+
+    .details-layout {
+        display: grid;
+        grid-template-columns: minmax(310px, .85fr) minmax(0, 1.35fr);
+        gap: 30px;
+    }
+
+    .meal-image {
+        width: 100%;
+        height: 420px;
+        display: block;
+        object-fit: cover;
+        border-radius: 18px;
+        border: 1px solid #e1e8de;
+        background: #eef1ec;
+    }
+
+    .meal-title {
+        margin: 0 0 10px;
+        color: #173024;
+        font-family: Georgia, serif;
+        font-size: 34px;
+        font-weight: 700;
+    }
+
+    .tags {
+        margin-bottom: 22px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .tag {
+        padding: 6px 12px;
+        border-radius: 20px;
+        background: #edf6e9;
+        color: #34723b;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+        .tag.meal-type {
+            background: #fff1dc;
+            color: #a66a13;
+        }
+
+    .date-card {
+        margin-bottom: 20px;
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border: 1px solid #e1e8de;
+        border-radius: 14px;
+        background: #f8fbf6;
+        color: #35483a;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .stats-grid {
+        margin-bottom: 24px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid #e6ece4;
+        border-radius: 14px;
+        background: #fafcf9;
+    }
+
+    .stat-icon {
+        font-size: 23px;
+    }
+
+    .stat-value {
+        color: #1c2a20;
+        font-size: 18px;
+        font-weight: 900;
+    }
+
+    .stat-label {
+        color: #7a857c;
+        font-size: 10px;
+    }
+
+    .detail-section {
+        padding: 20px 0;
+        border-top: 1px solid #e8ede6;
+    }
+
+    .detail-heading {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #203026;
+        font-size: 17px;
+        font-weight: 900;
+    }
+
+    .detail-text {
+        margin: 0;
+        color: #5d695f;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .actions {
+        margin-top: 24px;
+        padding-top: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        border-top: 1px solid #e7ece5;
+    }
+
+    .actions-right {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-custom {
+        padding: 11px 19px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 800;
+        transition: .2s ease;
+    }
+
+    .btn-back {
+        background: #edf0ec;
+        color: #344138;
+    }
+
+    .btn-edit {
+        border: 1px solid #87aa88;
+        background: white;
+        color: #315f35;
+    }
+
+    .btn-delete {
+        border: 1px solid #e9a9a9;
+        background: #fff7f7;
+        color: #d54c4c;
+    }
+
+    .btn-custom:hover {
+        transform: translateY(-1px);
+    }
+
+
+    @@media (max-width: 900px) {
+
+        .details-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .meal-image {
+            height: 350px;
+        }
+
+        .navbar-search {
+            display: none;
+        }
+    }
+
+
+    @@media (max-width: 700px) {
+
+        .page-width,
+        .details-shell,
+        .nav-content {
+            width: calc(100% - 24px);
+        }
+
+        .nav-links {
+            display: none;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .actions-right {
+            flex-direction: column;
+        }
+
+        .btn-custom {
+            text-align: center;
+        }
+    }
+
+</style>
+
+
+<nav class="nutri-navbar">
+
+    <div class="nav-content">
+
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="nav-brand">
+
+            <span class="nav-brand-leaf">
+                🌿
+            </span>
+
+            NutriWeek
+
+        </a>
+
+
+        <div class="nav-links">
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="nav-link-custom">
+                Home
+            </a>
+
+            <a asp-controller="Dishes"
+               asp-action="Index"
+               class="nav-link-custom">
+                Dishes
+            </a>
+
+            <a asp-controller="DailyMenus"
+               asp-action="Index"
+               class="nav-link-custom">
+                Daily Menu
+            </a>
+
+            <a asp-controller="WeeklyMenus"
+               asp-action="Index"
+               class="nav-link-custom">
+                Weekly Menu
+            </a>
+
+            <a asp-controller="Meals"
+               asp-action="Index"
+               class="nav-link-custom active">
+                Meals
+            </a>
+
+        </div>
+
+
+        <div class="navbar-search">
+
+            🔍
+
+            <input type="text"
+                   placeholder="Search..." />
+
+        </div>
+
+
+        <div class="nav-user">
+            ♙
+        </div>
+
+
+    </div>
+
+</nav>
+
+
+<div class="details-page">
+
+
+    <section class="page-header">
+
+        <div class="page-width">
+
+
+            <div class="breadcrumb-row">
+
+                <a asp-controller="Home"
+                   asp-action="Index">
+                    Home
+                </a>
+
+                <span>›</span>
+
+                <a asp-controller="Meals"
+                   asp-action="Index">
+                    Meals
+                </a>
+
+                <span>›</span>
+
+                <span>
+                    Meal Details
+                </span>
+
+            </div>
+
+
+            <h1 class="page-title">
+                Meal Details
+            </h1>
+
+
+            <p class="page-subtitle">
+                View detailed information about this planned meal.
+            </p>
+
+
+        </div>
+
+    </section>
+
+
+    <div class="details-shell">
+
+
+        <div class="details-layout">
+
+
+            <div>
+
+                <img src="@imagePath"
+                     alt="@Model.DishName"
+                     class="meal-image"
+                     onerror="this.onerror=null; this.src='/images/DishesImages/unadded.png';" />
+
+            </div>
+
+
+            <div>
+
+
+                <h2 class="meal-title">
+                    @Model.DishName
+                </h2>
+
+
+                <div class="tags">
+
+                    <span class="tag meal-type">
+                        @Model.MealType
+                    </span>
+
+                    <span class="tag">
+                        @Model.DishType
+                    </span>
+
+                </div>
+
+
+                <div class="date-card">
+
+                    📅
+
+                    @Model.Date.ToString("dddd, dd MMMM yyyy")
+
+                </div>
+
+
+                <div class="stats-grid">
+
+
+                    <div class="stat-card">
+
+                        <span class="stat-icon">
+                            🔥
+                        </span>
+
+                        <div>
+
+                            <div class="stat-value">
+                                @Model.Calories
+                            </div>
+
+                            <div class="stat-label">
+                                kcal
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <span class="stat-icon">
+                            ◷
+                        </span>
+
+                        <div>
+
+                            <div class="stat-value">
+                                @Model.PreparationTime
+                            </div>
+
+                            <div class="stat-label">
+                                minutes
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <span class="stat-icon">
+                            👥
+                        </span>
+
+                        <div>
+
+                            <div class="stat-value">
+                                @Model.Portions
+                            </div>
+
+                            <div class="stat-label">
+                                servings
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="detail-section">
+
+                    <div class="detail-heading">
+                        📄 Description
+                    </div>
+
+                    <p class="detail-text">
+
+                        @(string.IsNullOrWhiteSpace(Model.Description)
+                                                ? "No description available."
+                                                : Model.Description)
+
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+        <div class="actions">
+
+
+            <a asp-controller="Meals"
+               asp-action="Index"
+               class="btn-custom btn-back">
+
+                ← Back to Meals
+
+            </a>
+
+
+            <div class="actions-right">
+
+
+                <a asp-controller="Meals"
+                   asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   class="btn-custom btn-edit">
+
+                    ✎ Edit Meal
+
+                </a>
+
+
+                <a asp-controller="Meals"
+                   asp-action="Delete"
+                   asp-route-id="@Model.Id"
+                   class="btn-custom btn-delete">
+
+                    🗑 Delete Meal
+
+                </a>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
