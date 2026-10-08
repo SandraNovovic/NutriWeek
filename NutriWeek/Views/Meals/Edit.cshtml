@@ -5,6 +5,13 @@
 
 @{
     ViewData["Title"] = "Edit Meal";
+
+    bool fromDailyMenu =
+        string.Equals(
+            Context.Request.Query["fromDailyMenu"],
+            "true",
+            StringComparison.OrdinalIgnoreCase
+        );
 }
 
 <style>
@@ -891,8 +898,10 @@
     <form asp-controller="Meals"
           asp-action="Edit"
           asp-route-id="@ViewContext.RouteData.Values["id"]"
+          asp-route-fromDailyMenu="@(fromDailyMenu ? "true" : null)"
           method="post"
-          class="meal-form-shell">
+          class="meal-form-shell"
+          id="editMealForm">
 
 
         @Html.AntiForgeryToken()
@@ -1293,13 +1302,26 @@
         <div class="form-actions">
 
 
-            <a asp-controller="Meals"
-               asp-action="Index"
-               class="cancel-button">
+            @if (fromDailyMenu)
+            {
+                <a asp-controller="DailyMenus"
+                   asp-action="Index"
+                   class="cancel-button">
 
-                Cancel
+                    Cancel
 
-            </a>
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Meals"
+                   asp-action="Index"
+                   class="cancel-button">
+
+                    Cancel
+
+                </a>
+            }
 
 
             <button type="submit"
@@ -1326,6 +1348,96 @@
 
 
     <script>
+
+        const fromDailyMenu =
+            @(fromDailyMenu ? "true" : "false");
+
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                if (!fromDailyMenu) {
+                    return;
+                }
+
+                const editMealForm =
+                    document.getElementById(
+                        "editMealForm"
+                    );
+
+                editMealForm.addEventListener(
+                    "submit",
+                    async function (event) {
+
+                        if (
+                            window.jQuery &&
+                            typeof jQuery.fn.valid === "function" &&
+                            !jQuery(editMealForm).valid()
+                        ) {
+                            return;
+                        }
+
+                        event.preventDefault();
+
+                        const formData =
+                            new FormData(editMealForm);
+
+                        try {
+
+                            const response =
+                                await fetch(
+                                    editMealForm.action,
+                                    {
+                                        method: "POST",
+                                        body: formData
+                                    }
+                                );
+
+                            if (response.redirected) {
+
+                                const selectedDate =
+                                    document.getElementById(
+                                        "selectedDateInput"
+                                    ).value;
+
+                                if (selectedDate) {
+
+                                    sessionStorage.setItem(
+                                        "dailyMenuSelectedDate",
+                                        selectedDate
+                                    );
+
+                                }
+
+                                window.location.href =
+                                    '@Url.Action("Index", "DailyMenus")';
+
+                                return;
+                            }
+
+                            const html =
+                                await response.text();
+
+                            document.open();
+                            document.write(html);
+                            document.close();
+
+                        }
+                        catch {
+
+                            alert(
+                                "An error occurred while editing the meal."
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
 
         document.addEventListener(
             "DOMContentLoaded",
