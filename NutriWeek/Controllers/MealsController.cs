@@ -14,9 +14,11 @@ namespace NutriWeek.Controllers
     public class MealsController : Controller
     {
         private readonly NutriWeekDbContext _dbContext;
-        public MealsController(NutriWeekDbContext dbContext)
+        private readonly ILogger<MealsController> _logger;
+        public MealsController(NutriWeekDbContext dbContext, ILogger<MealsController> logger)
         {
             _dbContext = dbContext;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -168,7 +170,6 @@ namespace NutriWeek.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Edit( [FromRoute] int? id,AddMealViewModel meal)
         {
             if (!id.HasValue || id.Value <= 0)
@@ -347,7 +348,6 @@ namespace NutriWeek.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Delete([FromRoute] int? id,DeleteMealViewModel meal)
         {
             if (!id.HasValue || id.Value <= 0)
@@ -371,8 +371,7 @@ namespace NutriWeek.Controllers
 
                 _dbContext.SaveChanges();
 
-                TempData["Success"] =
-                    "Meal deleted successfully!";
+                TempData["Success"] =DeleteMealSuccessMessage;
             }
             catch (Exception ex)
             {
@@ -381,8 +380,7 @@ namespace NutriWeek.Controllers
                     "An error occurred while deleting the meal."
                 );
 
-                TempData["Error"] =
-                    "An error occurred while deleting the meal.";
+                TempData["Error"] =DeleteMealErrorMessage;
             }
 
             return RedirectToAction(nameof(Index));

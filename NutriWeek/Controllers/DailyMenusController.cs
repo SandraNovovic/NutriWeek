@@ -92,10 +92,5 @@ namespace NutriWeek.Controllers
         }
 
 
-
-        public IActionResult Details(int id)
-        {
-            return View();
-        }
     }
 }
