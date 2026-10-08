@@ -26,8 +26,8 @@
 <style>
 
     /* =====================================================
-           DEFAULT MVC LAYOUT
-           ===================================================== */
+               DEFAULT MVC LAYOUT
+               ===================================================== */
 
     body > header,
     body > footer {
@@ -54,8 +54,8 @@
 
 
     /* =====================================================
-           NAVBAR
-           ===================================================== */
+               NAVBAR
+               ===================================================== */
 
     .nutri-navbar {
         position: sticky;
@@ -169,8 +169,8 @@
 
 
     /* =====================================================
-           PAGE
-           ===================================================== */
+               PAGE
+               ===================================================== */
 
     .daily-page {
         position: relative;
@@ -192,8 +192,8 @@
 
 
     /* =====================================================
-           HEADER
-           ===================================================== */
+               HEADER
+               ===================================================== */
 
     .page-header {
         margin-bottom: 20px;
@@ -215,8 +215,8 @@
 
 
     /* =====================================================
-           DATE NAVIGATION
-           ===================================================== */
+               DATE NAVIGATION
+               ===================================================== */
 
     .date-toolbar {
         margin: 4px 0 18px;
@@ -305,8 +305,8 @@
 
 
     /* =====================================================
-           DAY PANEL
-           ===================================================== */
+               DAY PANEL
+               ===================================================== */
 
     .day-panel {
         display: none;
@@ -318,8 +318,8 @@
 
 
     /* =====================================================
-           SUMMARY
-           ===================================================== */
+               SUMMARY
+               ===================================================== */
 
     .summary-card {
         margin-bottom: 18px;
@@ -387,8 +387,8 @@
 
 
     /* =====================================================
-           MEAL SECTIONS
-           ===================================================== */
+               MEAL SECTIONS
+               ===================================================== */
 
     .meal-section {
         margin-bottom: 16px;
@@ -444,8 +444,8 @@
 
 
     /* =====================================================
-           MEAL ROW
-           ===================================================== */
+               MEAL ROW
+               ===================================================== */
 
     .meal-row {
         padding: 13px 18px;
@@ -540,6 +540,7 @@
         text-decoration: none;
         font-size: 12px;
         font-weight: 800;
+        cursor: pointer;
     }
 
         .meal-action:hover {
@@ -565,8 +566,8 @@
 
 
     /* =====================================================
-           ADD ANOTHER
-           ===================================================== */
+               ADD ANOTHER
+               ===================================================== */
 
     .add-another {
         padding: 18px 24px;
@@ -612,8 +613,8 @@
 
 
     /* =====================================================
-           EMPTY PAGE
-           ===================================================== */
+               EMPTY PAGE
+               ===================================================== */
 
     .no-days {
         padding: 70px 25px;
@@ -630,9 +631,136 @@
     }
 
 
+
     /* =====================================================
-           RESPONSIVE
-           ===================================================== */
+               DELETE MODAL
+               ===================================================== */
+
+    .delete-modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 3000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(20, 31, 23, .46);
+        backdrop-filter: blur(3px);
+    }
+
+        .delete-modal-overlay.open {
+            display: flex;
+        }
+
+    .delete-modal {
+        width: min(480px, 100%);
+        overflow: hidden;
+        border: 1px solid #ead9d9;
+        border-radius: 20px;
+        background: #fff;
+        box-shadow: 0 24px 70px rgba(27, 43, 30, .22);
+        animation: deleteModalIn .18s ease-out;
+    }
+
+    @@keyframes deleteModalIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px) scale(.98);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .delete-modal-header {
+        padding: 22px 24px 17px;
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        background: linear-gradient(90deg, #fff1f1, #fff8f8);
+        border-bottom: 1px solid #f0dddd;
+    }
+
+    .delete-modal-icon {
+        width: 43px;
+        height: 43px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: #df5151;
+        color: white;
+        font-size: 22px;
+        font-weight: 900;
+    }
+
+    .delete-modal-title {
+        margin: 0 0 3px;
+        color: #a93636;
+        font-size: 18px;
+        font-weight: 900;
+    }
+
+    .delete-modal-subtitle {
+        margin: 0;
+        color: #a85b5b;
+        font-size: 12px;
+    }
+
+    .delete-modal-body {
+        padding: 24px;
+        color: #526056;
+        font-size: 14px;
+        line-height: 1.65;
+    }
+
+    .delete-meal-name {
+        color: #1f3125;
+        font-weight: 900;
+    }
+
+    .delete-modal-actions {
+        padding: 0 24px 24px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .modal-cancel,
+    .modal-delete {
+        min-width: 125px;
+        padding: 11px 18px;
+        border-radius: 24px;
+        font-size: 13px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: .2s ease;
+    }
+
+    .modal-cancel {
+        border: 1px solid #d7ded5;
+        background: #fff;
+        color: #405047;
+    }
+
+    .modal-delete {
+        border: none;
+        background: linear-gradient(90deg, #d94d4d, #e75b5b);
+        color: #fff;
+        box-shadow: 0 5px 14px rgba(205, 64, 64, .18);
+    }
+
+        .modal-cancel:hover,
+        .modal-delete:hover {
+            transform: translateY(-1px);
+        }
+
+    /* =====================================================
+               RESPONSIVE
+               ===================================================== */
 
     @@media (max-width: 1050px) {
 
@@ -884,7 +1012,8 @@
                                 dailyMenus[i];
 
 
-                                <option value="@i">
+                                <option value="@i"
+                                        data-date="@dailyMenu.Date.ToString("yyyy-MM-dd")">
 
                                     @dailyMenu.Date.ToString(
                                     "dddd, dd MMMM yyyy",
@@ -914,7 +1043,8 @@
 
             <a asp-controller="Meals"
                asp-action="AddMeal"
-               class="top-add-meal">
+               asp-route-fromDailyMenu="true"
+               class="top-add-meal daily-add-meal-link">
 
                 ＋ Add Meal
 
@@ -972,7 +1102,8 @@
 
 
             <section class="day-panel @(dayIndex == 0 ? "active" : "")"
-                     data-day-index="@dayIndex">
+                     data-day-index="@dayIndex"
+                     data-date="@dailyMenu.Date.ToString("yyyy-MM-dd")">
 
 
                 <!-- SUMMARY -->
@@ -1197,21 +1328,24 @@
                                     <a asp-controller="Meals"
                                        asp-action="Edit"
                                        asp-route-id="@meal.MealId"
-                                       class="meal-action">
+                                       asp-route-fromDailyMenu="true"
+                                       class="meal-action daily-edit-meal-link">
 
                                         ✎ Edit
 
                                     </a>
 
 
-                                    <a asp-controller="Meals"
-                                       asp-action="Delete"
-                                       asp-route-id="@meal.MealId"
-                                       class="meal-action delete">
+                                    <button type="button"
+                                            class="meal-action delete"
+                                            data-meal-id="@meal.MealId"
+                                            data-day-index="@dayIndex"
+                                            data-meal-name="@meal.DishName"
+                                            onclick="openDeleteModal(this)">
 
                                         🗑
 
-                                    </a>
+                                    </button>
 
 
                                 </div>
@@ -1364,21 +1498,24 @@
                                     <a asp-controller="Meals"
                                        asp-action="Edit"
                                        asp-route-id="@meal.MealId"
-                                       class="meal-action">
+                                       asp-route-fromDailyMenu="true"
+                                       class="meal-action daily-edit-meal-link">
 
                                         ✎ Edit
 
                                     </a>
 
 
-                                    <a asp-controller="Meals"
-                                       asp-action="Delete"
-                                       asp-route-id="@meal.MealId"
-                                       class="meal-action delete">
+                                    <button type="button"
+                                            class="meal-action delete"
+                                            data-meal-id="@meal.MealId"
+                                            data-day-index="@dayIndex"
+                                            data-meal-name="@meal.DishName"
+                                            onclick="openDeleteModal(this)">
 
                                         🗑
 
-                                    </a>
+                                    </button>
 
 
                                 </div>
@@ -1531,21 +1668,24 @@
                                     <a asp-controller="Meals"
                                        asp-action="Edit"
                                        asp-route-id="@meal.MealId"
-                                       class="meal-action">
+                                       asp-route-fromDailyMenu="true"
+                                       class="meal-action daily-edit-meal-link">
 
                                         ✎ Edit
 
                                     </a>
 
 
-                                    <a asp-controller="Meals"
-                                       asp-action="Delete"
-                                       asp-route-id="@meal.MealId"
-                                       class="meal-action delete">
+                                    <button type="button"
+                                            class="meal-action delete"
+                                            data-meal-id="@meal.MealId"
+                                            data-day-index="@dayIndex"
+                                            data-meal-name="@meal.DishName"
+                                            onclick="openDeleteModal(this)">
 
                                         🗑
 
-                                    </a>
+                                    </button>
 
 
                                 </div>
@@ -1572,7 +1712,8 @@
 
                 <a asp-controller="Meals"
                    asp-action="AddMeal"
-                   class="add-another">
+                   asp-route-fromDailyMenu="true"
+                   class="add-another daily-add-meal-link">
 
 
                     <span class="add-another-plus">
@@ -1623,7 +1764,8 @@
 
                 <a asp-controller="Meals"
                    asp-action="AddMeal"
-                   class="top-add-meal">
+                   asp-route-fromDailyMenu="true"
+                   class="top-add-meal daily-add-meal-link">
 
                     ＋ Add Meal
 
@@ -1643,7 +1785,216 @@
 @if (dailyMenus.Any())
 {
 
+    <div id="deleteMealModal"
+         class="delete-modal-overlay"
+         aria-hidden="true">
+
+        <div class="delete-modal"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="deleteMealModalTitle">
+
+            <div class="delete-modal-header">
+
+                <div class="delete-modal-icon">
+                    !
+                </div>
+
+                <div>
+
+                    <h3 id="deleteMealModalTitle"
+                        class="delete-modal-title">
+                        Delete Meal
+                    </h3>
+
+                    <p class="delete-modal-subtitle">
+                        This action cannot be undone.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="delete-modal-body">
+
+                Are you sure you want to delete
+                <span id="deleteMealName"
+                      class="delete-meal-name">
+                    this meal
+                </span>
+                from the daily menu?
+
+            </div>
+
+            <div class="delete-modal-actions">
+
+                <button type="button"
+                        class="modal-cancel"
+                        onclick="closeDeleteModal()">
+                    Cancel
+                </button>
+
+                <button type="button"
+                        id="confirmDeleteMeal"
+                        class="modal-delete">
+                    🗑 Delete Meal
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <form id="deleteMealForm"
+          method="post"
+          style="display:none;">
+
+        @Html.AntiForgeryToken()
+
+    </form>
+
     <script>
+
+        let selectedMealId = null;
+        let selectedDayIndex = null;
+
+
+        function openDeleteModal(button) {
+
+            selectedMealId =
+                Number(button.dataset.mealId);
+
+            selectedDayIndex =
+                Number(button.dataset.dayIndex);
+
+            const mealName =
+                button.dataset.mealName;
+
+            const modal =
+                document.getElementById(
+                    "deleteMealModal"
+                );
+
+            const mealNameElement =
+                document.getElementById(
+                    "deleteMealName"
+                );
+
+            mealNameElement.textContent =
+                mealName || "this meal";
+
+            modal.classList.add("open");
+
+            modal.setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+        }
+
+
+        function closeDeleteModal() {
+
+            const modal =
+                document.getElementById(
+                    "deleteMealModal"
+                );
+
+            modal.classList.remove("open");
+
+            modal.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+            selectedMealId = null;
+            selectedDayIndex = null;
+
+        }
+
+
+        async function deleteSelectedMeal() {
+
+            if (
+                selectedMealId === null ||
+                selectedDayIndex === null
+            ) {
+                return;
+            }
+
+            const form =
+                document.getElementById(
+                    "deleteMealForm"
+                );
+
+            const token =
+                form.querySelector(
+                    'input[name="__RequestVerificationToken"]'
+                ).value;
+
+            const formData =
+                new FormData();
+
+            formData.append(
+                "__RequestVerificationToken",
+                token
+            );
+
+            const selectedPanel =
+                document.querySelector(
+                    `.day-panel[data-day-index="${selectedDayIndex}"]`
+                );
+
+            const selectedDate =
+                selectedPanel
+                    ? selectedPanel.dataset.date
+                    : null;
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/Meals/Delete/${selectedMealId}`,
+                        {
+                            method: "POST",
+                            body: formData
+                        }
+                    );
+
+                if (!response.ok) {
+
+                    alert(
+                        "An error occurred while deleting the meal."
+                    );
+
+                    return;
+                }
+
+                if (selectedDate) {
+
+                    sessionStorage.setItem(
+                        "dailyMenuSelectedDate",
+                        selectedDate
+                    );
+
+                }
+
+                window.location.reload();
+
+            }
+            catch {
+
+                alert(
+                    "An error occurred while deleting the meal."
+                );
+
+            }
+
+        }
+
+
 
         document.addEventListener(
             "DOMContentLoaded",
@@ -1677,6 +2028,82 @@
 
 
                 let currentIndex = 0;
+
+
+                const deleteModal =
+                    document.getElementById(
+                        "deleteMealModal"
+                    );
+
+                const confirmDeleteButton =
+                    document.getElementById(
+                        "confirmDeleteMeal"
+                    );
+
+
+                confirmDeleteButton.addEventListener(
+                    "click",
+                    deleteSelectedMeal
+                );
+
+
+                deleteModal.addEventListener(
+                    "click",
+                    function (event) {
+
+                        if (event.target === deleteModal) {
+                            closeDeleteModal();
+                        }
+
+                    }
+                );
+
+
+                document.addEventListener(
+                    "keydown",
+                    function (event) {
+
+                        if (
+                            event.key === "Escape" &&
+                            deleteModal.classList.contains(
+                                "open"
+                            )
+                        ) {
+                            closeDeleteModal();
+                        }
+
+                    }
+                );
+
+
+                document.querySelectorAll(
+                    ".daily-add-meal-link, .daily-edit-meal-link"
+                ).forEach(
+                    function (link) {
+
+                        link.addEventListener(
+                            "click",
+                            function () {
+
+                                const activePanel =
+                                    document.querySelector(
+                                        ".day-panel.active"
+                                    );
+
+                                if (activePanel) {
+
+                                    sessionStorage.setItem(
+                                        "dailyMenuSelectedDate",
+                                        activePanel.dataset.date
+                                    );
+
+                                }
+
+                            }
+                        );
+
+                    }
+                );
 
 
                 function showDay(
@@ -1775,7 +2202,33 @@
                 );
 
 
-                showDay(0);
+                const savedDate =
+                    sessionStorage.getItem(
+                        "dailyMenuSelectedDate"
+                    );
+
+                let initialDay = 0;
+
+                if (savedDate !== null) {
+
+                    const matchingPanelIndex =
+                        panels.findIndex(
+                            function (panel) {
+                                return panel.dataset.date === savedDate;
+                            }
+                        );
+
+                    if (matchingPanelIndex >= 0) {
+                        initialDay = matchingPanelIndex;
+                    }
+
+                    sessionStorage.removeItem(
+                        "dailyMenuSelectedDate"
+                    );
+
+                }
+
+                showDay(initialDay);
 
 
             }
