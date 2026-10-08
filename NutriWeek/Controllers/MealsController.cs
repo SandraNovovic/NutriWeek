@@ -317,6 +317,78 @@ namespace NutriWeek.Controllers
         }
 
         [HttpGet]
+        public IActionResult Delete([FromRoute] int? id)
+        {
+            if (!id.HasValue || id.Value <= 0)
+            {
+                return BadRequest(
+                    "There was an error with your request! Try again!"
+                );
+            }
+
+            DeleteMealViewModel? deletingMeal = _dbContext.Meals
+                .Where(m => m.Id == id.Value)
+                .Select(m => new DeleteMealViewModel
+                {
+                    Id = m.Id,
+                    DishName = m.Dish.Name,
+                    Date = m.DailyMenu.Date,
+                    MealType = m.MealType.ToString(),
+                    ImageUrl = m.Dish.ImageUrl
+                })
+                .SingleOrDefault();
+
+            if (deletingMeal == null)
+            {
+                return NotFound("Meal not found.");
+            }
+
+            return View(deletingMeal);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete([FromRoute] int? id,DeleteMealViewModel meal)
+        {
+            if (!id.HasValue || id.Value <= 0)
+            {
+                return BadRequest(
+                    "There was an error with your request! Try again!"
+                );
+            }
+
+            Meal? mealToDelete =
+                _dbContext.Meals.Find(id.Value);
+
+            if (mealToDelete == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                _dbContext.Meals.Remove(mealToDelete);
+
+                _dbContext.SaveChanges();
+
+                TempData["Success"] =
+                    "Meal deleted successfully!";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "An error occurred while deleting the meal."
+                );
+
+                TempData["Error"] =
+                    "An error occurred while deleting the meal.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
         public IActionResult Details(
             [FromRoute] int? id)
         {
