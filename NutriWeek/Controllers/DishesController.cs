@@ -10,8 +10,8 @@ namespace NutriWeek.Controllers
     public class DishesController : Controller
     {
         private readonly NutriWeekDbContext _dbContext;
-        private readonly ILogger _logger;
-        public DishesController(NutriWeekDbContext dbContext,ILogger logger)
+        private readonly ILogger<DishesController> _logger;
+        public DishesController(NutriWeekDbContext dbContext,ILogger<DishesController> logger)
         {
             _dbContext = dbContext;
             _logger = logger;
