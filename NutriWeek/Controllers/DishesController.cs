@@ -125,13 +125,13 @@ namespace NutriWeek.Controllers
         [HttpPost]
         public IActionResult Edit([FromRoute] int? id,AddDishViewModel dish)
         {
-            if(!ModelState.IsValid==false)
+            if(!ModelState.IsValid)
             {
                 dish.DishTypes = LoadDishTypes();
                 return View(dish);
             }
 
-            bool dishTypeExists= Enum.IsDefined(typeof(DishType),dish.DishTypes);
+            bool dishTypeExists= Enum.IsDefined(typeof(DishType),dish.DishType);
 
             if(!dishTypeExists)
             {
@@ -166,7 +166,7 @@ namespace NutriWeek.Controllers
                 dishToEdit.DishType = dish.DishType;
 
                 _dbContext.SaveChanges();
-                TempData["Succes"] = UpdateDishSuccessMessage;
+                TempData["Success"] = UpdateDishSuccessMessage;
             }
             catch (Exception ex)
             {

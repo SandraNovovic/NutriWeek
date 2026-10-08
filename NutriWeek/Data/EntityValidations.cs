@@ -7,10 +7,10 @@
         public const int DishNameMinLength = 2;
         public const int DishNameMaxLength = 50;
 
-        public const int DishDescriptionMinLength = 10;
+        public const int DishDescriptionMinLength = 5;
         public const int DishDescriptionMaxLength = 300;
 
-        public const int DishIngredientsMinLength = 10;
+        public const int DishIngredientsMinLength = 3;
         public const int DishIngredientsMaxLength = 1000;
 
         public const int DishInstructionsMinLength = 10;
