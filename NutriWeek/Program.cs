@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NutriWeek.Data;
 
@@ -14,6 +15,17 @@ namespace NutriWeek
                 .GetConnectionString("SqlServerDev") ??
                 throw new InvalidOperationException("Connection string is not valid!")));
 
+
+
+            builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+            {
+                options.SignIn.RequireConfirmedAccount = false;
+            })
+                .AddEntityFrameworkStores<NutriWeekDbContext>();
+             
+
+
+            builder.Services.AddRazorPages();
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
@@ -32,11 +44,14 @@ namespace NutriWeek
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
-
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+
+
+            app.MapRazorPages();
 
             app.Run();
         }
