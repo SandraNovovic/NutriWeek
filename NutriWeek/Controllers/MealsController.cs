@@ -8,7 +8,6 @@ using NutriWeek.ViewModels.Dishes;
 using NutriWeek.ViewModels.Meals;
 using static NutriWeek.Data.TempDateMessages;
 using static NutriWeek.Data.AppConstants;
-using static NutriWeek.Data.TempDateMessages;
 namespace NutriWeek.Controllers
 {
     public class MealsController : Controller
@@ -194,7 +193,7 @@ namespace NutriWeek.Controllers
             {
                 ModelState.AddModelError(
                     nameof(meal.MealType),
-                    "Selected meal type does not exist."
+                    ErrorMessages.InvalidMealType
                 );
 
                 meal.Dishes = LoadDishes();
@@ -210,7 +209,7 @@ namespace NutriWeek.Controllers
             {
                 ModelState.AddModelError(
                     nameof(meal.DishId),
-                    "Selected dish does not exist."
+                   ErrorMessages.DishNotFound
                 );
 
                 meal.Dishes = LoadDishes();
@@ -353,7 +352,7 @@ namespace NutriWeek.Controllers
             if (!id.HasValue || id.Value <= 0)
             {
                 return BadRequest(
-                    "There was an error with your request! Try again!"
+                    ErrorMessages.InvalidRequestTryAgain
                 );
             }
 
@@ -377,7 +376,7 @@ namespace NutriWeek.Controllers
             {
                 _logger.LogError(
                     ex,
-                    "An error occurred while deleting the meal."
+                    ErrorMessages.InvalidRequest
                 );
 
                 TempData["Error"] =DeleteMealErrorMessage;
@@ -387,8 +386,7 @@ namespace NutriWeek.Controllers
         }
 
         [HttpGet]
-        public IActionResult Details(
-            [FromRoute] int? id)
+        public IActionResult Details( [FromRoute] int? id)
         {
             if (!id.HasValue || id.Value <= 0)
             {

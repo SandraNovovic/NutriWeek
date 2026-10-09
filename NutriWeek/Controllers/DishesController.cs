@@ -93,7 +93,7 @@ namespace NutriWeek.Controllers
         {     
             if(!id.HasValue || id.Value <= 0)
             {
-                return BadRequest("There was an error with your request!"); 
+                return BadRequest(ErrorMessages.InvalidRequest); 
             }
 
             AddDishViewModel? dish = _dbContext.Dishes
@@ -114,7 +114,7 @@ namespace NutriWeek.Controllers
 
             if(dish == null)
             {
-                return NotFound("Dish not found.");
+                return NotFound(ErrorMessages.DishNotFound);
             }
 
             dish.DishTypes = LoadDishTypes();
@@ -135,7 +135,7 @@ namespace NutriWeek.Controllers
 
             if(!dishTypeExists)
             {
-                ModelState.AddModelError(nameof(dish.DishType), "Selected dish type does not exist.");
+                ModelState.AddModelError(nameof(dish.DishType), ErrorMessages.InvalidDishType);
                 dish.DishTypes= LoadDishTypes();
                 return View(dish);
             }
@@ -170,7 +170,7 @@ namespace NutriWeek.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogCritical("An error occurred.");
+                _logger.LogCritical(ErrorMessages.InvalidRequestTryAgain);
                 TempData["Error"] = UpdateDishErrorMessage;
             }
 
@@ -206,7 +206,7 @@ namespace NutriWeek.Controllers
         {
             if (!id.HasValue || id.Value <= 0)
             {
-                return BadRequest("There was an error with your request! Try again!");
+                return BadRequest(ErrorMessages.InvalidRequestTryAgain);
             }
 
             Dish? dishToDelete = _dbContext.Dishes.Find(id);
@@ -224,7 +224,7 @@ namespace NutriWeek.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogCritical("An error occurred while deleting the game. Please try again.");
+                _logger.LogCritical(ErrorMessages.InvalidRequest);
 
                 TempData["Error"] = DeleteDishErrorMessage;
 
