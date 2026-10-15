@@ -1,6 +1,8 @@
 ﻿
+using NutriWeek.Data..Enums;
+using NutriWeek.Data.Models.Enums;
 using System.ComponentModel.DataAnnotations;
-
+using static NutriWeek.Data.Models.Enums.DishType;
 
 namespace NutriWeek.Data.Models
 {
@@ -30,7 +32,7 @@ namespace NutriWeek.Data.Models
         public string? ImageUrl { get; set; }
 
         [Required]
-        public string DishType { get; set; } = null!;
+        public DishType DishType { get; set; } 
 
 
     }
