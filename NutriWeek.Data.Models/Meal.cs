@@ -9,6 +9,11 @@ namespace NutriWeek.Data.Models
         [Key]
         public int Id { get; set; }
 
+        [Required]
+        public string MealType { get; set; } = null!;
+
+
+
         [ForeignKey(nameof(Dish))]
         public int DishId { get; set; }
         public Dish Dish { get; set; } = null!;
