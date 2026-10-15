@@ -1,12 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 
 namespace NutriWeek.Data.Models
 {
-    internal class DailyMenu
+    public class DailyMenu
     {
+        [Key]
+        public int Id { get; set; }
+
+        public DateTime Date { get; set; }
+
+        [ForeignKey(nameof(WeeklyMenu))]
+        public int WeeklyMenuId { get; set; }
+
+        public WeeklyMenu WeeklyMenu { get; set; } = null!;
+
+        public ICollection<Meal> Meals { get; set; } = new HashSet<Meal>();
     }
 }
