@@ -10,9 +10,10 @@ namespace NutriWeek
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(connectionString));
+            builder.Services.AddDbContext<NutriWeekDbContext>(options =>
+                options.UseSqlServer(builder.Configuration
+                .GetConnectionString("SqlServerDev") ??
+                throw new InvalidOperationException("Connection string is not valid!")));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)

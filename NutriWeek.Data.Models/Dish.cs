@@ -30,7 +30,6 @@ namespace NutriWeek.Data.Models
 
         public string? ImageUrl { get; set; }
 
-        [Required]
         public DishType DishType { get; set; } 
 
 
