@@ -1,12 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using System.ComponentModel.DataAnnotations;
+
 
 namespace NutriWeek.Data.Models
 {
-    internal class Dish
+
+    public class Dish
     {
+        [Key]
+        public int Id { get; set; }
+
+        [Required]
+        public string Name { get; set; } = null!;
+
+        public string? Description { get; set; }
+
+        [Required]
+        public string Ingredients { get; set; } = null!;
+
+        [Required]
+        public string Instructions { get; set; } = null!;
+
+        public int Calories { get; set; }
+
+        public int PreparationTime { get; set; }
+
+        public int Portions { get; set; }
+
+        public string? ImageUrl { get; set; }
+
+        [Required]
+        public string DishType { get; set; } = null!;
+
+
     }
 }
