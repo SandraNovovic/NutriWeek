@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NutriWeek.Data.Models\NutriWeek.Data.Models.csproj" />
+    <ProjectReference Include="..\NutriWeek.Data\NutriWeek.Data.csproj" />
+    <ProjectReference Include="..\NutriWeek.GCommon\NutriWeek.GCommon.csproj" />
+    <ProjectReference Include="..\NutriWeek.Web.ViewModels\NutriWeek.Web.ViewModels.csproj" />
+  </ItemGroup>
+
+</Project>

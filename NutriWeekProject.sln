@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36518.9 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NutriWeek.Web", "NutriWeek\NutriWeek.Web.csproj", "{8A4029F2-DE02-4227-B188-B22AAF9F977E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NutriWeek.Data", "NutriWeek.Data\NutriWeek.Data.csproj", "{06B006D5-BF32-4C3D-AECE-F900B63586B1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NutriWeek.Data.Models", "NutriWeek.Data.Models\NutriWeek.Data.Models.csproj", "{F9BE8A1A-9DC8-4FE6-8936-378D9934F449}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NutriWeek.GCommon", "NutriWeek.GCommon\NutriWeek.GCommon.csproj", "{94D5076E-AC76-46F1-A5E1-031BDF21F67A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NutriWeek.Services.Core", "NutriWeek.Services.Core\NutriWeek.Services.Core.csproj", "{B9E23D30-A74D-4CBF-B371-DE796CB3D6A4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NutriWeek.Web.ViewModels", "NutriWeek.Web.ViewModels\NutriWeek.Web.ViewModels.csproj", "{990CC853-1A6C-4261-9432-AABE383EF713}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8A4029F2-DE02-4227-B188-B22AAF9F977E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A4029F2-DE02-4227-B188-B22AAF9F977E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A4029F2-DE02-4227-B188-B22AAF9F977E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A4029F2-DE02-4227-B188-B22AAF9F977E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06B006D5-BF32-4C3D-AECE-F900B63586B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06B006D5-BF32-4C3D-AECE-F900B63586B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06B006D5-BF32-4C3D-AECE-F900B63586B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06B006D5-BF32-4C3D-AECE-F900B63586B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9BE8A1A-9DC8-4FE6-8936-378D9934F449}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9BE8A1A-9DC8-4FE6-8936-378D9934F449}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9BE8A1A-9DC8-4FE6-8936-378D9934F449}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9BE8A1A-9DC8-4FE6-8936-378D9934F449}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94D5076E-AC76-46F1-A5E1-031BDF21F67A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94D5076E-AC76-46F1-A5E1-031BDF21F67A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94D5076E-AC76-46F1-A5E1-031BDF21F67A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94D5076E-AC76-46F1-A5E1-031BDF21F67A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9E23D30-A74D-4CBF-B371-DE796CB3D6A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9E23D30-A74D-4CBF-B371-DE796CB3D6A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9E23D30-A74D-4CBF-B371-DE796CB3D6A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9E23D30-A74D-4CBF-B371-DE796CB3D6A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{990CC853-1A6C-4261-9432-AABE383EF713}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{990CC853-1A6C-4261-9432-AABE383EF713}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{990CC853-1A6C-4261-9432-AABE383EF713}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{990CC853-1A6C-4261-9432-AABE383EF713}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {284A039F-2E86-4FE1-8A6A-EA7708F0CC0A}
+	EndGlobalSection
+EndGlobal
