@@ -1,5 +1,4 @@
 ﻿
-using NutriWeek.Data..Enums;
 using NutriWeek.Data.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 using static NutriWeek.Data.Models.Enums.DishType;

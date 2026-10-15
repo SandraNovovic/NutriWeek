@@ -1,7 +1,7 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
+using NutriWeek.Data.Models.Enums;
 namespace NutriWeek.Data.Models
 {
     public class Meal
@@ -9,10 +9,7 @@ namespace NutriWeek.Data.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
-        public string MealType { get; set; } = null!;
-
-
+        public MealType MealType { get; set; } 
 
         [ForeignKey(nameof(Dish))]
         public int DishId { get; set; }
