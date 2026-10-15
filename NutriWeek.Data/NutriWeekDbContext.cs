@@ -21,5 +21,13 @@ namespace NutriWeek.Data
         public DbSet<Meal> Meals { get; set; } = null!;
 
 
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.ApplyConfigurationsFromAssembly(typeof(NutriWeekDbContext).Assembly);
+
+        }
+
     }
 }
