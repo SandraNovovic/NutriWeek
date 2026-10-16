@@ -191,6 +191,37 @@ namespace NutriWeek.Services.Core.Services
             return true;
         }
 
+        public async Task<DetailsDishViewModel?> GetDishDetailsAsync(int id)
+        {
+            DetailsDishViewModel? dish =
+                await _dbContext.Dishes
+                    .AsNoTracking()
+                    .Select(d =>
+                        new DetailsDishViewModel
+                        {
+                            Id = d.Id,
+                            Name = d.Name,
+                            Description =
+                                d.Description,
+                            Ingredients =
+                                d.Ingredients,
+                            Instructions =
+                                d.Instructions,
+                            Calories =
+                                d.Calories,
+                            PreparationTime =
+                                d.PreparationTime,
+                            Portions =
+                                d.Portions,
+                            ImageUrl =
+                                d.ImageUrl,
+                            DishType =
+                                d.DishType
+                        })
+                    .SingleOrDefaultAsync();
+
+            return dish;
+        }
 
 
 

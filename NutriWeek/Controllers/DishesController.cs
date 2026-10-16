@@ -245,6 +245,29 @@ namespace NutriWeek.Web.Controllers
         }
 
 
+        [HttpGet]
+        public async Task<IActionResult> Details([FromRoute] int? id)
+        {
+            if (!id.HasValue ||
+                id.Value <= 0)
+            {
+                return BadRequest(
+                    ErrorMessages.InvalidRequest);
+            }
+
+
+            DetailsDishViewModel? dish =
+                await _dishService
+                    .GetDishDetailsAsync(id.Value);
+
+            if (dish == null)
+            {
+                return NotFound(
+                    ErrorMessages.DishNotFound);
+            }
+
+            return View(dish);
+        }
 
 
 
