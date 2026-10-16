@@ -28,5 +28,7 @@ namespace NutriWeek.GCommon
 
         public const int DishPortionsMinValue = 1;
         public const int DishPortionsMaxValue = 20;
+
+        public const int DishImageUrlMaxLength = 2048;
     }
 }
