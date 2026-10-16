@@ -41,7 +41,7 @@ namespace NutriWeek.Web.Controllers
 
 
         [HttpGet]
-        public IActionResult AddDish()
+        public IActionResult Add()
         {
             AddDishViewModel DishTypes =
                 new AddDishViewModel
@@ -54,7 +54,7 @@ namespace NutriWeek.Web.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> AddDish( AddDishViewModel model)
+        public async Task<IActionResult> Add( AddDishViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -87,6 +87,19 @@ namespace NutriWeek.Web.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Edit (int? id)
+        {
+
+        }
+
+        [HttpPost]
+        public async Task<IActionResult>Edit(int? id)
+        {
+
         }
 
     }
