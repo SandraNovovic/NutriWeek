@@ -3,97 +3,91 @@ using Microsoft.EntityFrameworkCore;
 using NutriWeek.Data;
 using NutriWeek.Data.Models;
 using NutriWeek.Data.Models.Enums;
+using NutriWeek.Services.Core.Interfaces;
 using NutriWeek.Web.ViewModels;
 using NutriWeek.Web.ViewModels.Dishes;
+using System.Security.Claims;
+using static NutriWeek.GCommon.TempDateMessages;
+using static NutriWeek.GCommon.ErrorMessages;
+using NutriWeek.GCommon;
 
 namespace NutriWeek.Web.Controllers
 {
     public class DishesController : Controller
     {
-        private readonly NutriWeekDbContext _dbCcontext;
-        public DishesController(NutriWeekDbContext dbContext)
+        private readonly IDishService _dishService;
+        private readonly ILogger<DishesController> _logger;
+
+
+        public DishesController(
+            IDishService dishService,
+            ILogger<DishesController> logger)
         {
-                this._dbCcontext= dbContext;
+            _dishService = dishService;
+            _logger = logger;
         }
+
+
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            List<DishIndexViewModel> dishes =
-                await _dbCcontext.Dishes
-                    .AsNoTracking()
-                    .Select(d =>
-                        new DishIndexViewModel
-                        {
-                            Id = d.Id,
-                            Name = d.Name,
-                            Description = d.Description,
-                            Calories = d.Calories,
-                            PreparationTime = d.PreparationTime,
-                            Portions = d.Portions,
-                            ImageUrl = d.ImageUrl,
-                            DishType = d.DishType,
-                        })
-                    .ToListAsync();
 
+            IEnumerable<DishIndexViewModel> dishes =
+                await _dishService.GetAllAsync();
 
             return View(dishes);
         }
 
 
         [HttpGet]
-        public IActionResult Add()
+        public IActionResult AddDish()
         {
-            AddDishViewModel model = new AddDishViewModel
-            {
-                DishTypes = LoadDishTypes()
-            };
+            AddDishViewModel DishTypes =
+                new AddDishViewModel
+                {
+                    DishTypes =_dishService.LoadDishTypes()
+                };
 
-            return View(model);
+            return View(DishTypes);
         }
 
 
         [HttpPost]
-        public async Task<IActionResult> Add(AddDishViewModel model)
+        public async Task<IActionResult> AddDish( AddDishViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                model.DishTypes = LoadDishTypes();
+                model.DishTypes =
+                    _dishService.LoadDishTypes();
 
                 return View(model);
             }
 
-            Dish dish = new Dish
+            try
             {
-                Name = model.Name,
-                Description = model.Description,
-                Ingredients = model.Ingredients,
-                Instructions = model.Instructions,
-                Calories = model.Calories,
-                PreparationTime = model.PreparationTime,
-                Portions = model.Portions,
-                ImageUrl = model.ImageUrl,
-                DishType = model.DishType
-            };
+                await _dishService.AddDishAsync(model);
 
-            await _dbCcontext.Dishes.AddAsync(dish);
+                TempData["SuccessMessage"] =
+                    AddDishSuccessMessage;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    ErrorMessages.InvalidRequest);
 
-            await _dbCcontext.SaveChangesAsync();
+                model.DishTypes =
+                    _dishService.LoadDishTypes();
 
-            return RedirectToAction(nameof(Index));
+                TempData["ErrorMessage"] =
+                    AddDishErrorMessage;
+
+                return View(model);
+            }
+
+            return RedirectToAction("Index");
         }
 
-        private IEnumerable<DropdownViewModel> LoadDishTypes()
-        {
-            IEnumerable<DropdownViewModel> types = Enum.GetValues<DishType>()
-                .Select(t => new DropdownViewModel
-                {
-                    Id = (int)t,
-                    Name = t.ToString()
-                })
-                .ToList();
-
-            return types;
-        }
     }
 }
