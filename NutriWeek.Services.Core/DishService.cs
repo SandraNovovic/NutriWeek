@@ -74,5 +74,90 @@ namespace NutriWeek.Services.Core.Services
             await _dbContext.SaveChangesAsync();
         }
 
+        public async Task<AddDishViewModel?> GetDishForEditAsync(int id)
+        {
+            AddDishViewModel? dish =
+                await _dbContext.Dishes
+                    .AsNoTracking()
+                    .Select(d =>
+                        new AddDishViewModel
+                        {
+                            Name = d.Name,
+                            Description = d.Description,
+                            Ingredients = d.Ingredients,
+                            Instructions = d.Instructions,
+                            Calories = d.Calories,
+                            PreparationTime =
+                                d.PreparationTime,
+                            Portions = d.Portions,
+                            ImageUrl = d.ImageUrl,
+                            DishType = d.DishType
+                        })
+                    .SingleOrDefaultAsync();
+
+            if (dish != null)
+            {
+                dish.DishTypes =
+                    LoadDishTypes();
+            }
+
+            return dish;
+        }
+
+
+        public bool IsDishTypeValid(
+            DishType dishType)
+        {
+            return Enum.IsDefined(
+                typeof(DishType),
+                dishType);
+        }
+
+
+        public async Task<bool> EditDishAsync(int id,AddDishViewModel dish)
+        {
+            Dish? dishToEdit =
+                await _dbContext.Dishes
+                    .FirstOrDefaultAsync(d =>d.Id == id);
+
+            if (dishToEdit == null)
+            {
+                return false;
+            }
+
+            dishToEdit.Name =
+                dish.Name;
+
+            dishToEdit.Description =
+                dish.Description;
+
+            dishToEdit.Ingredients =
+                dish.Ingredients;
+
+            dishToEdit.Instructions =
+                dish.Instructions;
+
+            dishToEdit.Calories =
+                dish.Calories;
+
+            dishToEdit.PreparationTime =
+                dish.PreparationTime;
+
+            dishToEdit.Portions =
+                dish.Portions;
+
+            dishToEdit.ImageUrl =
+                dish.ImageUrl;
+
+            dishToEdit.DishType =
+                dish.DishType;
+
+            await _dbContext.SaveChangesAsync();
+
+            return true;
+        }
+
+
+
     }
 }

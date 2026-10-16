@@ -91,16 +91,96 @@ namespace NutriWeek.Web.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Edit (int? id)
+        public async Task<IActionResult> Edit([FromRoute] int? id)
         {
+            if (!id.HasValue ||
+                id.Value <= 0)
+            {
+                return BadRequest(
+                    ErrorMessages.InvalidRequest);
+            }
 
+            string userId =
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier)!;
+
+            AddDishViewModel? dish =
+                await _dishService
+                    .GetDishForEditAsync(id.Value);
+
+            if (dish == null)
+            {
+                return NotFound(
+                    ErrorMessages.DishNotFound);
+            }
+
+            return View(dish);
         }
+
 
         [HttpPost]
-        public async Task<IActionResult>Edit(int? id)
+        public async Task<IActionResult> Edit([FromRoute] int? id,AddDishViewModel dish)
         {
+            if (!ModelState.IsValid)
+            {
+                dish.DishTypes =
+                    _dishService.LoadDishTypes();
 
+                return View(dish);
+            }
+
+            bool dishTypeExists =
+                _dishService.IsDishTypeValid(
+                    dish.DishType);
+
+            if (!dishTypeExists)
+            {
+                ModelState.AddModelError(
+                    nameof(dish.DishType),
+                    ErrorMessages.InvalidDishType);
+
+                dish.DishTypes =
+                    _dishService.LoadDishTypes();
+
+                return View(dish);
+            }
+
+            if (!id.HasValue ||
+                id.Value <= 0)
+            {
+                return BadRequest();
+            }
+
+
+            try
+            {
+                bool edited =
+                    await _dishService
+                        .EditDishAsync(id.Value,dish);
+
+                if (!edited)
+                {
+                    return NotFound();
+                }
+
+                TempData["Success"] =
+                    UpdateDishSuccessMessage;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(
+                    ex,
+                    ErrorMessages
+                        .InvalidRequestTryAgain);
+
+                TempData["Error"] =
+                    UpdateDishErrorMessage;
+            }
+
+            return RedirectToAction(
+                nameof(Index));
         }
+
 
     }
 }

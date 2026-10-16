@@ -1,4 +1,5 @@
-﻿using NutriWeek.Web.ViewModels;
+﻿using NutriWeek.Data.Models.Enums;
+using NutriWeek.Web.ViewModels;
 using NutriWeek.Web.ViewModels.Dishes;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,13 @@ namespace NutriWeek.Services.Core.Interfaces
         IEnumerable<DropdownViewModel> LoadDishTypes();
 
         Task AddDishAsync(AddDishViewModel model);
+
+        Task<AddDishViewModel?> GetDishForEditAsync(int id);
+
+        bool IsDishTypeValid(DishType dishType);
+
+        Task<bool> EditDishAsync(int id,AddDishViewModel dish);
+
 
 
 
