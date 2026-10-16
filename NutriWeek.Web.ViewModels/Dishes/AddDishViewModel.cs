@@ -1,5 +1,5 @@
 ﻿using NutriWeek.Data.Models.Enums;
-using NutriWeek.ViewModels;
+using NutriWeek.Web.ViewModels;
 using System.ComponentModel.DataAnnotations;
 using static NutriWeek.GCommon.EntityValidations;
 namespace NutriWeek.Web.ViewModels.Dishes
