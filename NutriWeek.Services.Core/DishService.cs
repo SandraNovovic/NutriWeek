@@ -79,6 +79,7 @@ namespace NutriWeek.Services.Core.Services
             AddDishViewModel? dish =
                 await _dbContext.Dishes
                     .AsNoTracking()
+                    .Where(d=>d.Id==id)
                     .Select(d =>
                         new AddDishViewModel
                         {
@@ -161,6 +162,7 @@ namespace NutriWeek.Services.Core.Services
             DeleteDishViewModel? deletingDish =
                 await _dbContext.Dishes
                     .AsNoTracking()
+                    .Where(d => d.Id == id)
                     .Select(d =>
                         new DeleteDishViewModel
                         {
@@ -196,6 +198,7 @@ namespace NutriWeek.Services.Core.Services
             DetailsDishViewModel? dish =
                 await _dbContext.Dishes
                     .AsNoTracking()
+                    .Where(d => d.Id == id)
                     .Select(d =>
                         new DetailsDishViewModel
                         {
