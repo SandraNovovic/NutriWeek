@@ -105,8 +105,7 @@ namespace NutriWeek.Services.Core.Services
         }
 
 
-        public bool IsDishTypeValid(
-            DishType dishType)
+        public bool IsDishTypeValid(DishType dishType)
         {
             return Enum.IsDefined(
                 typeof(DishType),
@@ -156,6 +155,42 @@ namespace NutriWeek.Services.Core.Services
 
             return true;
         }
+
+        public async Task<DeleteDishViewModel?> GetDishForDeleteAsync(int id)
+        {
+            DeleteDishViewModel? deletingDish =
+                await _dbContext.Dishes
+                    .AsNoTracking()
+                    .Select(d =>
+                        new DeleteDishViewModel
+                        {
+                            Id = d.Id,
+                            Name = d.Name
+                        })
+                    .SingleOrDefaultAsync();
+
+            return deletingDish;
+        }
+
+
+        public async Task<bool> DeleteDishAsync(int id)
+        {
+            Dish? dishToDelete =
+                await _dbContext.Dishes
+                    .FirstOrDefaultAsync(d => d.Id == id);
+
+            if (dishToDelete == null)
+            {
+                return false;
+            }
+
+            _dbContext.Dishes.Remove(dishToDelete);
+
+            await _dbContext.SaveChangesAsync();
+
+            return true;
+        }
+
 
 
 

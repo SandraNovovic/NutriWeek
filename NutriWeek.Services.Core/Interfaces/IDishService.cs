@@ -23,6 +23,9 @@ namespace NutriWeek.Services.Core.Interfaces
 
         Task<bool> EditDishAsync(int id,AddDishViewModel dish);
 
+        Task<DeleteDishViewModel?> GetDishForDeleteAsync(int id);
+
+        Task<bool> DeleteDishAsync(int id);
 
 
 

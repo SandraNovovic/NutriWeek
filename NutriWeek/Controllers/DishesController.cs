@@ -181,6 +181,72 @@ namespace NutriWeek.Web.Controllers
                 nameof(Index));
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Delete([FromRoute] int? id)
+        {
+            if (!id.HasValue ||
+                id.Value <= 0)
+            {
+                return BadRequest( ErrorMessages.InvalidRequestTryAgain);
+            }
+
+            DeleteDishViewModel? deletingDish =
+                await _dishService
+                    .GetDishForDeleteAsync(id.Value);
+
+            if (deletingDish == null)
+            {
+                return NotFound();
+            }
+
+            return View(deletingDish);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Delete([FromRoute] int? id,DeleteDishViewModel dish)
+        {
+            if (!id.HasValue ||
+                id.Value <= 0)
+            {
+                return BadRequest(ErrorMessages.InvalidRequestTryAgain);
+            }
+
+            string userId =
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier)!;
+
+            try
+            {
+                bool deleted =
+                    await _dishService
+                        .DeleteDishAsync(id.Value);
+
+                if (!deleted)
+                {
+                    return NotFound();
+                }
+
+                TempData["Success"] =
+                    DeleteDishSuccessMessage;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(
+                    ex,
+                    ErrorMessages.InvalidRequest);
+
+                TempData["Error"] =
+                    DeleteDishErrorMessage;
+            }
+
+            return RedirectToAction(
+                nameof(Index));
+        }
+
+
+
+
 
     }
 }
