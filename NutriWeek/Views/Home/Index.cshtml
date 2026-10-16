@@ -1,49 +1,19 @@
-﻿@{
+﻿@using NutriWeek.Web.ViewModels.Dishes
+@model IEnumerable<DishIndexViewModel>
+@{
     ViewData["Title"] = "Home";
+    List<DishIndexViewModel> popularDishes =
+        Model.ToList();
 
-    var popularDishes = new[]
-    {
-        new
+    Dictionary<string, string> dishImages =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            Name = "Vegan Oatmeal",
-            Description = "Oatmeal with banana and fresh berries.",
-            DishType = "Vegan",
-            Calories = "350 kcal",
-            Time = "10 min",
-            Servings = "2 servings",
-            Image = "~/images/DishesImages/vegan_oatmeal.png"
-        },
-        new
-        {
-            Name = "Vegetarian Pasta",
-            Description = "Pasta with fresh vegetables and tomato sauce.",
-            DishType = "Vegetarian",
-            Calories = "430 kcal",
-            Time = "25 min",
-            Servings = "2 servings",
-            Image = "~/images/DishesImages/vegetarian_pasta.png"
-        },
-        new
-        {
-            Name = "Chicken Rice Bowl",
-            Description = "Chicken meal with rice, vegetables and fresh salad.",
-            DishType = "Meat",
-            Calories = "520 kcal",
-            Time = "30 min",
-            Servings = "2 servings",
-            Image = "~/images/DishesImages/chicken_rice_bowl.png"
-        },
-        new
-        {
-            Name = "Salmon with Vegetables",
-            Description = "Baked salmon served with fresh vegetables.",
-            DishType = "Fish",
-            Calories = "480 kcal",
-            Time = "35 min",
-            Servings = "2 servings",
-            Image = "~/images/DishesImages/salmon_with_vegetables.png"
-        }
-    };
+        { "Vegan Oatmeal", "/images/DishesImages/vegan_oatmeal.png" },
+        { "Vegetarian Pasta", "/images/DishesImages/vegetarian_pasta.png" },
+        { "Chicken Rice Bowl", "/images/DishesImages/chicken_rice_bowl.png" },
+        { "Salmon with Vegetables", "/images/DishesImages/salmon_with_vegetables.png" },
+        { "Lentil Soup", "/images/DishesImages/lentil_soup.png" }
+        };
 }
 
 <style>
@@ -681,84 +651,58 @@
 
         <div class="popular-grid">
 
-
-            @foreach (var dish in popularDishes)
+            @foreach (DishIndexViewModel dish in popularDishes)
             {
+                string imagePath;
 
+                if (!string.IsNullOrWhiteSpace(dish.ImageUrl))
+                {
+                    imagePath = dish.ImageUrl;
+                }
+                else if (dishImages.ContainsKey(dish.Name))
+                {
+                    imagePath = dishImages[dish.Name];
+                }
+                else
+                {
+                    imagePath = "/images/DishesImages/unadded.png";
+                }
 
                 <div class="popular-card">
 
-
                     <div class="popular-image">
+                        <img src="@imagePath"
+                             alt="@dish.Name"
+                             onerror="this.onerror=null; this.src='/images/DishesImages/unadded.png';" />
 
-                        <img src="@Url.Content(dish.Image)"
-                             alt="@dish.Name" />
-
-
-                        <div class="popular-heart">
-                            ♥
-                        </div>
-
+                        <div class="popular-heart">♥</div>
                     </div>
-
-
 
                     <div class="popular-body">
 
-
                         <div class="popular-title">
-
                             @dish.Name
-
                         </div>
-
-
 
                         <div class="tags">
-
-
                             <span class="tag">
-
                                 @dish.DishType
-
                             </span>
-
-
                         </div>
-
-
 
                         <div class="popular-description">
-
                             @dish.Description
-
                         </div>
-
-
 
                         <div class="popular-info">
-
-                            <span>
-                                🔥 @dish.Calories
-                            </span>
-
-                            <span>
-                                ⏱ @dish.Time
-                            </span>
-
-                            <span>
-                                👥 @dish.Servings
-                            </span>
-
+                            <span>🔥 @dish.Calories kcal</span>
+                            <span>⏱ @dish.PreparationTime min</span>
+                            <span>👥 @dish.Portions servings</span>
                         </div>
 
-
                     </div>
-
                 </div>
-
             }
-
 
         </div>
 
