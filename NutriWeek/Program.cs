@@ -20,7 +20,7 @@ namespace NutriWeek
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<NutriWeekDbContext>();
             builder.Services.AddControllersWithViews();
-
+            builder.Services.AddApplicationServices();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
