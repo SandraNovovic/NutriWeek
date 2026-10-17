@@ -72,15 +72,42 @@ namespace NutriWeek.Services.Core.Implementations
         }
 
 
-        public async Task AddMealAsync(AddMealViewModel model)
+        public async Task<bool> AddMealAsync(AddMealViewModel model)
         {
-   
-            Meal meal =
-                new Meal
+
+            DateTime selectedDate =model.Date!.Value.Date;
+
+            DailyMenu? dailyMenu =
+                await _dbContext.DailyMenus
+                    .FirstOrDefaultAsync(d => d.Date.Date == selectedDate);
+
+
+            bool dailyMenuCreated = false;
+
+
+            if (dailyMenu == null)
+            {
+                dailyMenu =
+                    new DailyMenu
+                    {
+                        Date = selectedDate
+                    };
+
+                await _dbContext.DailyMenus
+                    .AddAsync(dailyMenu);
+
+                await _dbContext
+                    .SaveChangesAsync();
+
+                dailyMenuCreated = true;
+            }
+
+
+            Meal meal = new Meal
                 {
                     DishId = model.DishId,
                     MealType = model.MealType,
-                    DailyMenuId = 1 //need to be implemented!!
+                    DailyMenuId = dailyMenu.Id
                 };
 
 
@@ -91,6 +118,7 @@ namespace NutriWeek.Services.Core.Implementations
                 .SaveChangesAsync();
 
 
+            return dailyMenuCreated;
 
         }
     }
