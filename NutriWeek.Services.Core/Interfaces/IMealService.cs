@@ -13,11 +13,11 @@ namespace NutriWeek.Services.Core.Interfaces
     {
         Task<List<MealIndexViewModel>> GetAllAsync();
 
-        //Task<IEnumerable<DropdownViewModel>> LoadDishesAsync();
+        Task<IEnumerable<DropdownViewModel>> LoadDishesAsync();
 
-        //Task<IEnumerable<DropdownViewModel>> LoadMealsAsync();
+       IEnumerable<DropdownViewModel> LoadMealTypes();
 
-        //Task<bool> AddMealAsync(AddMealViewModel model);
+        Task AddMealAsync(AddMealViewModel model);
 
         //Task<AddMealViewModel?> GetMealForEditAsync(int id);
 

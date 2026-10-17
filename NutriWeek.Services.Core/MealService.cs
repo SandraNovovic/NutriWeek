@@ -13,8 +13,7 @@ namespace NutriWeek.Services.Core.Implementations
     {
         private readonly NutriWeekDbContext _dbContext;
 
-        public MealService(
-            NutriWeekDbContext dbContext)
+        public MealService(NutriWeekDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -58,6 +57,41 @@ namespace NutriWeek.Services.Core.Implementations
                     .ToListAsync();
 
             return dishes;
+        }
+
+        public IEnumerable<DropdownViewModel> LoadMealTypes()
+        {
+            return Enum.GetValues<MealType>()
+                .Select(m => new DropdownViewModel
+                {
+                    Id = (int)m,
+                    Name = m.ToString()
+                })
+                .ToList();
+
+        }
+
+
+        public async Task AddMealAsync(AddMealViewModel model)
+        {
+   
+            Meal meal =
+                new Meal
+                {
+                    DishId = model.DishId,
+                    MealType = model.MealType,
+                    DailyMenuId = 1 //need to be implemented!!
+                };
+
+
+            await _dbContext.Meals
+                .AddAsync(meal);
+
+            await _dbContext
+                .SaveChangesAsync();
+
+
+
         }
     }
 }
