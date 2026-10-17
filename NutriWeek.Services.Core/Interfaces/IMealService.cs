@@ -15,9 +15,10 @@ namespace NutriWeek.Services.Core.Interfaces
 
         Task<IEnumerable<DropdownViewModel>> LoadDishesAsync();
 
+        Task<bool> DishExistsAsync(int dishId);
        IEnumerable<DropdownViewModel> LoadMealTypes();
 
-        Task AddMealAsync(AddMealViewModel model);
+        Task<bool> AddMealAsync(AddMealViewModel model);
 
         //Task<AddMealViewModel?> GetMealForEditAsync(int id);
 
