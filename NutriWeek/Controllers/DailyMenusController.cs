@@ -1,12 +1,33 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using NutriWeek.Services.Core.Interfaces;
+using NutriWeek.ViewModels.DailyMenus;
+using System.Security.Claims;
 
 namespace NutriWeek.Web.Controllers
 {
+    [Authorize]
     public class DailyMenusController : Controller
     {
-        public IActionResult Index()
+        private readonly IDailyMenuService
+            _dailyMenuService;
+
+
+        public DailyMenusController(IDailyMenuService dailyMenuService)
         {
-            return View();
+            _dailyMenuService =dailyMenuService;
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+
+            List<DailyMenuIndexViewModel> dailyMenus =
+                await _dailyMenuService.GetAllAsync();
+
+
+            return View(dailyMenus);
         }
     }
 }
