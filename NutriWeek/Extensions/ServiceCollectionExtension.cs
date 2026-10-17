@@ -1,4 +1,5 @@
-﻿using NutriWeek.Services.Core.Interfaces;
+﻿using NutriWeek.Services.Core.Implementations;
+using NutriWeek.Services.Core.Interfaces;
 using NutriWeek.Services.Core.Services;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -8,7 +9,8 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
             return services
-                .AddScoped<IDishService, DishService>();
+                .AddScoped<IDishService, DishService>()
+                .AddScoped<IMealService,MealService>();
         }
     }
 }
