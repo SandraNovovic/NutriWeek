@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using NutriWeek.ViewModels.DailyMenus;
 
 namespace NutriWeek.Services.Core.Interfaces
 {
-    internal interface IDailyMenuService
+    public interface IDailyMenuService
     {
+        Task<List<DailyMenuIndexViewModel>> GetAllAsync();
     }
 }
