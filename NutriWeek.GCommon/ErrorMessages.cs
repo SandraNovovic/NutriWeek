@@ -22,5 +22,11 @@
 
         public const string DishDoesNotExist =
             "Selected dish does not exist.";
+
+        public const string DishNotSelected = "Please select a dish.";
+
+        public const string DateNotSelected = "Please select a date.";
+
+        public const string MealTypeNotSelected = "Please select meal type.";
     }
 }
