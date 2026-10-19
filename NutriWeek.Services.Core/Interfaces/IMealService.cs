@@ -20,13 +20,11 @@ namespace NutriWeek.Services.Core.Interfaces
 
         Task<bool> AddMealAsync(AddMealViewModel model);
 
-        //Task<AddMealViewModel?> GetMealForEditAsync(int id);
+        Task<AddMealViewModel?> GetMealForEditAsync(int id);
 
-        //bool IsMealTypeValid(MealType mealType);
+        bool IsMealTypeValid(MealType mealType);
 
-        //Task<bool> DishExistsAsync(int dishId);
-
-        //Task<bool> EditMealAsync(int id,AddMealViewModel meal);
+        Task<bool> EditMealAsync(int id, AddMealViewModel meal);
 
         //Task<DeleteMealViewModel?> GetMealForDeleteAsync(int id);
 

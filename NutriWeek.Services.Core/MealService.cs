@@ -126,5 +126,100 @@ namespace NutriWeek.Services.Core.Implementations
             return dailyMenuCreated;
 
         }
+
+
+        public async Task<AddMealViewModel?> GetMealForEditAsync(int id)
+        {
+            AddMealViewModel? meal =
+                await _dbContext.Meals
+                    .AsNoTracking()
+                    .Where(m =>m.Id == id )
+                    .Select(m =>
+                        new AddMealViewModel
+                        {
+                            DishId = m.DishId,
+
+                            MealType =
+                                m.MealType,
+
+                            Date =
+                                m.DailyMenu.Date
+                        })
+                    .SingleOrDefaultAsync();
+
+
+            if (meal != null)
+            {
+                meal.Dishes =
+                    await LoadDishesAsync();
+            }
+
+
+            return meal;
+        }
+
+
+        public bool IsMealTypeValid(MealType mealType)
+        {
+            return Enum.IsDefined(typeof(MealType),mealType);
+        }
+
+        public async Task<bool> EditMealAsync(int id,AddMealViewModel meal)
+        {
+            Meal? mealToEdit =
+                await _dbContext.Meals
+                    .FirstOrDefaultAsync(m => m.Id == id);
+
+
+            if (mealToEdit == null)
+            {
+                return false;
+            }
+
+
+            DateTime selectedDate =
+                meal.Date!.Value.Date;
+
+
+            DailyMenu? dailyMenu = await _dbContext.DailyMenus.FirstOrDefaultAsync(d =>d.Date.Date == selectedDate);
+
+
+            if (dailyMenu == null)
+            {
+                dailyMenu =
+                    new DailyMenu
+                    {
+                        Date = selectedDate
+                    };
+
+
+                await _dbContext.DailyMenus
+                    .AddAsync(dailyMenu);
+
+
+                await _dbContext
+                    .SaveChangesAsync();
+            }
+
+
+            mealToEdit.DishId =
+                meal.DishId;
+
+
+            mealToEdit.MealType =
+                meal.MealType;
+
+
+            mealToEdit.DailyMenuId =
+                dailyMenu.Id;
+
+
+            await _dbContext
+                .SaveChangesAsync();
+
+
+            return true;
+        }
+
     }
 }
