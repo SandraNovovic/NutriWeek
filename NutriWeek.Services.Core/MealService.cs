@@ -221,5 +221,59 @@ namespace NutriWeek.Services.Core.Implementations
             return true;
         }
 
+        public async Task<DeleteMealViewModel?> GetMealForDeleteAsync(int id)
+        {
+            DeleteMealViewModel? deletingMeal =
+                await _dbContext.Meals
+                    .AsNoTracking()
+                    .Where(m =>m.Id == id )
+                    .Select(m =>
+                        new DeleteMealViewModel
+                        {
+                            Id =
+                                m.Id,
+
+                            DishName =
+                                m.Dish.Name,
+
+                            Date =
+                                m.DailyMenu.Date,
+
+                            MealType =
+                                m.MealType.ToString(),
+
+                            ImageUrl =
+                                m.Dish.ImageUrl
+                        })
+                    .SingleOrDefaultAsync();
+
+
+            return deletingMeal;
+        }
+
+
+        public async Task<bool> DeleteMealAsync(int id)
+        {
+            Meal? mealToDelete =
+                await _dbContext.Meals
+                    .FirstOrDefaultAsync(m =>m.Id == id);
+
+
+            if (mealToDelete == null)
+            {
+                return false;
+            }
+
+
+            _dbContext.Meals.Remove( mealToDelete);
+
+
+            await _dbContext
+                .SaveChangesAsync();
+
+
+            return true;
+        }
+
     }
 }
