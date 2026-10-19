@@ -123,5 +123,138 @@ namespace NutriWeek.Web.Controllers
 
             return RedirectToAction("Index");
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Edit( [FromRoute] int? id)
+        {
+            if (!id.HasValue ||id.Value <= 0)
+            {
+                return BadRequest(
+                    ErrorMessages.InvalidRequest);
+            }
+
+
+            AddMealViewModel? meal =
+                await _mealService
+                    .GetMealForEditAsync(id.Value);
+
+
+            if (meal == null)
+            {
+                return NotFound(
+                    ErrorMessages.MealNotFound);
+            }
+
+
+            return View(meal);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Edit([FromRoute] int? id,AddMealViewModel meal)
+        {
+
+            if (!id.HasValue || id.Value <= 0)
+            {
+                return BadRequest();
+            }
+
+
+            if (!ModelState.IsValid)
+            {
+                meal.Dishes =
+                    await _mealService
+                        .LoadDishesAsync();
+
+
+                return View(meal);
+            }
+
+
+            bool mealTypeExists =
+                _mealService
+                    .IsMealTypeValid(meal.MealType);
+
+
+            if (!mealTypeExists)
+            {
+                ModelState.AddModelError(
+                    nameof(meal.MealType),
+                    ErrorMessages.InvalidMealType);
+
+
+                meal.Dishes =
+                    await _mealService
+                        .LoadDishesAsync();
+
+
+                return View(meal);
+            }
+
+
+            bool dishExists =
+                await _mealService
+                    .DishExistsAsync(meal.DishId);
+
+
+            if (!dishExists)
+            {
+                ModelState.AddModelError(
+                    nameof(meal.DishId),
+                    ErrorMessages.DishNotFound);
+
+
+                meal.Dishes =
+                    await _mealService
+                        .LoadDishesAsync();
+
+
+                return View(meal);
+            }
+
+
+            try
+            {
+                bool edited =
+                    await _mealService
+                        .EditMealAsync(id.Value, meal);
+
+
+                if (!edited)
+                {
+                    return NotFound();
+                }
+
+
+                TempData["Success"] =
+                    UpdateMealSuccessMessage;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    ErrorMessages.InvalidRequest);
+
+
+                TempData["Error"] =
+                    UpdateMealErrorMessage;
+
+
+                meal.Dishes =
+                    await _mealService
+                        .LoadDishesAsync();
+
+
+                return View(meal);
+            }
+
+
+            return RedirectToAction(
+                nameof(Index));
+        }
+
+
+
     }
 }
