@@ -235,7 +235,7 @@ namespace NutriWeek.Data.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("WeeklyMenuId")
+                    b.Property<int?>("WeeklyMenuId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -509,9 +509,7 @@ namespace NutriWeek.Data.Migrations
                 {
                     b.HasOne("NutriWeek.Data.Models.WeeklyMenu", "WeeklyMenu")
                         .WithMany("DailyMenus")
-                        .HasForeignKey("WeeklyMenuId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("WeeklyMenuId");
 
                     b.Navigation("WeeklyMenu");
                 });

@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NutriWeek.Services.Core.Interfaces;
-using NutriWeek.ViewModels.DailyMenus;
+using NutriWeek.Web.ViewModels.DailyMenus;
 using System.Security.Claims;
 
 namespace NutriWeek.Web.Controllers
 {
-    [Authorize]
     public class DailyMenusController : Controller
     {
         private readonly IDailyMenuService
