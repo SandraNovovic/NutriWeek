@@ -1,4 +1,5 @@
-﻿using NutriWeek.Services.Core.Implementations;
+﻿using NutriWeek.Services.Core;
+using NutriWeek.Services.Core.Implementations;
 using NutriWeek.Services.Core.Interfaces;
 using NutriWeek.Services.Core.Services;
 
@@ -10,8 +11,9 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             return services
                 .AddScoped<IDishService, DishService>()
-                .AddScoped<IMealService,MealService>()
-                .AddScoped<IDailyMenuService,DailyMenuService>();
+                .AddScoped<IMealService, MealService>()
+                .AddScoped<IDailyMenuService, DailyMenuService>()
+                .AddScoped<IWeeklyMenuService, WeeklyMenuService>();
         }
     }
 }
