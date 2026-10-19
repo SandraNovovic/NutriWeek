@@ -255,6 +255,77 @@ namespace NutriWeek.Web.Controllers
         }
 
 
+        [HttpGet]
+        public async Task<IActionResult> Delete( [FromRoute] int? id)
+        {
+            if (!id.HasValue ||id.Value <= 0)
+            {
+                return BadRequest(ErrorMessages.InvalidRequestTryAgain);
+            }
+
+
+            string userId =
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier)!;
+
+
+            DeleteMealViewModel? deletingMeal =
+                await _mealService
+                    .GetMealForDeleteAsync(id.Value);
+
+
+            if (deletingMeal == null)
+            {
+                return NotFound(
+                    ErrorMessages.MealNotFound);
+            }
+
+
+            return View(deletingMeal);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Delete([FromRoute] int? id, DeleteMealViewModel meal)
+        {
+            if (!id.HasValue ||id.Value <= 0)
+            {
+                return BadRequest(
+                    ErrorMessages.InvalidRequestTryAgain);
+            }
+
+            try
+            {
+                bool deleted =
+                    await _mealService
+                        .DeleteMealAsync(id.Value);
+
+
+                if (!deleted)
+                {
+                    return NotFound();
+                }
+
+
+                TempData["Success"] =
+                    DeleteMealSuccessMessage;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    ErrorMessages.InvalidRequest);
+
+
+                TempData["Error"] =
+                    DeleteMealErrorMessage;
+            }
+
+            return RedirectToAction(
+                nameof(Index));
+        }
+
+
 
     }
 }
