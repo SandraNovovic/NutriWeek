@@ -99,8 +99,24 @@ namespace NutriWeek.Web.Controllers
                 TempData["SuccessMessage"] =
                     AddMealSuccessMessage;
             }
-            catch 
+            catch (Exception ex)
             {
+                _logger.LogError(
+                    ex,
+                    ErrorMessages.InvalidRequest);
+
+
+                model.Dishes =
+                    await _mealService
+                        .LoadDishesAsync();
+
+                model.MealTypes = _mealService.LoadMealTypes();
+
+                TempData["ErrorMessage"] =
+                    AddMealErrorMessage;
+
+
+                return View(model);
                 throw;
             }
 
