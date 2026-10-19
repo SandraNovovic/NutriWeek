@@ -30,7 +30,7 @@ namespace NutriWeek.Services.Core.Interfaces
 
         Task<bool> DeleteMealAsync(int id);
 
-        //Task<MealDetailsViewModel?> GetMealDetailsAsync(int id);
+        Task<MealDetailsViewModel?> GetMealDetailsAsync(int id);
     }
 
 }
