@@ -15,7 +15,8 @@ namespace NutriWeek.Web.Controllers
 
         public DailyMenusController(IDailyMenuService dailyMenuService)
         {
-            _dailyMenuService =dailyMenuService;
+            _dailyMenuService =
+                dailyMenuService;
         }
 
 

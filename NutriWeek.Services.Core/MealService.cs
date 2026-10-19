@@ -72,6 +72,11 @@ namespace NutriWeek.Services.Core.Implementations
         }
 
 
+        public async Task<bool> DishExistsAsync(int dishId)
+        {
+            return await _dbContext.Dishes.AnyAsync(d =>d.Id == dishId);
+        }
+
         public async Task<bool> AddMealAsync(AddMealViewModel model)
         {
 
