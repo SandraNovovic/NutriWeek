@@ -1,4 +1,4 @@
-﻿using NutriWeek.ViewModels.DailyMenus;
+﻿using NutriWeek.Web.ViewModels.DailyMenus;
 
 namespace NutriWeek.Services.Core.Interfaces
 {

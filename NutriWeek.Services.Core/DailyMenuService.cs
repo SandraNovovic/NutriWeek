@@ -2,7 +2,7 @@
 using NutriWeek.Data;
 using NutriWeek.Data.Models.Enums;
 using NutriWeek.Services.Core.Interfaces;
-using NutriWeek.ViewModels.DailyMenus;
+using NutriWeek.Web.ViewModels.DailyMenus;
 
 namespace NutriWeek.Services.Core.Services
 {

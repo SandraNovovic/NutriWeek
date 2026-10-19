@@ -1,4 +1,4 @@
-﻿namespace NutriWeek.ViewModels.DailyMenus
+﻿namespace NutriWeek.Web.ViewModels.DailyMenus
 {
     public class DailyMenuIndexViewModel
     {
