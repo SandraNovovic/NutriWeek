@@ -1,12 +1,58 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NutriWeek.Services.Core.Interfaces;
+using NutriWeek.Web.ViewModels.WeeklyMenus;
+using System.Globalization;
+using System.Security.Claims;
 
 namespace NutriWeek.Web.Controllers
 {
     public class WeeklyMenusController : Controller
     {
-        public IActionResult Index()
+        private readonly IWeeklyMenuService
+            _weeklyMenuService;
+
+
+        public WeeklyMenusController(
+            IWeeklyMenuService weeklyMenuService)
         {
-            return View();
+            _weeklyMenuService =
+                weeklyMenuService;
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Index(int? year, DateTime? weekStart)
+        {
+            int selectedYear;
+
+
+            if (year.HasValue)
+            {
+                selectedYear =year.Value;
+            }
+            else if (weekStart.HasValue)
+            {
+                selectedYear = ISOWeek.GetYear(weekStart.Value);
+            }
+            else
+            {
+                selectedYear =
+                    ISOWeek.GetYear(
+                        DateTime.Today);
+            }
+
+
+
+            List<WeeklyMenuIndexViewModel> weeklyMenus =
+                await _weeklyMenuService
+                    .GetAllAsync(selectedYear);
+
+
+            ViewBag.SelectedYear = selectedYear;
+
+            return View(weeklyMenus);
+        }
+
+
     }
 }
