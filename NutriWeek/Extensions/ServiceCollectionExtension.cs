@@ -10,7 +10,8 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             return services
                 .AddScoped<IDishService, DishService>()
-                .AddScoped<IMealService,MealService>();
+                .AddScoped<IMealService,MealService>()
+                .AddScoped<IDailyMenuService,DailyMenuService>();
         }
     }
 }
