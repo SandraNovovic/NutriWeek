@@ -79,12 +79,46 @@ namespace NutriWeek.Services.Core.Implementations
 
         public async Task<bool> AddMealAsync(AddMealViewModel model)
         {
+            DateTime selectedDate =
+                model.Date!.Value.Date;
 
-            DateTime selectedDate =model.Date!.Value.Date;
+
+            int difference =
+                ((int)selectedDate.DayOfWeek -
+                 (int)DayOfWeek.Monday + 7) % 7;
+
+
+            DateTime weekStartDate =
+                selectedDate.AddDays(-difference);
+
+
+            WeeklyMenu? weeklyMenu =
+                await _dbContext.WeeklyMenus
+                    .FirstOrDefaultAsync(w => w.WeekStartDate.Date ==weekStartDate);
+
+
+            if (weeklyMenu == null)
+            {
+                weeklyMenu =
+                    new WeeklyMenu
+                    {
+                        WeekStartDate =
+                            weekStartDate,
+
+                        Title = $"Week of {weekStartDate:dd.MM.yyyy}"
+                    };
+
+                await _dbContext.WeeklyMenus
+                    .AddAsync(weeklyMenu);
+
+                await _dbContext
+                    .SaveChangesAsync();
+            }
+
 
             DailyMenu? dailyMenu =
                 await _dbContext.DailyMenus
-                    .FirstOrDefaultAsync(d => d.Date.Date == selectedDate);
+                    .FirstOrDefaultAsync(d =>d.Date.Date ==selectedDate);
 
 
             bool dailyMenuCreated = false;
@@ -95,7 +129,10 @@ namespace NutriWeek.Services.Core.Implementations
                 dailyMenu =
                     new DailyMenu
                     {
-                        Date = selectedDate
+                        Date = selectedDate,
+
+                        WeeklyMenuId =
+                            weeklyMenu.Id
                     };
 
                 await _dbContext.DailyMenus
@@ -106,9 +143,17 @@ namespace NutriWeek.Services.Core.Implementations
 
                 dailyMenuCreated = true;
             }
+            else if (dailyMenu.WeeklyMenuId == null)
+            {
+                dailyMenu.WeeklyMenuId =
+                    weeklyMenu.Id;
+
+                await _dbContext.SaveChangesAsync();
+            }
 
 
-            Meal meal = new Meal
+            Meal meal =
+                new Meal
                 {
                     DishId = model.DishId,
                     MealType = model.MealType,
@@ -124,7 +169,6 @@ namespace NutriWeek.Services.Core.Implementations
 
 
             return dailyMenuCreated;
-
         }
 
 
