@@ -242,7 +242,7 @@ namespace NutriWeek.Data.Migrations
 
                     b.HasIndex("WeeklyMenuId");
 
-                    b.ToTable("DailyMenus");
+                    b.ToTable("DailyMenus", (string)null);
 
                     b.HasData(
                         new
@@ -303,7 +303,7 @@ namespace NutriWeek.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Dishes");
+                    b.ToTable("Dishes", (string)null);
 
                     b.HasData(
                         new
@@ -379,7 +379,7 @@ namespace NutriWeek.Data.Migrations
 
                     b.HasIndex("DishId");
 
-                    b.ToTable("Meals");
+                    b.ToTable("Meals", (string)null);
 
                     b.HasData(
                         new
@@ -443,7 +443,7 @@ namespace NutriWeek.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("WeeklyMenus");
+                    b.ToTable("WeeklyMenus", (string)null);
 
                     b.HasData(
                         new
