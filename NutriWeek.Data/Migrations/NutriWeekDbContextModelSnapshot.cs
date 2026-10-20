@@ -235,14 +235,14 @@ namespace NutriWeek.Data.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("WeeklyMenuId")
+                    b.Property<int>("WeeklyMenuId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("WeeklyMenuId");
 
-                    b.ToTable("DailyMenus", (string)null);
+                    b.ToTable("DailyMenus");
 
                     b.HasData(
                         new
@@ -303,7 +303,7 @@ namespace NutriWeek.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Dishes", (string)null);
+                    b.ToTable("Dishes");
 
                     b.HasData(
                         new
@@ -379,7 +379,7 @@ namespace NutriWeek.Data.Migrations
 
                     b.HasIndex("DishId");
 
-                    b.ToTable("Meals", (string)null);
+                    b.ToTable("Meals");
 
                     b.HasData(
                         new
@@ -443,7 +443,7 @@ namespace NutriWeek.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("WeeklyMenus", (string)null);
+                    b.ToTable("WeeklyMenus");
 
                     b.HasData(
                         new
@@ -509,7 +509,9 @@ namespace NutriWeek.Data.Migrations
                 {
                     b.HasOne("NutriWeek.Data.Models.WeeklyMenu", "WeeklyMenu")
                         .WithMany("DailyMenus")
-                        .HasForeignKey("WeeklyMenuId");
+                        .HasForeignKey("WeeklyMenuId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("WeeklyMenu");
                 });

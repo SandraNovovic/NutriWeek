@@ -12,9 +12,9 @@ namespace NutriWeek.Data.Models
         public DateTime Date { get; set; }
 
         [ForeignKey(nameof(WeeklyMenu))]
-        public int? WeeklyMenuId { get; set; }
+        public int WeeklyMenuId { get; set; }
 
-        public WeeklyMenu? WeeklyMenu { get; set; } 
+        public WeeklyMenu WeeklyMenu { get; set; } 
 
         public ICollection<Meal> Meals { get; set; } = new HashSet<Meal>();
     }
