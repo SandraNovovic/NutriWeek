@@ -1,37 +1,44 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NutriWeek.Models;
 using NutriWeek.Services.Core.Interfaces;
-using NutriWeek.Web.ViewModels.Dishes;
-using System.Diagnostics;
+using NutriWeek.ViewModels.Home;
+using NutriWeek.Web.ViewModels.WeeklyMenus;
+using System.Security.Claims;
 
-namespace NutriWeek.Controllers
+namespace NutriWeek.Web.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-        private readonly IDishService _dishService;
+        private readonly IWeeklyMenuService  _weeklyMenuService;
 
-        public HomeController(ILogger<HomeController> logger, IDishService dishService)
+
+        public HomeController( IWeeklyMenuService weeklyMenuService)
         {
-            _logger = logger;
-            _dishService = dishService;
+            _weeklyMenuService = weeklyMenuService;
         }
 
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            IEnumerable<DishIndexViewModel> dishes =
-                await _dishService.GetAllAsync();
-
-            return View(dishes);
-        }
+            string userId =User.FindFirstValue( ClaimTypes.NameIdentifier)!;
 
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            WeeklyMenuIndexViewModel? currentWeek =
+                await _weeklyMenuService
+                    .GetCurrentWeekAsync(
+                        userId);
+
+
+            HomeIndexViewModel model =
+                new HomeIndexViewModel
+                {
+                    CurrentWeek =currentWeek
+                };
+
+
+            return View(model);
         }
     }
 }
