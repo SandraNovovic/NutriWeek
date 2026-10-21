@@ -12,17 +12,19 @@ namespace NutriWeek.Services.Core.Services
     {
         private readonly NutriWeekDbContext _dbContext;
 
-        public DishService(NutriWeekDbContext dbContext)
+        public DishService(
+            NutriWeekDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
 
-        public async Task<IEnumerable<DishIndexViewModel>> GetAllAsync()
+        public async Task<IEnumerable<DishIndexViewModel>> GetAllAsync(string userId)
         {
             List<DishIndexViewModel> dishes =
                 await _dbContext.Dishes
                     .AsNoTracking()
+                    .Where(d =>d.IsShared || d.UserId == userId)
                     .Select(d =>
                         new DishIndexViewModel
                         {
@@ -33,7 +35,8 @@ namespace NutriWeek.Services.Core.Services
                             PreparationTime = d.PreparationTime,
                             Portions = d.Portions,
                             ImageUrl = d.ImageUrl,
-                            DishType = d.DishType
+                            DishType = d.DishType,
+                            IsShared = d.IsShared
                         })
                     .ToListAsync();
 
@@ -53,7 +56,7 @@ namespace NutriWeek.Services.Core.Services
         }
 
 
-        public async Task AddDishAsync(AddDishViewModel model)
+        public async Task AddDishAsync(AddDishViewModel model,string userId)
         {
             Dish dish =
                 new Dish
@@ -66,7 +69,9 @@ namespace NutriWeek.Services.Core.Services
                     PreparationTime = model.PreparationTime,
                     Portions = model.Portions,
                     ImageUrl = model.ImageUrl,
-                    DishType = model.DishType
+                    DishType = model.DishType,
+                    UserId = userId,
+                    IsShared = false
                 };
 
             await _dbContext.Dishes.AddAsync(dish);
@@ -74,12 +79,16 @@ namespace NutriWeek.Services.Core.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<AddDishViewModel?> GetDishForEditAsync(int id)
+
+        public async Task<AddDishViewModel?> GetDishForEditAsync(int id,string userId)
         {
             AddDishViewModel? dish =
                 await _dbContext.Dishes
                     .AsNoTracking()
-                    .Where(d=>d.Id==id)
+                    .Where(d =>
+                        d.Id == id &&
+                        d.UserId == userId &&
+                        !d.IsShared)
                     .Select(d =>
                         new AddDishViewModel
                         {
@@ -106,19 +115,20 @@ namespace NutriWeek.Services.Core.Services
         }
 
 
-        public bool IsDishTypeValid(DishType dishType)
+        public bool IsDishTypeValid( DishType dishType)
         {
-            return Enum.IsDefined(
-                typeof(DishType),
-                dishType);
+            return Enum.IsDefined( typeof(DishType),dishType);
         }
 
 
-        public async Task<bool> EditDishAsync(int id,AddDishViewModel dish)
+        public async Task<bool> EditDishAsync( int id,AddDishViewModel dish,string userId)
         {
             Dish? dishToEdit =
                 await _dbContext.Dishes
-                    .FirstOrDefaultAsync(d =>d.Id == id);
+                    .FirstOrDefaultAsync(d =>
+                        d.Id == id &&
+                        d.UserId == userId &&
+                        !d.IsShared);
 
             if (dishToEdit == null)
             {
@@ -157,12 +167,16 @@ namespace NutriWeek.Services.Core.Services
             return true;
         }
 
-        public async Task<DeleteDishViewModel?> GetDishForDeleteAsync(int id)
+
+        public async Task<DeleteDishViewModel?> GetDishForDeleteAsync(int id,string userId)
         {
             DeleteDishViewModel? deletingDish =
                 await _dbContext.Dishes
                     .AsNoTracking()
-                    .Where(d => d.Id == id)
+                    .Where(d =>
+                        d.Id == id &&
+                        d.UserId == userId &&
+                        !d.IsShared)
                     .Select(d =>
                         new DeleteDishViewModel
                         {
@@ -175,30 +189,38 @@ namespace NutriWeek.Services.Core.Services
         }
 
 
-        public async Task<bool> DeleteDishAsync(int id)
+        public async Task<bool> DeleteDishAsync(int id,string userId)
         {
             Dish? dishToDelete =
                 await _dbContext.Dishes
-                    .FirstOrDefaultAsync(d => d.Id == id);
+                    .FirstOrDefaultAsync(d =>
+                        d.Id == id &&
+                        d.UserId == userId &&
+                        !d.IsShared);
 
             if (dishToDelete == null)
             {
                 return false;
             }
 
-            _dbContext.Dishes.Remove(dishToDelete);
+            _dbContext.Dishes.Remove(
+                dishToDelete);
 
             await _dbContext.SaveChangesAsync();
 
             return true;
         }
 
-        public async Task<DetailsDishViewModel?> GetDishDetailsAsync(int id)
+
+        public async Task<DetailsDishViewModel?> GetDishDetailsAsync( int id,string userId)
         {
             DetailsDishViewModel? dish =
                 await _dbContext.Dishes
                     .AsNoTracking()
-                    .Where(d => d.Id == id)
+                    .Where(d =>
+                        d.Id == id &&
+                        (d.IsShared ||
+                         d.UserId == userId))
                     .Select(d =>
                         new DetailsDishViewModel
                         {
@@ -225,7 +247,6 @@ namespace NutriWeek.Services.Core.Services
 
             return dish;
         }
-
 
 
     }
