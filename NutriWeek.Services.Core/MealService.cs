@@ -5,7 +5,6 @@ using NutriWeek.Data.Models.Enums;
 using NutriWeek.Services.Core.Interfaces;
 using NutriWeek.Web.ViewModels;
 using NutriWeek.Web.ViewModels.Meals;
-using System;
 
 namespace NutriWeek.Services.Core.Implementations
 {
@@ -13,17 +12,21 @@ namespace NutriWeek.Services.Core.Implementations
     {
         private readonly NutriWeekDbContext _dbContext;
 
-        public MealService(NutriWeekDbContext dbContext)
+        public MealService(
+            NutriWeekDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
 
-        public async Task<List<MealIndexViewModel>> GetAllAsync()
+        public async Task<List<MealIndexViewModel>> GetAllAsync(string userId)
         {
             List<MealIndexViewModel> meals =
                 await _dbContext.Meals
                     .AsNoTracking()
+                    .Where(m =>
+                        m.DailyMenu.WeeklyMenu.UserId ==
+                        userId)
                     .OrderBy(m => m.DailyMenu.Date)
                     .ThenBy(m => m.MealType)
                     .Select(m =>
@@ -34,7 +37,7 @@ namespace NutriWeek.Services.Core.Implementations
                             DishName = m.Dish.Name,
                             Calories = m.Dish.Calories,
                             Preparation =
-                            m.Dish.PreparationTime,
+                                m.Dish.PreparationTime,
                             MealType = m.MealType
                         })
                     .ToListAsync();
@@ -43,11 +46,14 @@ namespace NutriWeek.Services.Core.Implementations
         }
 
 
-        public async Task<IEnumerable<DropdownViewModel>> LoadDishesAsync()
+        public async Task<IEnumerable<DropdownViewModel>> LoadDishesAsync( string userId)
         {
             IEnumerable<DropdownViewModel> dishes =
                 await _dbContext.Dishes
                     .AsNoTracking()
+                    .Where(d =>
+                        d.IsShared ||
+                        d.UserId == userId)
                     .Select(d =>
                         new DropdownViewModel
                         {
@@ -59,25 +65,8 @@ namespace NutriWeek.Services.Core.Implementations
             return dishes;
         }
 
-        public IEnumerable<DropdownViewModel> LoadMealTypes()
-        {
-            return Enum.GetValues<MealType>()
-                .Select(m => new DropdownViewModel
-                {
-                    Id = (int)m,
-                    Name = m.ToString()
-                })
-                .ToList();
 
-        }
-
-
-        public async Task<bool> DishExistsAsync(int dishId)
-        {
-            return await _dbContext.Dishes.AnyAsync(d =>d.Id == dishId);
-        }
-
-        public async Task<bool> AddMealAsync(AddMealViewModel model)
+        public async Task<bool> AddMealAsync( AddMealViewModel model, string userId)
         {
             DateTime selectedDate =
                 model.Date!.Value.Date;
@@ -94,7 +83,10 @@ namespace NutriWeek.Services.Core.Implementations
 
             WeeklyMenu? weeklyMenu =
                 await _dbContext.WeeklyMenus
-                    .FirstOrDefaultAsync(w => w.WeekStartDate.Date ==weekStartDate);
+                    .FirstOrDefaultAsync(w =>
+                        w.UserId == userId &&
+                        w.WeekStartDate.Date ==
+                        weekStartDate);
 
 
             if (weeklyMenu == null)
@@ -105,7 +97,11 @@ namespace NutriWeek.Services.Core.Implementations
                         WeekStartDate =
                             weekStartDate,
 
-                        Title = $"Week of {weekStartDate:dd.MM.yyyy}"
+                        Title =
+                            $"Week of {weekStartDate:dd.MM.yyyy}",
+
+                        UserId =
+                            userId
                     };
 
                 await _dbContext.WeeklyMenus
@@ -118,7 +114,10 @@ namespace NutriWeek.Services.Core.Implementations
 
             DailyMenu? dailyMenu =
                 await _dbContext.DailyMenus
-                    .FirstOrDefaultAsync(d =>d.Date.Date ==selectedDate);
+                    .FirstOrDefaultAsync(d =>
+                        d.WeeklyMenu.UserId == userId &&
+                        d.Date.Date ==
+                        selectedDate);
 
 
             bool dailyMenuCreated = false;
@@ -143,13 +142,6 @@ namespace NutriWeek.Services.Core.Implementations
 
                 dailyMenuCreated = true;
             }
-            else if (dailyMenu.WeeklyMenuId == null)
-            {
-                dailyMenu.WeeklyMenuId =
-                    weeklyMenu.Id;
-
-                await _dbContext.SaveChangesAsync();
-            }
 
 
             Meal meal =
@@ -172,12 +164,15 @@ namespace NutriWeek.Services.Core.Implementations
         }
 
 
-        public async Task<AddMealViewModel?> GetMealForEditAsync(int id)
+        public async Task<AddMealViewModel?> GetMealForEditAsync( int id, string userId)
         {
             AddMealViewModel? meal =
                 await _dbContext.Meals
                     .AsNoTracking()
-                    .Where(m =>m.Id == id )
+                    .Where(m =>
+                        m.Id == id &&
+                        m.DailyMenu.WeeklyMenu.UserId ==
+                        userId)
                     .Select(m =>
                         new AddMealViewModel
                         {
@@ -195,7 +190,8 @@ namespace NutriWeek.Services.Core.Implementations
             if (meal != null)
             {
                 meal.Dishes =
-                    await LoadDishesAsync();
+                    await LoadDishesAsync(
+                        userId);
             }
 
 
@@ -205,14 +201,30 @@ namespace NutriWeek.Services.Core.Implementations
 
         public bool IsMealTypeValid(MealType mealType)
         {
-            return Enum.IsDefined(typeof(MealType),mealType);
+            return Enum.IsDefined(
+                typeof(MealType),
+                mealType);
         }
 
-        public async Task<bool> EditMealAsync(int id,AddMealViewModel meal)
+
+        public async Task<bool> DishExistsAsync( int dishId,string userId)
+        {
+            return await _dbContext.Dishes
+                .AnyAsync(d =>
+                    d.Id == dishId &&
+                    (d.IsShared ||
+                     d.UserId == userId));
+        }
+
+
+        public async Task<bool> EditMealAsync( int id, AddMealViewModel meal,string userId)
         {
             Meal? mealToEdit =
                 await _dbContext.Meals
-                    .FirstOrDefaultAsync(m => m.Id == id);
+                    .FirstOrDefaultAsync(m =>
+                        m.Id == id &&
+                        m.DailyMenu.WeeklyMenu.UserId ==
+                        userId);
 
 
             if (mealToEdit == null)
@@ -225,7 +237,54 @@ namespace NutriWeek.Services.Core.Implementations
                 meal.Date!.Value.Date;
 
 
-            DailyMenu? dailyMenu = await _dbContext.DailyMenus.FirstOrDefaultAsync(d =>d.Date.Date == selectedDate);
+            int difference =
+                ((int)selectedDate.DayOfWeek -
+                 (int)DayOfWeek.Monday + 7) % 7;
+
+
+            DateTime weekStartDate =
+                selectedDate.AddDays(-difference);
+
+
+            WeeklyMenu? weeklyMenu =
+                await _dbContext.WeeklyMenus
+                    .FirstOrDefaultAsync(w =>
+                        w.UserId == userId &&
+                        w.WeekStartDate.Date ==
+                        weekStartDate);
+
+
+            if (weeklyMenu == null)
+            {
+                weeklyMenu =
+                    new WeeklyMenu
+                    {
+                        WeekStartDate =
+                            weekStartDate,
+
+                        Title =
+                            $"Week of {weekStartDate:dd.MM.yyyy}",
+
+                        UserId =
+                            userId
+                    };
+
+
+                await _dbContext.WeeklyMenus
+                    .AddAsync(weeklyMenu);
+
+
+                await _dbContext
+                    .SaveChangesAsync();
+            }
+
+
+            DailyMenu? dailyMenu =
+                await _dbContext.DailyMenus
+                    .FirstOrDefaultAsync(d =>
+                        d.WeeklyMenu.UserId == userId &&
+                        d.Date.Date ==
+                        selectedDate);
 
 
             if (dailyMenu == null)
@@ -233,7 +292,11 @@ namespace NutriWeek.Services.Core.Implementations
                 dailyMenu =
                     new DailyMenu
                     {
-                        Date = selectedDate
+                        Date =
+                            selectedDate,
+
+                        WeeklyMenuId =
+                            weeklyMenu.Id
                     };
 
 
@@ -265,12 +328,16 @@ namespace NutriWeek.Services.Core.Implementations
             return true;
         }
 
-        public async Task<DeleteMealViewModel?> GetMealForDeleteAsync(int id)
+
+        public async Task<DeleteMealViewModel?> GetMealForDeleteAsync( int id, string userId)
         {
             DeleteMealViewModel? deletingMeal =
                 await _dbContext.Meals
                     .AsNoTracking()
-                    .Where(m =>m.Id == id )
+                    .Where(m =>
+                        m.Id == id &&
+                        m.DailyMenu.WeeklyMenu.UserId ==
+                        userId)
                     .Select(m =>
                         new DeleteMealViewModel
                         {
@@ -296,11 +363,14 @@ namespace NutriWeek.Services.Core.Implementations
         }
 
 
-        public async Task<bool> DeleteMealAsync(int id)
+        public async Task<bool> DeleteMealAsync( int id, string userId)
         {
             Meal? mealToDelete =
                 await _dbContext.Meals
-                    .FirstOrDefaultAsync(m =>m.Id == id);
+                    .FirstOrDefaultAsync(m =>
+                        m.Id == id &&
+                        m.DailyMenu.WeeklyMenu.UserId ==
+                        userId);
 
 
             if (mealToDelete == null)
@@ -309,7 +379,8 @@ namespace NutriWeek.Services.Core.Implementations
             }
 
 
-            _dbContext.Meals.Remove( mealToDelete);
+            _dbContext.Meals.Remove(
+                mealToDelete);
 
 
             await _dbContext
@@ -319,12 +390,16 @@ namespace NutriWeek.Services.Core.Implementations
             return true;
         }
 
-        public async Task<MealDetailsViewModel?> GetMealDetailsAsync(int id)
+
+        public async Task<MealDetailsViewModel?> GetMealDetailsAsync(int id, string userId)
         {
             MealDetailsViewModel? meal =
                 await _dbContext.Meals
                     .AsNoTracking()
-                    .Where(m =>m.Id == id)
+                    .Where(m =>
+                        m.Id == id &&
+                        m.DailyMenu.WeeklyMenu.UserId ==
+                        userId)
                     .Select(m =>
                         new MealDetailsViewModel
                         {
@@ -367,5 +442,3 @@ namespace NutriWeek.Services.Core.Implementations
         }
     }
 }
-
-

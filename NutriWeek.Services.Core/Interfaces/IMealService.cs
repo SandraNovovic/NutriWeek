@@ -1,36 +1,29 @@
 ﻿using NutriWeek.Data.Models.Enums;
 using NutriWeek.Web.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NutriWeek.Web.ViewModels.Meals;
 
 namespace NutriWeek.Services.Core.Interfaces
 {
     public interface IMealService
     {
-        Task<List<MealIndexViewModel>> GetAllAsync();
+        Task<List<MealIndexViewModel>> GetAllAsync(string userId);
 
-        Task<IEnumerable<DropdownViewModel>> LoadDishesAsync();
+        Task<IEnumerable<DropdownViewModel>> LoadDishesAsync( string userId);
 
-        Task<bool> DishExistsAsync(int dishId);
-       IEnumerable<DropdownViewModel> LoadMealTypes();
+        Task<bool> AddMealAsync( AddMealViewModel model, string userId);
 
-        Task<bool> AddMealAsync(AddMealViewModel model);
-
-        Task<AddMealViewModel?> GetMealForEditAsync(int id);
+        Task<AddMealViewModel?> GetMealForEditAsync(int id,string userId);
 
         bool IsMealTypeValid(MealType mealType);
 
-        Task<bool> EditMealAsync(int id, AddMealViewModel meal);
+        Task<bool> DishExistsAsync( int dishId, string userId);
 
-        Task<DeleteMealViewModel?> GetMealForDeleteAsync(int id);
+        Task<bool> EditMealAsync( int id, AddMealViewModel meal,string userId);
 
-        Task<bool> DeleteMealAsync(int id);
+        Task<DeleteMealViewModel?> GetMealForDeleteAsync( int id,string userId);
 
-        Task<MealDetailsViewModel?> GetMealDetailsAsync(int id);
+        Task<bool> DeleteMealAsync( int id, string userId);
+
+        Task<MealDetailsViewModel?> GetMealDetailsAsync(int id, string userId);
     }
-
 }
