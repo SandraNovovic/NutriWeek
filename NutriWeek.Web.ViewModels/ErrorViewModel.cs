@@ -1,4 +1,4 @@
-namespace NutriWeek.Models
+namespace NutriWeek.Web.ViewModels
 {
     public class ErrorViewModel
     {
