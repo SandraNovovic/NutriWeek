@@ -1,20 +1,93 @@
-﻿@using NutriWeek.Web.ViewModels.Dishes
-@model IEnumerable<DishIndexViewModel>
+﻿@using NutriWeek.ViewModels.Home
+@using NutriWeek.Web.ViewModels.DailyMenus
+
+@model HomeIndexViewModel
+
 @{
     ViewData["Title"] = "Home";
-    List<DishIndexViewModel> popularDishes =
-        Model.ToList();
 
     Dictionary<string, string> dishImages =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-        { "Vegan Oatmeal", "/images/DishesImages/vegan_oatmeal.png" },
-        { "Vegetarian Pasta", "/images/DishesImages/vegetarian_pasta.png" },
-        { "Chicken Rice Bowl", "/images/DishesImages/chicken_rice_bowl.png" },
-        { "Salmon with Vegetables", "/images/DishesImages/salmon_with_vegetables.png" },
-        { "Lentil Soup", "/images/DishesImages/lentil_soup.png" }
+            { "Vegan Oatmeal", "/images/DishesImages/vegan_oatmeal.png" },
+            { "Vegetarian Pasta", "/images/DishesImages/vegetarian_pasta.png" },
+            { "Chicken Rice Bowl", "/images/DishesImages/chicken_rice_bowl.png" },
+            { "Salmon with Vegetables", "/images/DishesImages/salmon_with_vegetables.png" },
+            { "Lentil Soup", "/images/DishesImages/lentil_soup.png" }
         };
+
+    string GetMealImage(DailyMenuMealViewModel? meal)
+    {
+        if (meal == null)
+        {
+            return "/images/DishesImages/unadded.png";
+        }
+
+        if (!string.IsNullOrWhiteSpace(meal.ImageUrl))
+        {
+            return meal.ImageUrl;
+        }
+
+        if (dishImages.ContainsKey(meal.DishName))
+        {
+            return dishImages[meal.DishName];
+        }
+
+        return "/images/DishesImages/unadded.png";
+    }
+
+    var popularDishes = new[]
+    {
+        new
+        {
+            Name = "Vegan Oatmeal",
+            Description = "Oatmeal with banana and fresh berries.",
+            MealType = "Breakfast",
+            DishType = "Vegan",
+            Calories = "350 kcal",
+            Time = "10 min",
+            Servings = "2 servings",
+            Image = "~/images/DishesImages/vegan_oatmeal.png"
+        },
+
+        new
+        {
+            Name = "Vegetarian Pasta",
+            Description = "Pasta with fresh vegetables and tomato sauce.",
+            MealType = "Lunch",
+            DishType = "Vegetarian",
+            Calories = "430 kcal",
+            Time = "25 min",
+            Servings = "2 servings",
+            Image = "~/images/DishesImages/vegetarian_pasta.png"
+        },
+
+        new
+        {
+            Name = "Chicken Rice Bowl",
+            Description = "Chicken meal with rice, vegetables and fresh salad.",
+            MealType = "Lunch",
+            DishType = "Meat",
+            Calories = "520 kcal",
+            Time = "30 min",
+            Servings = "2 servings",
+            Image = "~/images/DishesImages/chicken_rice_bowl.png"
+        },
+
+        new
+        {
+            Name = "Salmon with Vegetables",
+            Description = "Baked salmon served with fresh vegetables.",
+            MealType = "Dinner",
+            DishType = "Fish",
+            Calories = "480 kcal",
+            Time = "35 min",
+            Servings = "2 servings",
+            Image = "~/images/DishesImages/salmon_with_vegetables.png"
+        }
+    };
 }
+
 
 <style>
 
@@ -191,7 +264,7 @@
 
     .quick-section {
         display: grid;
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(3, 1fr);
         gap: 20px;
         margin-bottom: 25px;
     }
@@ -280,6 +353,88 @@
 
 
     /* ==========================
+                       THIS WEEK
+                       ========================== */
+
+    .week-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 13px;
+    }
+
+
+    .week-card {
+        border: 1px solid #e7ebe6;
+        border-radius: 14px;
+        background: #fff;
+        padding: 14px;
+        min-height: 225px;
+    }
+
+
+        .week-card h5 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 1px;
+        }
+
+
+    .week-date {
+        color: #929a93;
+        font-size: 12px;
+        margin-bottom: 12px;
+    }
+
+
+    .week-meal {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+
+        .week-meal img {
+            width: 37px;
+            height: 37px;
+            min-width: 37px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 1px solid #ecefe8;
+        }
+
+
+    .week-type {
+        display: block;
+        font-size: 11px;
+        margin-bottom: 1px;
+    }
+
+
+    .breakfast-text {
+        color: #3c8244;
+    }
+
+
+    .lunch-text {
+        color: #cb8b24;
+    }
+
+
+    .dinner-text {
+        color: #d0574e;
+    }
+
+
+    .week-dish {
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+
+
+    /* ==========================
                        POPULAR DISHES
                        ========================== */
 
@@ -290,7 +445,7 @@
 
     .popular-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         gap: 15px;
         max-width: 1200px;
         margin: auto;
@@ -482,6 +637,10 @@
         .nav-search {
             display: none;
         }
+
+        .week-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
     }
 
 
@@ -515,6 +674,9 @@
                 height: auto;
             }
 
+        .week-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
 
         .popular-grid {
             grid-template-columns: repeat(2, 1fr);
@@ -555,6 +717,7 @@
             font-size: 15px;
         }
 
+        .week-grid,
         .popular-grid,
         .benefits-grid {
             grid-template-columns: 1fr;
@@ -598,7 +761,7 @@
 
 
                 <div class="hero-slogan">
-                    Eat better. Choose smarter.
+                    Eat better. Plan smarter.
                 </div>
 
 
@@ -613,196 +776,504 @@
 
                 <div class="hero-buttons">
 
+                    <a asp-controller="WeeklyMenus"
+                       asp-action="Index"
+                       asp-route-weekStart="@(Model.CurrentWeek?.StartDate.ToString("yyyy-MM-dd"))"
+                       class="hero-primary">
+
+                        📅 Plan My Week
+
+                    </a>
+
+
+                    <a asp-controller="Dishes"
+                       asp-action="Index"
+                       class="hero-secondary">
+
+                        🍴 Browse Dishes
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
 
     </section>
 
 
 
-    <!-- ================= POPULAR DISHES ================= -->
+    <div class="page-container">
 
-    <section class="main-box popular-box">
 
-        <div class="section-header">
+        <!-- ================= QUICK LINKS ================= -->
 
-            <div>
-
-                <h2>
-                    Popular Dishes
-                </h2>
-
-                <p>
-                    Try some of our most popular healthy recipes.
-                </p>
-
-            </div>
+        <section class="quick-section">
 
 
             <a asp-controller="Dishes"
                asp-action="Index"
-               class="view-button">
+               class="quick-image-card">
 
-                View All Dishes →
+                <img src="~/images/HomePageImages/dishes_salad_bowl.png"
+                     alt="Dishes" />
 
             </a>
 
-        </div>
+
+
+            <a asp-controller="WeeklyMenus"
+               asp-action="Index"
+               class="quick-image-card">
+
+                <img src="~/images/HomePageImages/weekly_plan_notebook.png"
+                     alt="Weekly Menu" />
+
+            </a>
 
 
 
-        <div class="popular-grid">
+            <a asp-controller="DailyMenus"
+               asp-action="Index"
+               class="quick-image-card">
 
-            @foreach (DishIndexViewModel dish in popularDishes)
-            {
-                string imagePath;
+                <img src="~/images/HomePageImages/daily_menu_salmon.png"
+                     alt="Daily Menu" />
 
-                if (!string.IsNullOrWhiteSpace(dish.ImageUrl))
+            </a>
+
+
+        </section>
+
+
+
+        <!-- ================= THIS WEEK ================= -->
+
+        <section class="main-box">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>This Week</h2>
+
+                    <p>
+                        Your planned meals at a glance.
+                    </p>
+
+                </div>
+
+
+                <a asp-controller="WeeklyMenus"
+                   asp-action="Index"
+                   asp-route-weekStart="@(Model.CurrentWeek?.StartDate.ToString("yyyy-MM-dd"))"
+                   class="view-button">
+
+                    View Full Week →
+
+                </a>
+
+            </div>
+
+
+
+            <div class="week-grid">
+
+                @if (Model.CurrentWeek != null)
                 {
-                    imagePath = dish.ImageUrl;
-                }
-                else if (dishImages.ContainsKey(dish.Name))
-                {
-                    imagePath = dishImages[dish.Name];
-                }
-                else
-                {
-                    imagePath = "/images/DishesImages/unadded.png";
-                }
+                    @for (int dayOffset = 0; dayOffset < 5; dayOffset++)
+                    {
+                        DateTime currentDate =
+                        Model.CurrentWeek.StartDate.Date.AddDays(dayOffset);
 
-                <div class="popular-card">
+                        DailyMenuIndexViewModel? dailyMenu =
+                        Model.CurrentWeek.DailyMenus
+                        .FirstOrDefault(d =>
+                        d.Date.Date == currentDate);
 
-                    <div class="popular-image">
-                        <img src="@imagePath"
-                             alt="@dish.Name"
+                        DailyMenuMealViewModel? breakfast =
+                        dailyMenu?
+                        .BreakfastMeals?
+                        .FirstOrDefault();
+
+                        DailyMenuMealViewModel? lunch =
+                        dailyMenu?
+                        .LunchMeals?
+                        .FirstOrDefault();
+
+                        DailyMenuMealViewModel? dinner =
+                        dailyMenu?
+                        .DinnerMeals?
+                        .FirstOrDefault();
+
+                        string breakfastImage =
+                        GetMealImage(breakfast);
+
+                        string lunchImage =
+                        GetMealImage(lunch);
+
+                        string dinnerImage =
+                        GetMealImage(dinner);
+
+
+                        <div class="week-card">
+
+
+                            <h5>
+                                @currentDate.ToString(
+                                "dddd",
+                                                System.Globalization.CultureInfo.InvariantCulture)
+                    </h5>
+
+
+                    <div class="week-date">
+                        @currentDate.ToString(
+                                                "dd MMM",
+                                                System.Globalization.CultureInfo.InvariantCulture)
+                    </div>
+
+
+
+                    <div class="week-meal">
+
+                        <img src="@breakfastImage"
+                             alt="@(breakfast?.DishName ?? "No breakfast planned")"
                              onerror="this.onerror=null; this.src='/images/DishesImages/unadded.png';" />
 
-                        <div class="popular-heart">♥</div>
-                    </div>
+                        <div>
 
-                    <div class="popular-body">
-
-                        <div class="popular-title">
-                            @dish.Name
-                        </div>
-
-                        <div class="tags">
-                            <span class="tag">
-                                @dish.DishType
+                            <span class="week-type breakfast-text">
+                                Breakfast
                             </span>
-                        </div>
 
-                        <div class="popular-description">
-                            @dish.Description
-                        </div>
+                            <div class="week-dish">
+                                @(breakfast?.DishName ?? "Not planned")
+                            </div>
 
-                        <div class="popular-info">
-                            <span>🔥 @dish.Calories kcal</span>
-                            <span>⏱ @dish.PreparationTime min</span>
-                            <span>👥 @dish.Portions servings</span>
                         </div>
 
                     </div>
+
+
+
+                    <div class="week-meal">
+
+                        <img src="@lunchImage"
+                             alt="@(lunch?.DishName ?? "No lunch planned")"
+                             onerror="this.onerror=null; this.src='/images/DishesImages/unadded.png';" />
+
+                        <div>
+
+                            <span class="week-type lunch-text">
+                                Lunch
+                            </span>
+
+                            <div class="week-dish">
+                                @(lunch?.DishName ?? "Not planned")
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="week-meal">
+
+                        <img src="@dinnerImage"
+                             alt="@(dinner?.DishName ?? "No dinner planned")"
+                             onerror="this.onerror=null; this.src='/images/DishesImages/unadded.png';" />
+
+                        <div>
+
+                            <span class="week-type dinner-text">
+                                Dinner
+                            </span>
+
+                            <div class="week-dish">
+                                @(dinner?.DishName ?? "Not planned")
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
                 </div>
-            }
+                                }
+                                }
+                                else
+                {
+                    <div class="week-card">
 
-        </div>
+                        <h5>
+                            No meals planned
+                        </h5>
 
-    </section>
+                        <div class="week-date">
+                            This week
+                        </div>
 
+                        <div class="week-dish">
+                            Add a meal to start planning your week.
+                        </div>
 
+                    </div>
+                }
 
-    <!-- ================= BENEFITS ================= -->
+            </div>
 
-    <section class="benefits">
-
-
-        <img src="~/images/Decorations/green_leaves_decor.png"
-             class="decor-left"
-             alt="" />
-
-
-        <img src="~/images/Decorations/green_leaves_decor.png"
-             class="decor-right"
-             alt="" />
-
+        </section>
 
 
-        <div class="benefits-grid">
 
+        <!-- ================= POPULAR DISHES ================= -->
 
-            <div class="benefit">
+        <section class="main-box popular-box">
 
-                <div class="benefit-icon">
-                    🌿
-                </div>
-
+            <div class="section-header">
 
                 <div>
 
-                    <h6>
-                        Healthy Recipes
-                    </h6>
+                    <h2>
+                        Popular Dishes
+                    </h2>
 
                     <p>
-                        Nutritious and balanced meals
-                        for every day.
+                        Try some of our most popular healthy recipes.
                     </p>
 
                 </div>
+
+
+                <a asp-controller="Dishes"
+                   asp-action="Index"
+                   class="view-button">
+
+                    View All Dishes →
+
+                </a>
 
             </div>
 
 
 
-            <div class="benefit">
-
-                <div class="benefit-icon">
-                    📊
-                </div>
+            <div class="popular-grid">
 
 
-                <div>
+                @foreach (var dish in popularDishes)
+                {
 
-                    <h6>
-                        Your Dish Collection
-                    </h6>
+                    string mealClass =
+                    dish.MealType == "Dinner"
+                    ? "dinner-tag"
+                    : "meal-tag";
 
-                    <p>
-                        Keep your favorite recipes together.
-                    </p>
 
-                </div>
+                    <div class="popular-card">
+
+
+                        <div class="popular-image">
+
+                            <img src="@Url.Content(dish.Image)"
+                                 alt="@dish.Name" />
+
+
+                            <div class="popular-heart">
+                                ♥
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="popular-body">
+
+
+                            <div class="popular-title">
+
+                                @dish.Name
+
+                            </div>
+
+
+
+                            <div class="tags">
+
+
+                                <span class="tag @mealClass">
+
+                                    @dish.MealType
+
+                                </span>
+
+
+                                <span class="tag">
+
+                                    @dish.DishType
+
+                                </span>
+
+
+                            </div>
+
+
+
+                            <div class="popular-description">
+
+                                @dish.Description
+
+                            </div>
+
+
+
+                            <div class="popular-info">
+
+                                <span>
+                                    🔥 @dish.Calories
+                                </span>
+
+                                <span>
+                                    ⏱ @dish.Time
+                                </span>
+
+                                <span>
+                                    👥 @dish.Servings
+                                </span>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                }
+
 
             </div>
 
+        </section>
 
 
-            <div class="benefit">
 
-                <div class="benefit-icon">
-                    ❤️
+        <!-- ================= BENEFITS ================= -->
+
+        <section class="benefits">
+
+
+            <img src="~/images/Decorations/green_leaves_decor.png"
+                 class="decor-left"
+                 alt="" />
+
+
+            <img src="~/images/Decorations/green_leaves_decor.png"
+                 class="decor-right"
+                 alt="" />
+
+
+
+            <div class="benefits-grid">
+
+
+                <div class="benefit">
+
+                    <div class="benefit-icon">
+                        🌿
+                    </div>
+
+
+                    <div>
+
+                        <h6>
+                            Healthy Recipes
+                        </h6>
+
+                        <p>
+                            Nutritious and balanced meals
+                            for every day.
+                        </p>
+
+                    </div>
+
                 </div>
 
 
-                <div>
 
-                    <h6>
-                        Simple and Organized
-                    </h6>
+                <div class="benefit">
 
-                    <p>
-                        Browse and manage your dishes in one place.
-                    </p>
+                    <div class="benefit-icon">
+                        📅
+                    </div>
+
+
+                    <div>
+
+                        <h6>
+                            Easy Planning
+                        </h6>
+
+                        <p>
+                            Plan your meals in minutes.
+                        </p>
+
+                    </div>
 
                 </div>
+
+
+
+                <div class="benefit">
+
+                    <div class="benefit-icon">
+                        📊
+                    </div>
+
+
+                    <div>
+
+                        <h6>
+                            Better Habits
+                        </h6>
+
+                        <p>
+                            Stay organized and reach your goals.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="benefit">
+
+                    <div class="benefit-icon">
+                        ❤️
+                    </div>
+
+
+                    <div>
+
+                        <h6>
+                            All in One Place
+                        </h6>
+
+                        <p>
+                            Your dishes, menus and meals together.
+                        </p>
+
+                    </div>
+
+                </div>
+
 
             </div>
 
-
-        </div>
-
-    </section>
+        </section>
 
 
-</div>
+    </div>
 
 </div>
