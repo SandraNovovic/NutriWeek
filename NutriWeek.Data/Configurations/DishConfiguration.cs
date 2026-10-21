@@ -20,7 +20,10 @@ namespace NutriWeek.Data.Configurations
                         PreparationTime = 30,
                         Portions = 2,
                         ImageUrl = null,
-                        DishType = DishType.Meat
+                        DishType = DishType.Meat,
+                        UserId = null,
+                        IsShared = true
+
                     },
                     new Dish
                     {
@@ -33,7 +36,9 @@ namespace NutriWeek.Data.Configurations
                         PreparationTime = 25,
                         Portions = 2,
                         ImageUrl = null,
-                        DishType = DishType.Vegetarian
+                        DishType = DishType.Vegetarian,
+                        UserId = null,
+                        IsShared = true
                     },
                     new Dish
                     {
@@ -46,7 +51,9 @@ namespace NutriWeek.Data.Configurations
                         PreparationTime = 35,
                         Portions = 2,
                         ImageUrl = null,
-                        DishType = DishType.Fish
+                        DishType = DishType.Fish,
+                        UserId = null,
+                        IsShared = true
                     },
                     new Dish
                     {
@@ -59,7 +66,9 @@ namespace NutriWeek.Data.Configurations
                         PreparationTime = 10,
                         Portions = 1,
                         ImageUrl = null,
-                        DishType = DishType.Vegan
+                        DishType = DishType.Vegan,
+                        UserId = null,
+                        IsShared = true
                     }
         };
 
