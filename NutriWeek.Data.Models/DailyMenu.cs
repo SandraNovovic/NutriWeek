@@ -14,7 +14,7 @@ namespace NutriWeek.Data.Models
         [ForeignKey(nameof(WeeklyMenu))]
         public int WeeklyMenuId { get; set; }
 
-        public WeeklyMenu WeeklyMenu { get; set; } 
+        public WeeklyMenu WeeklyMenu { get; set; } = null!;
 
         public ICollection<Meal> Meals { get; set; } = new HashSet<Meal>();
     }
