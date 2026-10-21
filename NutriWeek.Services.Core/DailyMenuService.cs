@@ -17,11 +17,12 @@ namespace NutriWeek.Services.Core.Services
         }
 
 
-        public async Task<List<DailyMenuIndexViewModel>> GetAllAsync()
+        public async Task<List<DailyMenuIndexViewModel>> GetAllAsync( string userId)
         {
             List<DailyMenuIndexViewModel> dailyMenus =
                 await _dbContext.DailyMenus
                     .AsNoTracking()
+                    .Where(d => d.WeeklyMenu.UserId == userId)
                     .OrderBy(d => d.Date)
                     .Select(d =>
                         new DailyMenuIndexViewModel
@@ -44,7 +45,10 @@ namespace NutriWeek.Services.Core.Services
                                     m.Dish.Portions),
 
 
-                            BreakfastMeals = d.Meals.Where(m =>m.MealType ==MealType.Breakfast)
+                            BreakfastMeals = d.Meals
+                                .Where(m =>
+                                    m.MealType ==
+                                    MealType.Breakfast)
                                 .Select(m =>
                                     new DailyMenuMealViewModel
                                     {
@@ -85,7 +89,9 @@ namespace NutriWeek.Services.Core.Services
 
 
                             LunchMeals = d.Meals
-                                .Where(m =>m.MealType ==MealType.Lunch)
+                                .Where(m =>
+                                    m.MealType ==
+                                    MealType.Lunch)
                                 .Select(m =>
                                     new DailyMenuMealViewModel
                                     {
@@ -126,7 +132,9 @@ namespace NutriWeek.Services.Core.Services
 
 
                             DinnerMeals = d.Meals
-                                .Where(m => m.MealType ==MealType.Dinner)
+                                .Where(m =>
+                                    m.MealType ==
+                                    MealType.Dinner)
                                 .Select(m =>
                                     new DailyMenuMealViewModel
                                     {
