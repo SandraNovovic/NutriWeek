@@ -243,20 +243,6 @@ namespace NutriWeek.Data.Migrations
                     b.HasIndex("WeeklyMenuId");
 
                     b.ToTable("DailyMenus");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Date = new DateTime(2026, 9, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            WeeklyMenuId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Date = new DateTime(2026, 9, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            WeeklyMenuId = 1
-                        });
                 });
 
             modelBuilder.Entity("NutriWeek.Data.Models.Dish", b =>
@@ -290,6 +276,9 @@ namespace NutriWeek.Data.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
+                    b.Property<bool>("IsShared")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -300,6 +289,9 @@ namespace NutriWeek.Data.Migrations
 
                     b.Property<int>("PreparationTime")
                         .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -314,6 +306,7 @@ namespace NutriWeek.Data.Migrations
                             DishType = 0,
                             Ingredients = "Chicken breast, rice, tomato, cucumber, olive oil",
                             Instructions = "Cook the rice. Cook the chicken. Chop the vegetables and serve everything together.",
+                            IsShared = true,
                             Name = "Chicken Rice Bowl",
                             Portions = 2,
                             PreparationTime = 30
@@ -326,6 +319,7 @@ namespace NutriWeek.Data.Migrations
                             DishType = 2,
                             Ingredients = "Pasta, tomato sauce, zucchini, bell pepper, parmesan",
                             Instructions = "Cook the pasta. Cook the vegetables and tomato sauce. Mix everything together.",
+                            IsShared = true,
                             Name = "Vegetarian Pasta",
                             Portions = 2,
                             PreparationTime = 25
@@ -338,6 +332,7 @@ namespace NutriWeek.Data.Migrations
                             DishType = 1,
                             Ingredients = "Salmon, broccoli, carrots, olive oil, lemon",
                             Instructions = "Season the salmon and vegetables. Bake until cooked and serve with lemon.",
+                            IsShared = true,
                             Name = "Salmon with Vegetables",
                             Portions = 2,
                             PreparationTime = 35
@@ -350,6 +345,7 @@ namespace NutriWeek.Data.Migrations
                             DishType = 3,
                             Ingredients = "Oats, oat milk, banana, blueberries, strawberries",
                             Instructions = "Cook the oats with oat milk. Add sliced banana and berries before serving.",
+                            IsShared = true,
                             Name = "Vegan Oatmeal",
                             Portions = 1,
                             PreparationTime = 10
@@ -380,50 +376,6 @@ namespace NutriWeek.Data.Migrations
                     b.HasIndex("DishId");
 
                     b.ToTable("Meals");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            DailyMenuId = 1,
-                            DishId = 4,
-                            MealType = 0
-                        },
-                        new
-                        {
-                            Id = 2,
-                            DailyMenuId = 1,
-                            DishId = 1,
-                            MealType = 1
-                        },
-                        new
-                        {
-                            Id = 3,
-                            DailyMenuId = 1,
-                            DishId = 3,
-                            MealType = 2
-                        },
-                        new
-                        {
-                            Id = 4,
-                            DailyMenuId = 2,
-                            DishId = 4,
-                            MealType = 0
-                        },
-                        new
-                        {
-                            Id = 5,
-                            DailyMenuId = 2,
-                            DishId = 2,
-                            MealType = 1
-                        },
-                        new
-                        {
-                            Id = 6,
-                            DailyMenuId = 2,
-                            DishId = 1,
-                            MealType = 2
-                        });
                 });
 
             modelBuilder.Entity("NutriWeek.Data.Models.WeeklyMenu", b =>
@@ -438,20 +390,15 @@ namespace NutriWeek.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("WeekStartDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.ToTable("WeeklyMenus");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Title = "Healthy Week",
-                            WeekStartDate = new DateTime(2026, 9, 21, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
