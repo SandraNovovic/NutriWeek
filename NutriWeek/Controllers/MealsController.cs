@@ -75,7 +75,7 @@ namespace NutriWeek.Web.Controllers
                     await _mealService
                         .LoadDishesAsync(
                             userId);
-
+                model.MealTypes = _mealService.LoadMealTypes();
                 return View(model);
             }
 
@@ -188,7 +188,7 @@ namespace NutriWeek.Web.Controllers
                     await _mealService
                         .LoadDishesAsync( userId);
 
-
+                meal.MealTypes = _mealService.LoadMealTypes();
                 return View(meal);
             }
 
