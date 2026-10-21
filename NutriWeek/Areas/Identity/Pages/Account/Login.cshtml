@@ -5,76 +5,114 @@
     ViewData["Title"] = "Log in";
 }
 
-<h1>@ViewData["Title"]</h1>
-<div class="row">
-    <div class="col-md-4">
-        <section>
-            <form id="account" method="post">
-                <h2>Use a local account to log in.</h2>
-                <hr />
-                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-                <div class="form-floating mb-3">
-                    <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                    <label asp-for="Input.Email" class="form-label">Email</label>
-                    <span asp-validation-for="Input.Email" class="text-danger"></span>
-                </div>
-                <div class="form-floating mb-3">
-                    <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
-                    <label asp-for="Input.Password" class="form-label">Password</label>
-                    <span asp-validation-for="Input.Password" class="text-danger"></span>
-                </div>
-                <div class="checkbox mb-3">
-                    <label asp-for="Input.RememberMe" class="form-label">
-                        <input class="form-check-input" asp-for="Input.RememberMe" />
-                        @Html.DisplayNameFor(m => m.Input.RememberMe)
-                    </label>
-                </div>
-                <div>
-                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
-                </div>
-                <div>
+<div class="identity-page">
+    <div class="identity-container">
+
+        <div class="identity-side">
+            <div class="identity-side-content">
+                <span class="identity-brand">NutriWeek</span>
+
+                <h1>
+                    Plan better.<br />
+                    Eat better.
+                </h1>
+
+                <p>
+                    Keep your weekly meals organized and make
+                    healthy eating easier every day.
+                </p>
+            </div>
+        </div>
+
+        <div class="identity-form-side">
+            <div class="identity-form-wrapper">
+
+                <div class="identity-form-header">
+                    <span class="identity-mobile-brand">
+                        NutriWeek
+                    </span>
+
+                    <h2>Welcome back</h2>
+
                     <p>
-                        <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
-                    </p>
-                    <p>
-                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
-                    </p>
-                    <p>
-                        <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
+                        Log in to continue planning your week.
                     </p>
                 </div>
-            </form>
-        </section>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to log in.</h3>
-            <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-                            about setting up this ASP.NET application to support logging in via external services</a>.
-                        </p>
+
+                <form id="account"
+                      method="post"
+                      asp-route-returnUrl="@Model.ReturnUrl">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="identity-validation"
+                         role="alert">
                     </div>
-                }
-                else
-                {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                }
-                            </p>
-                        </div>
-                    </form>
-                }
-            }
-        </section>
+
+                    <div class="identity-field">
+                        <label asp-for="Input.Email">
+                            Email
+                        </label>
+
+                        <input asp-for="Input.Email"
+                               class="form-control identity-input"
+                               autocomplete="username"
+                               aria-required="true"
+                               placeholder="name@example.com" />
+
+                        <span asp-validation-for="Input.Email"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <div class="identity-field">
+                        <label asp-for="Input.Password">
+                            Password
+                        </label>
+
+                        <input asp-for="Input.Password"
+                               class="form-control identity-input"
+                               autocomplete="current-password"
+                               aria-required="true"
+                               placeholder="Enter your password" />
+
+                        <span asp-validation-for="Input.Password"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <div class="identity-options">
+                        <label class="identity-checkbox">
+                            <input asp-for="Input.RememberMe"
+                                   class="form-check-input" />
+
+                            <span>Remember me</span>
+                        </label>
+
+                        <a asp-page="./ForgotPassword"
+                           class="identity-small-link">
+                            Forgot password?
+                        </a>
+                    </div>
+
+                    <button id="login-submit"
+                            type="submit"
+                            class="identity-submit">
+                        Log in
+                    </button>
+
+                    <div class="identity-bottom-text">
+                        Don't have an account?
+
+                        <a asp-page="./Register"
+                           asp-route-returnUrl="@Model.ReturnUrl">
+                            Create account
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
     </div>
 </div>
 

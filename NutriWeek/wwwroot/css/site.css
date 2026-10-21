@@ -356,3 +356,318 @@ body {
         padding: 0 11px;
     }
 }
+
+/* =========================
+   IDENTITY - LOGIN/REGISTER
+   ========================= */
+
+.identity-page {
+    min-height: calc(100vh - 80px);
+    padding: 45px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f7f3;
+}
+
+.identity-container {
+    width: 100%;
+    max-width: 1000px;
+    min-height: 620px;
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    background: #ffffff;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 18px 55px rgba(34, 60, 45, 0.12);
+}
+
+
+/* LEFT SIDE */
+
+.identity-side {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 55px 45px;
+    color: white;
+    background: linear-gradient( 150deg, rgba(48, 88, 65, 0.97), rgba(81, 125, 91, 0.90) );
+}
+
+    .identity-side::before {
+        content: "";
+        position: absolute;
+        width: 320px;
+        height: 320px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.06);
+        top: -120px;
+        right: -120px;
+    }
+
+    .identity-side::after {
+        content: "";
+        position: absolute;
+        width: 210px;
+        height: 210px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.05);
+        bottom: -70px;
+        left: -80px;
+    }
+
+.identity-side-content {
+    position: relative;
+    z-index: 2;
+}
+
+.identity-brand {
+    display: inline-block;
+    margin-bottom: 120px;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.identity-side h1 {
+    font-size: 42px;
+    font-weight: 750;
+    line-height: 1.15;
+    margin-bottom: 20px;
+}
+
+.identity-side p {
+    max-width: 340px;
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.7;
+    opacity: 0.88;
+}
+
+
+/* FORM SIDE */
+
+.identity-form-side {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 55px;
+}
+
+.identity-form-wrapper {
+    width: 100%;
+    max-width: 420px;
+}
+
+.identity-form-header {
+    margin-bottom: 32px;
+}
+
+    .identity-form-header h2 {
+        margin-bottom: 8px;
+        color: #28372d;
+        font-size: 34px;
+        font-weight: 750;
+    }
+
+    .identity-form-header p {
+        margin: 0;
+        color: #7b847e;
+        font-size: 15px;
+    }
+
+.identity-mobile-brand {
+    display: none;
+}
+
+
+/* INPUTS */
+
+.identity-field {
+    margin-bottom: 20px;
+}
+
+    .identity-field label {
+        display: block;
+        margin-bottom: 7px;
+        color: #3f4b43;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+.identity-input {
+    height: 52px;
+    padding: 0 16px;
+    border: 1px solid #d9dfda;
+    border-radius: 12px;
+    background: #fbfcfb;
+    font-size: 15px;
+    transition: 0.2s ease;
+}
+
+    .identity-input:hover {
+        border-color: #aebbb1;
+    }
+
+    .identity-input:focus {
+        background: white;
+        border-color: #527b5e;
+        box-shadow: 0 0 0 4px rgba(82, 123, 94, 0.12);
+    }
+
+
+/* OPTIONS */
+
+.identity-options {
+    margin-top: 3px;
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.identity-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: #687169;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+    .identity-checkbox .form-check-input {
+        margin: 0;
+    }
+
+        .identity-checkbox .form-check-input:checked {
+            background-color: #4d7659;
+            border-color: #4d7659;
+        }
+
+.identity-small-link {
+    color: #4d7659;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+    .identity-small-link:hover {
+        color: #31513b;
+        text-decoration: underline;
+    }
+
+
+/* BUTTON */
+
+.identity-submit {
+    width: 100%;
+    height: 52px;
+    border: 0;
+    border-radius: 12px;
+    background: #456f52;
+    color: white;
+    font-size: 16px;
+    font-weight: 650;
+    transition: all 0.2s ease;
+}
+
+    .identity-submit:hover {
+        background: #365a42;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 18px rgba(55, 91, 66, 0.18);
+    }
+
+    .identity-submit:active {
+        transform: translateY(0);
+    }
+
+
+/* BOTTOM LINK */
+
+.identity-bottom-text {
+    margin-top: 25px;
+    text-align: center;
+    color: #7a837d;
+    font-size: 14px;
+}
+
+    .identity-bottom-text a {
+        margin-left: 3px;
+        color: #456f52;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+        .identity-bottom-text a:hover {
+            text-decoration: underline;
+        }
+
+
+/* VALIDATION */
+
+.identity-validation {
+    margin-bottom: 15px;
+    color: #b42318;
+    font-size: 14px;
+}
+
+.identity-field .text-danger {
+    display: block;
+    margin-top: 5px;
+    font-size: 13px;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 850px) {
+
+    .identity-container {
+        max-width: 540px;
+        grid-template-columns: 1fr;
+        min-height: auto;
+    }
+
+    .identity-side {
+        display: none;
+    }
+
+    .identity-form-side {
+        padding: 45px 35px;
+    }
+
+    .identity-mobile-brand {
+        display: block;
+        margin-bottom: 28px;
+        color: #456f52;
+        font-size: 22px;
+        font-weight: 800;
+    }
+}
+
+@media (max-width: 500px) {
+
+    .identity-page {
+        padding: 25px 14px;
+        align-items: flex-start;
+    }
+
+    .identity-container {
+        border-radius: 20px;
+    }
+
+    .identity-form-side {
+        padding: 35px 24px;
+    }
+
+    .identity-form-header h2 {
+        font-size: 29px;
+    }
+
+    .identity-options {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
