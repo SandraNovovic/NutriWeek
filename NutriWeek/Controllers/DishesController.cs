@@ -1,40 +1,39 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NutriWeek.Data;
-using NutriWeek.Data.Models;
 using NutriWeek.Data.Models.Enums;
+using NutriWeek.GCommon;
 using NutriWeek.Services.Core.Interfaces;
-using NutriWeek.Web.ViewModels;
 using NutriWeek.Web.ViewModels.Dishes;
 using System.Security.Claims;
 using static NutriWeek.GCommon.TempDateMessages;
-using static NutriWeek.GCommon.ErrorMessages;
-using NutriWeek.GCommon;
 
 namespace NutriWeek.Web.Controllers
 {
+    [Authorize]
     public class DishesController : Controller
     {
         private readonly IDishService _dishService;
         private readonly ILogger<DishesController> _logger;
 
 
-        public DishesController(
-            IDishService dishService,
-            ILogger<DishesController> logger)
+        public DishesController(IDishService dishService,ILogger<DishesController> logger)
         {
             _dishService = dishService;
             _logger = logger;
         }
 
 
-
         [HttpGet]
         public async Task<IActionResult> Index()
         {
+            string userId =
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier)!;
 
             IEnumerable<DishIndexViewModel> dishes =
-                await _dishService.GetAllAsync();
+                await _dishService.GetAllAsync(
+                    userId);
 
             return View(dishes);
         }
@@ -46,7 +45,8 @@ namespace NutriWeek.Web.Controllers
             AddDishViewModel DishTypes =
                 new AddDishViewModel
                 {
-                    DishTypes =_dishService.LoadDishTypes()
+                    DishTypes =
+                        _dishService.LoadDishTypes()
                 };
 
             return View(DishTypes);
@@ -54,7 +54,7 @@ namespace NutriWeek.Web.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Add( AddDishViewModel model)
+        public async Task<IActionResult> Add(AddDishViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -64,9 +64,16 @@ namespace NutriWeek.Web.Controllers
                 return View(model);
             }
 
+            string userId =
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier)!;
+
             try
             {
-                await _dishService.AddDishAsync(model);
+                await _dishService
+                    .AddDishAsync(
+                        model,
+                        userId);
 
                 TempData["SuccessMessage"] =
                     AddDishSuccessMessage;
@@ -91,7 +98,7 @@ namespace NutriWeek.Web.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Edit([FromRoute] int? id)
+        public async Task<IActionResult> Edit( [FromRoute] int? id)
         {
             if (!id.HasValue ||
                 id.Value <= 0)
@@ -106,7 +113,9 @@ namespace NutriWeek.Web.Controllers
 
             AddDishViewModel? dish =
                 await _dishService
-                    .GetDishForEditAsync(id.Value);
+                    .GetDishForEditAsync(
+                        id.Value,
+                        userId);
 
             if (dish == null)
             {
@@ -119,7 +128,7 @@ namespace NutriWeek.Web.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Edit([FromRoute] int? id,AddDishViewModel dish)
+        public async Task<IActionResult> Edit([FromRoute] int? id, AddDishViewModel dish)
         {
             if (!ModelState.IsValid)
             {
@@ -151,12 +160,18 @@ namespace NutriWeek.Web.Controllers
                 return BadRequest();
             }
 
+            string userId =
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier)!;
 
             try
             {
                 bool edited =
                     await _dishService
-                        .EditDishAsync(id.Value,dish);
+                        .EditDishAsync(
+                            id.Value,
+                            dish,
+                            userId);
 
                 if (!edited)
                 {
@@ -181,18 +196,27 @@ namespace NutriWeek.Web.Controllers
                 nameof(Index));
         }
 
+
         [HttpGet]
         public async Task<IActionResult> Delete([FromRoute] int? id)
         {
             if (!id.HasValue ||
                 id.Value <= 0)
             {
-                return BadRequest( ErrorMessages.InvalidRequestTryAgain);
+                return BadRequest(
+                    ErrorMessages
+                        .InvalidRequestTryAgain);
             }
+
+            string userId =
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier)!;
 
             DeleteDishViewModel? deletingDish =
                 await _dishService
-                    .GetDishForDeleteAsync(id.Value);
+                    .GetDishForDeleteAsync(
+                        id.Value,
+                        userId);
 
             if (deletingDish == null)
             {
@@ -204,12 +228,14 @@ namespace NutriWeek.Web.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Delete([FromRoute] int? id,DeleteDishViewModel dish)
+        public async Task<IActionResult> Delete( [FromRoute] int? id,DeleteDishViewModel dish)
         {
             if (!id.HasValue ||
                 id.Value <= 0)
             {
-                return BadRequest(ErrorMessages.InvalidRequestTryAgain);
+                return BadRequest(
+                    ErrorMessages
+                        .InvalidRequestTryAgain);
             }
 
             string userId =
@@ -220,7 +246,9 @@ namespace NutriWeek.Web.Controllers
             {
                 bool deleted =
                     await _dishService
-                        .DeleteDishAsync(id.Value);
+                        .DeleteDishAsync(
+                            id.Value,
+                            userId);
 
                 if (!deleted)
                 {
@@ -255,10 +283,15 @@ namespace NutriWeek.Web.Controllers
                     ErrorMessages.InvalidRequest);
             }
 
+            string userId =
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier)!;
 
             DetailsDishViewModel? dish =
                 await _dishService
-                    .GetDishDetailsAsync(id.Value);
+                    .GetDishDetailsAsync(
+                        id.Value,
+                        userId);
 
             if (dish == null)
             {
@@ -268,8 +301,5 @@ namespace NutriWeek.Web.Controllers
 
             return View(dish);
         }
-
-
-
     }
 }
