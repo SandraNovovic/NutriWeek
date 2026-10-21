@@ -6,20 +6,9 @@ namespace NutriWeek.Data.Configurations
 {
     public class WeeklyMenuConfiguration:IEntityTypeConfiguration<WeeklyMenu>
     {
-        public readonly IEnumerable<WeeklyMenu> seedWeeklyMenus = new List<WeeklyMenu>
-        {
-
-          new WeeklyMenu
-          {
-              Id = 1,
-              Title = "Healthy Week",
-              WeekStartDate = new DateTime(2026, 9, 21)
-          }
-
-        };
         public void Configure(EntityTypeBuilder<WeeklyMenu> builder)
         {
-            builder.HasData(seedWeeklyMenus);
+
         }
     }
 }
