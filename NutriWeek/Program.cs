@@ -17,7 +17,7 @@ namespace NutriWeek
                 throw new InvalidOperationException("Connection string is not valid!")));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<NutriWeekDbContext>();
             builder.Services.AddControllersWithViews();
             builder.Services.AddApplicationServices();
