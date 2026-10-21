@@ -9,8 +9,8 @@ namespace NutriWeek.Services.Core.Interfaces
 {
     public interface IWeeklyMenuService
     {
-        Task<List<WeeklyMenuIndexViewModel>> GetAllAsync(int year);
+        Task<List<WeeklyMenuIndexViewModel>> GetAllAsync(int year,string userId);
 
-        //Task<WeeklyMenuIndexViewModel?> GetCurrentWeekAsync();
+        Task<WeeklyMenuIndexViewModel?> GetCurrentWeekAsync(string userId);
     }
 }

@@ -1,34 +1,30 @@
-﻿using NutriWeek.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using NutriWeek.Data;
 using NutriWeek.Data.Models;
 using NutriWeek.Data.Models.Enums;
 using NutriWeek.Services.Core.Interfaces;
 using NutriWeek.Web.ViewModels.DailyMenus;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NutriWeek.Web.ViewModels.WeeklyMenus;
-using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
-
-namespace NutriWeek.Services.Core
+namespace NutriWeek.Services.Core.Services
 {
     public class WeeklyMenuService : IWeeklyMenuService
     {
         private readonly NutriWeekDbContext _dbContext;
 
 
-        public WeeklyMenuService(NutriWeekDbContext dbContext)
+        public WeeklyMenuService(
+            NutriWeekDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
 
-        public async Task<List<WeeklyMenuIndexViewModel>> GetAllAsync(int year)
+        public async Task<List<WeeklyMenuIndexViewModel>> GetAllAsync(int year,string userId)
         {
-            int weeksInYear =ISOWeek.GetWeeksInYear(year);
+            int weeksInYear =
+                ISOWeek.GetWeeksInYear(year);
 
             DateTime firstWeekStart =
                 ISOWeek.ToDateTime(
@@ -42,8 +38,8 @@ namespace NutriWeek.Services.Core
                     weeksInYear,
                     DayOfWeek.Monday);
 
-
-            List<WeeklyMenu> weeklyMenusFromDb = await _dbContext.WeeklyMenus
+            List<WeeklyMenu> weeklyMenusFromDb =
+                await _dbContext.WeeklyMenus
                     .AsNoTracking()
                     .Include(w =>
                         w.DailyMenus)
@@ -52,6 +48,7 @@ namespace NutriWeek.Services.Core
                     .ThenInclude(m =>
                         m.Dish)
                     .Where(w =>
+                        w.UserId == userId &&
                         w.WeekStartDate >= firstWeekStart &&
                         w.WeekStartDate <= lastWeekStart)
                     .OrderBy(w =>
@@ -59,243 +56,99 @@ namespace NutriWeek.Services.Core
                     .ToListAsync();
 
 
-            List<WeeklyMenuIndexViewModel> plannedWeeks =
-                weeklyMenusFromDb
-                  .Select(week =>
+            List<WeeklyMenuIndexViewModel> plannedWeeks =weeklyMenusFromDb
+                    .Select(w =>
                         new WeeklyMenuIndexViewModel
                         {
-                            Id =
-                                week.Id,
-
-                            StartDate =
-                                week.WeekStartDate,
-
-
-                            TotalCalories =
-                                week.DailyMenus
-
-                                    .SelectMany(dailyMenus =>
-                                        dailyMenus.Meals)
-
-                                    .Sum(meal =>
-                                        meal.Dish.Calories),
-
-
-                            TotalPreparationTime =
-                                week.DailyMenus
-
-                                    .SelectMany(dailyMenus =>
-                                        dailyMenus.Meals)
-
-                                    .Sum(meal =>
-                                        meal.Dish.PreparationTime),
-
-
-                            TotalMeals =
-                                week.DailyMenus
-
-                                    .SelectMany(dailyMenus =>
-                                        dailyMenus.Meals)
-
-                                    .Count(),
-
-
-                            TotalPortions =
-                                week.DailyMenus
-
-                                    .SelectMany(dailyMenus =>
-                                        dailyMenus.Meals)
-
-                                    .Sum(meal =>
-                                        meal.Dish.Portions),
-
-
-                            DailyMenus =
-                                week.DailyMenus
-
-                                    .OrderBy(dailyMenu =>
-                                        dailyMenu.Date)
-
-                                    .Select(dailyMenu =>
+                            Id = w.Id,
+                            StartDate = w.WeekStartDate,
+                            TotalCalories = w.DailyMenus
+                                    .SelectMany(d =>d.Meals)
+                                    .Sum(m =>m.Dish.Calories),
+                            TotalPreparationTime =w.DailyMenus
+                                    .SelectMany(d =>d.Meals).Sum(m => m.Dish.PreparationTime),
+                            TotalMeals =w.DailyMenus.SelectMany(d => d.Meals).Count(),
+                            TotalPortions = w.DailyMenus.SelectMany(d => d.Meals).Sum(m =>m.Dish.Portions),
+                            DailyMenus =w.DailyMenus.OrderBy(d =>d.Date)
+                                    .Select(d =>
                                         new DailyMenuIndexViewModel
                                         {
-                                            Date =
-                                                dailyMenu.Date,
-
-
-                                            Calories =
-                                                dailyMenu.Meals
+                                            Date =d.Date,
+                                            Calories = d.Meals
                                                     .Sum(m =>
                                                         m.Dish.Calories),
-
-
-                                            PreparationTime =
-                                                dailyMenu.Meals
+                                            PreparationTime = d.Meals
                                                     .Sum(m =>
                                                         m.Dish.PreparationTime),
-
-
-                                            TotalMeals =
-                                                dailyMenu.Meals.Count,
-
-
-                                            Portions =
-                                                dailyMenu.Meals
-                                                    .Sum(m =>
-                                                        m.Dish.Portions),
-
-
-                                            BreakfastMeals =
-                                                dailyMenu.Meals
-
-                                                    .Where(meal =>
-                                                        meal.MealType ==
+                                            TotalMeals =d.Meals.Count,
+                                            Portions = d.Meals.Sum(m =>m.Dish.Portions),
+                                            BreakfastMeals = d.Meals
+                                                    .Where(m =>
+                                                        m.MealType ==
                                                         MealType.Breakfast)
-
-                                                    .Select(meal =>
+                                                    .Select(m =>
                                                         new DailyMenuMealViewModel
                                                         {
-                                                            MealId =
-                                                                meal.Id,
-
-                                                            DishId =
-                                                                meal.DishId,
-
-                                                            DishName =
-                                                                meal.Dish.Name,
-
-                                                            Description =
-                                                                meal.Dish.Description,
-
-                                                            DishType =
-                                                                meal.Dish.DishType
-                                                                    .ToString(),
-
-                                                            MealType =
-                                                                meal.MealType
-                                                                    .ToString(),
-
-                                                            Calories =
-                                                                meal.Dish.Calories,
-
-                                                            PreparationTime =
-                                                                meal.Dish
-                                                                    .PreparationTime,
-
-                                                            Portions =
-                                                                meal.Dish.Portions,
-
-                                                            ImageUrl =
-                                                                meal.Dish.ImageUrl
+                                                            MealId = m.Id,
+                                                            DishId = m.DishId,
+                                                            DishName =m.Dish.Name,
+                                                            Description = m.Dish.Description,
+                                                            DishType =m.Dish.DishType.ToString(),
+                                                            MealType = m.MealType.ToString(),
+                                                            Calories = m.Dish.Calories,
+                                                            PreparationTime = m.Dish .PreparationTime,
+                                                            Portions = m.Dish.Portions,
+                                                            ImageUrl =m.Dish.ImageUrl
                                                         })
-
                                                     .ToList(),
-
-
                                             LunchMeals =
-                                                dailyMenu.Meals
-
-                                                    .Where(meal =>
-                                                        meal.MealType ==
+                                                d.Meals
+                                                    .Where(m =>
+                                                        m.MealType ==
                                                         MealType.Lunch)
-
-                                                    .Select(meal =>
+                                                    .Select(m =>
                                                         new DailyMenuMealViewModel
                                                         {
-                                                            MealId =
-                                                                meal.Id,
-
-                                                            DishId =
-                                                                meal.DishId,
-
-                                                            DishName =
-                                                                meal.Dish.Name,
-
-                                                            Description =
-                                                                meal.Dish.Description,
-
-                                                            DishType =
-                                                                meal.Dish.DishType
-                                                                    .ToString(),
-
-                                                            MealType =
-                                                                meal.MealType
-                                                                    .ToString(),
-
-                                                            Calories =
-                                                                meal.Dish.Calories,
-
-                                                            PreparationTime =
-                                                                meal.Dish
-                                                                    .PreparationTime,
-
-                                                            Portions =
-                                                                meal.Dish.Portions,
-
-                                                            ImageUrl =
-                                                                meal.Dish.ImageUrl
+                                                            MealId = m.Id,
+                                                            DishId = m.DishId,
+                                                            DishName = m.Dish.Name,
+                                                            Description =m.Dish.Description,
+                                                            DishType = m.Dish.DishType.ToString(),
+                                                            MealType =  m.MealType.ToString(),
+                                                            Calories =m.Dish.Calories,
+                                                            PreparationTime = m.Dish.PreparationTime,
+                                                            Portions =m.Dish.Portions,
+                                                            ImageUrl =m.Dish.ImageUrl
                                                         })
-
                                                     .ToList(),
-
-
-                                            DinnerMeals =
-                                                dailyMenu.Meals
-
-                                                    .Where(meal =>
-                                                        meal.MealType ==
+                                            DinnerMeals =d.Meals
+                                                    .Where(m =>
+                                                        m.MealType ==
                                                         MealType.Dinner)
-
-                                                    .Select(meal =>
+                                                    .Select(m =>
                                                         new DailyMenuMealViewModel
                                                         {
-                                                            MealId =
-                                                                meal.Id,
-
-                                                            DishId =
-                                                                meal.DishId,
-
-                                                            DishName =
-                                                                meal.Dish.Name,
-
-                                                            Description =
-                                                                meal.Dish.Description,
-
-                                                            DishType =
-                                                                meal.Dish.DishType
-                                                                    .ToString(),
-
-                                                            MealType =
-                                                                meal.MealType
-                                                                    .ToString(),
-
-                                                            Calories =
-                                                                meal.Dish.Calories,
-
-                                                            PreparationTime =
-                                                                meal.Dish
-                                                                    .PreparationTime,
-
-                                                            Portions =
-                                                                meal.Dish.Portions,
-
-                                                            ImageUrl =
-                                                                meal.Dish.ImageUrl
+                                                            MealId =  m.Id,
+                                                            DishId =m.DishId,
+                                                            DishName = m.Dish.Name,
+                                                            Description =m.Dish.Description,
+                                                            DishType =m.Dish.DishType.ToString(),
+                                                            MealType = m.MealType.ToString(),
+                                                            Calories = m.Dish.Calories,
+                                                            PreparationTime =m.Dish.PreparationTime,
+                                                            Portions = m.Dish.Portions,
+                                                            ImageUrl = m.Dish.ImageUrl
                                                         })
-
                                                     .ToList()
                                         })
-
                                     .ToList()
                         })
-
                     .ToList();
 
+            List<WeeklyMenuIndexViewModel> allWeeks =
+                new List<WeeklyMenuIndexViewModel>();
 
-            List<WeeklyMenuIndexViewModel> allWeeks = new List<WeeklyMenuIndexViewModel>();
-
-
-            for (int weekNumber = 1; weekNumber <= weeksInYear; weekNumber++)
+            for (int weekNumber = 1;weekNumber <= weeksInYear;weekNumber++)
             {
                 DateTime weekStart =
                     ISOWeek.ToDateTime(
@@ -304,11 +157,9 @@ namespace NutriWeek.Services.Core
                         DayOfWeek.Monday);
 
 
-                WeeklyMenuIndexViewModel? existingWeek =plannedWeeks
-                        .FirstOrDefault(w =>
+                WeeklyMenuIndexViewModel? existingWeek = plannedWeeks.FirstOrDefault(w =>
                             w.StartDate.Date ==
                             weekStart.Date);
-
 
                 if (existingWeek != null)
                 {
@@ -320,27 +171,21 @@ namespace NutriWeek.Services.Core
                         new WeeklyMenuIndexViewModel
                         {
                             Id = 0,
-
                             StartDate =weekStart,
-
                             TotalCalories = 0,
-
                             TotalPreparationTime = 0,
-
                             TotalMeals = 0,
-
                             TotalPortions = 0,
-
                             DailyMenus =new List<DailyMenuIndexViewModel>()
                         });
                 }
             }
 
-
             return allWeeks;
         }
 
-        public async Task<WeeklyMenuIndexViewModel?> GetCurrentWeekAsync()
+
+        public async Task<WeeklyMenuIndexViewModel?> GetCurrentWeekAsync(string userId)
         {
             DateTime today =
                 DateTime.Today;
@@ -360,17 +205,17 @@ namespace NutriWeek.Services.Core
                         DayOfWeek.Monday);
 
 
-            List<WeeklyMenuIndexViewModel> weeklyMenus =
-                    await GetAllAsync(currentYear);
+            List<WeeklyMenuIndexViewModel> weeklyMenus =await GetAllAsync(currentYear,userId);
 
 
             WeeklyMenuIndexViewModel? currentWeek =
                     weeklyMenus
-                        .FirstOrDefault(w => w.StartDate.Date ==currentWeekStart.Date);
+                        .FirstOrDefault(w =>
+                            w.StartDate.Date ==
+                            currentWeekStart.Date);
 
 
             return currentWeek;
         }
-
     }
 }
