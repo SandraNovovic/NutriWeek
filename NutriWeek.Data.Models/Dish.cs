@@ -38,5 +38,9 @@ namespace NutriWeek.Data.Models
 
         public DishType DishType { get; set; }
 
+        public string? UserId { get; set; }
+
+        public bool IsShared { get; set; }
+
     }
 }
