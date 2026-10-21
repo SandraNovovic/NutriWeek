@@ -13,6 +13,7 @@ namespace NutriWeek.Data.Models
 
         public DateTime WeekStartDate { get; set; }
 
+        public string? UserId { get; set; }
         public ICollection<DailyMenu> DailyMenus { get; set; } =
             new HashSet<DailyMenu>();
     }
