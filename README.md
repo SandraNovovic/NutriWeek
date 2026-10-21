@@ -121,7 +121,7 @@ No external API keys are required.
 Open Package Manager Console and run:
 
 ```powershell
-Update-Database
+Update-Database -Project NutriWeek.Data -StartupProject NutriWeek
 ```
 
 ### 5. Run the application
