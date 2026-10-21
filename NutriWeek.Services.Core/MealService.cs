@@ -65,6 +65,17 @@ namespace NutriWeek.Services.Core.Implementations
             return dishes;
         }
 
+        public IEnumerable<DropdownViewModel> LoadMealTypes()
+        {
+            return Enum.GetValues<MealType>()
+                .Select(m => new DropdownViewModel
+                {
+                    Id = (int)m,
+                    Name = m.ToString()
+                })
+                .ToList();
+        }
+
 
         public async Task<bool> AddMealAsync( AddMealViewModel model, string userId)
         {

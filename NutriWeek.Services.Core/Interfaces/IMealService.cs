@@ -9,7 +9,7 @@ namespace NutriWeek.Services.Core.Interfaces
         Task<List<MealIndexViewModel>> GetAllAsync(string userId);
 
         Task<IEnumerable<DropdownViewModel>> LoadDishesAsync( string userId);
-
+        IEnumerable<DropdownViewModel> LoadMealTypes();
         Task<bool> AddMealAsync( AddMealViewModel model, string userId);
 
         Task<AddMealViewModel?> GetMealForEditAsync(int id,string userId);
