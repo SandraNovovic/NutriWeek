@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NutriWeek.Services.Core.Interfaces;
 using NutriWeek.Web.ViewModels.WeeklyMenus;
 using System.Globalization;
@@ -6,22 +7,20 @@ using System.Security.Claims;
 
 namespace NutriWeek.Web.Controllers
 {
+    [Authorize]
     public class WeeklyMenusController : Controller
     {
-        private readonly IWeeklyMenuService
-            _weeklyMenuService;
+        private readonly IWeeklyMenuService _weeklyMenuService;
 
 
-        public WeeklyMenusController(
-            IWeeklyMenuService weeklyMenuService)
+        public WeeklyMenusController(IWeeklyMenuService weeklyMenuService)
         {
-            _weeklyMenuService =
-                weeklyMenuService;
+            _weeklyMenuService = weeklyMenuService;
         }
 
 
         [HttpGet]
-        public async Task<IActionResult> Index(int? year, DateTime? weekStart)
+        public async Task<IActionResult> Index(int? year,DateTime? weekStart)
         {
             int selectedYear;
 
@@ -32,7 +31,9 @@ namespace NutriWeek.Web.Controllers
             }
             else if (weekStart.HasValue)
             {
-                selectedYear = ISOWeek.GetYear(weekStart.Value);
+                selectedYear =
+                    ISOWeek.GetYear(
+                        weekStart.Value);
             }
             else
             {
@@ -42,17 +43,18 @@ namespace NutriWeek.Web.Controllers
             }
 
 
+            string userId =User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
 
             List<WeeklyMenuIndexViewModel> weeklyMenus =
                 await _weeklyMenuService
-                    .GetAllAsync(selectedYear);
+                    .GetAllAsync(selectedYear, userId);
 
 
             ViewBag.SelectedYear = selectedYear;
 
+
             return View(weeklyMenus);
         }
-
-
     }
 }
