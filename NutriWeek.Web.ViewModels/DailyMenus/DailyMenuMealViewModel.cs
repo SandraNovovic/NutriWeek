@@ -7,7 +7,7 @@
 
         public string DishName { get; set; } = null!;
 
-        public string Description { get; set; } = null!;
+        public string? Description { get; set; }
 
         public string DishType { get; set; } = null!;
 
