@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NutriWeek.Data;
 using NutriWeek.Data.Models.Enums;
@@ -49,7 +49,8 @@ namespace NutriWeek.Web.Controllers
                 {
                     Dishes =
                         await _mealService
-                            .LoadDishesAsync( userId),
+                            .LoadDishesAsync(userId),
+                    MealTypes = _mealService.LoadMealTypes(),
                     Date =
                         date,
                     MealType =
@@ -94,8 +95,8 @@ namespace NutriWeek.Web.Controllers
 
                 model.Dishes =
                     await _mealService
-                        .LoadDishesAsync( userId);
-
+                        .LoadDishesAsync(userId);
+                model.MealTypes = _mealService.LoadMealTypes();
 
                 return View(model);
             }
@@ -128,7 +129,7 @@ namespace NutriWeek.Web.Controllers
                 model.Dishes =
                     await _mealService
                         .LoadDishesAsync(userId);
-
+                model.MealTypes = _mealService.LoadMealTypes();
 
                 TempData["ErrorMessage"] =
                     AddMealErrorMessage;
@@ -207,8 +208,8 @@ namespace NutriWeek.Web.Controllers
 
                 meal.Dishes =
                     await _mealService
-                        .LoadDishesAsync( userId);
-
+                        .LoadDishesAsync(userId);
+                meal.MealTypes = _mealService.LoadMealTypes();
 
                 return View(meal);
             }
@@ -228,8 +229,8 @@ namespace NutriWeek.Web.Controllers
 
                 meal.Dishes =
                     await _mealService
-                        .LoadDishesAsync( userId);
-
+                        .LoadDishesAsync(userId);
+                meal.MealTypes = _mealService.LoadMealTypes();
 
                 return View(meal);
             }
@@ -264,8 +265,8 @@ namespace NutriWeek.Web.Controllers
 
                 meal.Dishes =
                     await _mealService
-                        .LoadDishesAsync( userId);
-
+                        .LoadDishesAsync(userId);
+                meal.MealTypes = _mealService.LoadMealTypes();
 
                 return View(meal);
             }
