@@ -1,4 +1,4 @@
-﻿@using System.Globalization
+@using System.Globalization
 @using NutriWeek.Web.ViewModels.DailyMenus
 
 @model IEnumerable<DailyMenuIndexViewModel>
@@ -782,9 +782,6 @@
 <!-- =====================================================
      NAVBAR
      ===================================================== -->
-@await Html.PartialAsync("_NutriNavbar")
-
-
 <!-- =====================================================
      PAGE
      ===================================================== -->
@@ -1545,7 +1542,8 @@
                 <!-- ADD ANOTHER -->
 
                 <a asp-controller="Meals"
-                   asp-action="AddMeal"
+                   asp-action="Add"
+                   asp-route-date="@dailyMenu.Date.ToString("yyyy-MM-dd")"
                    asp-route-fromDailyMenu="true"
                    class="add-another daily-add-meal-link">
 
@@ -1597,7 +1595,8 @@
 
 
                 <a asp-controller="Meals"
-                   asp-action="AddMeal"
+                   asp-action="Add"
+                   asp-route-date="@DateTime.Today.ToString("yyyy-MM-dd")"
                    asp-route-fromDailyMenu="true"
                    class="top-add-meal daily-add-meal-link">
 
