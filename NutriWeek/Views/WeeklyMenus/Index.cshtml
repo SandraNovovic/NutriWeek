@@ -1,4 +1,4 @@
-﻿@using System.Globalization
+@using System.Globalization
 @using NutriWeek.Web.ViewModels.WeeklyMenus
 @using NutriWeek.Web.ViewModels.DailyMenus
 @using NutriWeek.Data.Models.Enums
@@ -602,9 +602,6 @@
 <!-- =====================================================
      NAVBAR
      ===================================================== -->
-@await Html.PartialAsync("_NutriNavbar")
-
-
 <!-- =====================================================
      PAGE
      ===================================================== -->
@@ -1299,7 +1296,8 @@
 
 
                 <a asp-controller="Meals"
-                   asp-action="AddMeal"
+                   asp-action="Add"
+                   asp-route-date="@DateTime.Today.ToString("yyyy-MM-dd")"
                    class="top-add-meal">
 
                     ＋ Add Meal
