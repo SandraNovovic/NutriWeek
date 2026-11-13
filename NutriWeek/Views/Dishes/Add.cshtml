@@ -1,4 +1,4 @@
-﻿@using NutriWeek.Web.ViewModels.Dishes
+@using NutriWeek.Web.ViewModels.Dishes
 
 @model AddDishViewModel
 
@@ -506,9 +506,6 @@
 <!-- =====================================================
      NAVIGATION
      ===================================================== -->
-@await Html.PartialAsync("_NutriNavbar")
-
-
 <!-- =====================================================
      PAGE
      ===================================================== -->
@@ -569,7 +566,6 @@
     <form asp-controller="Dishes"
           asp-action="Add"
           method="post"
-          enctype="multipart/form-data"
           class="form-shell">
 
         @Html.AntiForgeryToken()
@@ -877,42 +873,24 @@ e.g.
 
                     </div>
 
+                    <!-- IMAGE URL -->
 
+                    <div class="form-group">
+                        <label asp-for="ImageUrl"
+                               class="form-label-custom">
+                            Image URL
+                        </label>
 
-                    <!-- UPLOAD -->
+                        <input asp-for="ImageUrl"
+                               id="imageUrlInput"
+                               type="url"
+                               class="form-control-custom"
+                               placeholder="https://example.com/image.jpg" />
 
-                    <label class="upload-area"
-                           for="imageInput">
-
-
-                        <input id="imageInput"
-                               type="file"
-                               name="Image"
-                               accept="image/png,image/jpeg,image/webp" />
-
-
-                        <div class="upload-icon">
-                            ☁
-                        </div>
-
-
-                        <div class="upload-title">
-                            Choose an image
-                        </div>
-
-
-                        <div class="upload-text">
-
-                            Click here to browse
-
-                            <br />
-
-                            JPG, PNG or WEBP
-
-                        </div>
-
-
-                    </label>
+                        <span asp-validation-for="ImageUrl"
+                              class="validation-message">
+                        </span>
+                    </div>
 
 
 
@@ -1067,109 +1045,25 @@ e.g.
 
     <partial name="_ValidationScriptsPartial" />
 
-
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const imageUrlInput = document.getElementById("imageUrlInput");
+            const imagePreview = document.getElementById("imagePreview");
+            const removeImageButton = document.getElementById("removeImage");
+            const defaultImage = "/images/DishesImages/unadded.png";
 
-        document.addEventListener(
-            "DOMContentLoaded",
-            function () {
-
-
-                const imageInput =
-                    document.getElementById(
-                        "imageInput"
-                    );
-
-
-                const imagePreview =
-                    document.getElementById(
-                        "imagePreview"
-                    );
-
-
-                const removeImageButton =
-                    document.getElementById(
-                        "removeImage"
-                    );
-
-
-                const defaultImage =
-                    "/images/DishesImages/unadded.png";
-
-
-
-                /* =========================================
-                   SELECT IMAGE
-                   ========================================= */
-
-                imageInput.addEventListener(
-                    "change",
-                    function () {
-
-
-                        const file =
-                            this.files[0];
-
-
-                        if (!file) {
-
-                            imagePreview.src =
-                                defaultImage;
-
-                            return;
-
-                        }
-
-
-                        const reader =
-                            new FileReader();
-
-
-                        reader.onload =
-                            function (event) {
-
-
-                                imagePreview.src =
-                                    event.target.result;
-
-
-                            };
-
-
-                        reader.readAsDataURL(
-                            file
-                        );
-
-
-                    }
-                );
-
-
-
-                /* =========================================
-                   REMOVE SELECTED IMAGE
-                   ========================================= */
-
-                removeImageButton.addEventListener(
-                    "click",
-                    function () {
-
-
-                        imageInput.value =
-                            "";
-
-
-                        imagePreview.src =
-                            defaultImage;
-
-
-                    }
-                );
-
-
+            function updatePreview() {
+                const imageUrl = imageUrlInput.value.trim();
+                imagePreview.src = imageUrl || defaultImage;
             }
-        );
 
+            imageUrlInput.addEventListener("input", updatePreview);
+            imageUrlInput.addEventListener("change", updatePreview);
+
+            removeImageButton.addEventListener("click", function () {
+                imageUrlInput.value = "";
+                imagePreview.src = defaultImage;
+            });
+        });
     </script>
-
 }
