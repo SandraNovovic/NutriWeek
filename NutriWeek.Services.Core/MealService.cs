@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using NutriWeek.Data;
 using NutriWeek.Data.Models;
 using NutriWeek.Data.Models.Enums;
@@ -77,99 +77,22 @@ namespace NutriWeek.Services.Core.Implementations
         }
 
 
-        public async Task<bool> AddMealAsync( AddMealViewModel model, string userId)
+        public async Task<bool> AddMealAsync(AddMealViewModel model, string userId)
         {
-            DateTime selectedDate =
-                model.Date!.Value.Date;
+            DateTime selectedDate = model.Date!.Value.Date;
 
+            (DailyMenu dailyMenu, bool dailyMenuCreated) =
+                await GetOrCreateDailyMenuAsync(selectedDate, userId);
 
-            int difference =
-                ((int)selectedDate.DayOfWeek -
-                 (int)DayOfWeek.Monday + 7) % 7;
-
-
-            DateTime weekStartDate =
-                selectedDate.AddDays(-difference);
-
-
-            WeeklyMenu? weeklyMenu =
-                await _dbContext.WeeklyMenus
-                    .FirstOrDefaultAsync(w =>
-                        w.UserId == userId &&
-                        w.WeekStartDate.Date ==
-                        weekStartDate);
-
-
-            if (weeklyMenu == null)
+            Meal meal = new Meal
             {
-                weeklyMenu =
-                    new WeeklyMenu
-                    {
-                        WeekStartDate =
-                            weekStartDate,
+                DishId = model.DishId,
+                MealType = model.MealType,
+                DailyMenuId = dailyMenu.Id
+            };
 
-                        Title =
-                            $"Week of {weekStartDate:dd.MM.yyyy}",
-
-                        UserId =
-                            userId
-                    };
-
-                await _dbContext.WeeklyMenus
-                    .AddAsync(weeklyMenu);
-
-                await _dbContext
-                    .SaveChangesAsync();
-            }
-
-
-            DailyMenu? dailyMenu =
-                await _dbContext.DailyMenus
-                    .FirstOrDefaultAsync(d =>
-                        d.WeeklyMenu.UserId == userId &&
-                        d.Date.Date ==
-                        selectedDate);
-
-
-            bool dailyMenuCreated = false;
-
-
-            if (dailyMenu == null)
-            {
-                dailyMenu =
-                    new DailyMenu
-                    {
-                        Date = selectedDate,
-
-                        WeeklyMenuId =
-                            weeklyMenu.Id
-                    };
-
-                await _dbContext.DailyMenus
-                    .AddAsync(dailyMenu);
-
-                await _dbContext
-                    .SaveChangesAsync();
-
-                dailyMenuCreated = true;
-            }
-
-
-            Meal meal =
-                new Meal
-                {
-                    DishId = model.DishId,
-                    MealType = model.MealType,
-                    DailyMenuId = dailyMenu.Id
-                };
-
-
-            await _dbContext.Meals
-                .AddAsync(meal);
-
-            await _dbContext
-                .SaveChangesAsync();
-
+            await _dbContext.Meals.AddAsync(meal);
+            await _dbContext.SaveChangesAsync();
 
             return dailyMenuCreated;
         }
@@ -200,9 +123,8 @@ namespace NutriWeek.Services.Core.Implementations
 
             if (meal != null)
             {
-                meal.Dishes =
-                    await LoadDishesAsync(
-                        userId);
+                meal.Dishes = await LoadDishesAsync(userId);
+                meal.MealTypes = LoadMealTypes();
             }
 
 
@@ -228,114 +150,28 @@ namespace NutriWeek.Services.Core.Implementations
         }
 
 
-        public async Task<bool> EditMealAsync( int id, AddMealViewModel meal,string userId)
+        public async Task<bool> EditMealAsync(int id, AddMealViewModel meal, string userId)
         {
             Meal? mealToEdit =
                 await _dbContext.Meals
                     .FirstOrDefaultAsync(m =>
                         m.Id == id &&
-                        m.DailyMenu.WeeklyMenu.UserId ==
-                        userId);
-
+                        m.DailyMenu.WeeklyMenu.UserId == userId);
 
             if (mealToEdit == null)
             {
                 return false;
             }
 
+            DateTime selectedDate = meal.Date!.Value.Date;
+            (DailyMenu dailyMenu, _) =
+                await GetOrCreateDailyMenuAsync(selectedDate, userId);
 
-            DateTime selectedDate =
-                meal.Date!.Value.Date;
+            mealToEdit.DishId = meal.DishId;
+            mealToEdit.MealType = meal.MealType;
+            mealToEdit.DailyMenuId = dailyMenu.Id;
 
-
-            int difference =
-                ((int)selectedDate.DayOfWeek -
-                 (int)DayOfWeek.Monday + 7) % 7;
-
-
-            DateTime weekStartDate =
-                selectedDate.AddDays(-difference);
-
-
-            WeeklyMenu? weeklyMenu =
-                await _dbContext.WeeklyMenus
-                    .FirstOrDefaultAsync(w =>
-                        w.UserId == userId &&
-                        w.WeekStartDate.Date ==
-                        weekStartDate);
-
-
-            if (weeklyMenu == null)
-            {
-                weeklyMenu =
-                    new WeeklyMenu
-                    {
-                        WeekStartDate =
-                            weekStartDate,
-
-                        Title =
-                            $"Week of {weekStartDate:dd.MM.yyyy}",
-
-                        UserId =
-                            userId
-                    };
-
-
-                await _dbContext.WeeklyMenus
-                    .AddAsync(weeklyMenu);
-
-
-                await _dbContext
-                    .SaveChangesAsync();
-            }
-
-
-            DailyMenu? dailyMenu =
-                await _dbContext.DailyMenus
-                    .FirstOrDefaultAsync(d =>
-                        d.WeeklyMenu.UserId == userId &&
-                        d.Date.Date ==
-                        selectedDate);
-
-
-            if (dailyMenu == null)
-            {
-                dailyMenu =
-                    new DailyMenu
-                    {
-                        Date =
-                            selectedDate,
-
-                        WeeklyMenuId =
-                            weeklyMenu.Id
-                    };
-
-
-                await _dbContext.DailyMenus
-                    .AddAsync(dailyMenu);
-
-
-                await _dbContext
-                    .SaveChangesAsync();
-            }
-
-
-            mealToEdit.DishId =
-                meal.DishId;
-
-
-            mealToEdit.MealType =
-                meal.MealType;
-
-
-            mealToEdit.DailyMenuId =
-                dailyMenu.Id;
-
-
-            await _dbContext
-                .SaveChangesAsync();
-
-
+            await _dbContext.SaveChangesAsync();
             return true;
         }
 
@@ -451,5 +287,61 @@ namespace NutriWeek.Services.Core.Implementations
 
             return meal;
         }
+        private async Task<(DailyMenu DailyMenu, bool WasCreated)> GetOrCreateDailyMenuAsync(
+            DateTime selectedDate,
+            string userId)
+        {
+            DateTime weekStartDate = GetWeekStart(selectedDate);
+
+            WeeklyMenu? weeklyMenu =
+                await _dbContext.WeeklyMenus
+                    .FirstOrDefaultAsync(w =>
+                        w.UserId == userId &&
+                        w.WeekStartDate.Date == weekStartDate);
+
+            if (weeklyMenu == null)
+            {
+                weeklyMenu = new WeeklyMenu
+                {
+                    WeekStartDate = weekStartDate,
+                    Title = $"Week of {weekStartDate:dd.MM.yyyy}",
+                    UserId = userId
+                };
+
+                await _dbContext.WeeklyMenus.AddAsync(weeklyMenu);
+                await _dbContext.SaveChangesAsync();
+            }
+
+            DailyMenu? dailyMenu =
+                await _dbContext.DailyMenus
+                    .FirstOrDefaultAsync(d =>
+                        d.WeeklyMenu.UserId == userId &&
+                        d.Date.Date == selectedDate);
+
+            if (dailyMenu != null)
+            {
+                return (dailyMenu, false);
+            }
+
+            dailyMenu = new DailyMenu
+            {
+                Date = selectedDate,
+                WeeklyMenuId = weeklyMenu.Id
+            };
+
+            await _dbContext.DailyMenus.AddAsync(dailyMenu);
+            await _dbContext.SaveChangesAsync();
+
+            return (dailyMenu, true);
+        }
+
+        private static DateTime GetWeekStart(DateTime date)
+        {
+            int difference =
+                ((int)date.DayOfWeek - (int)DayOfWeek.Monday + 7) % 7;
+
+            return date.AddDays(-difference).Date;
+        }
+
     }
 }
