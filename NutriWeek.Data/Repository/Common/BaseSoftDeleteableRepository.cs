@@ -4,12 +4,14 @@
     
     using Contracts.Common;
     using Data.Common.Models;
+    using NutriWeek.Data.Repository.Common;
+    using NutriWeek.Data;
 
     public abstract class BaseSoftDeleteableRepository<TEntity> 
         : BaseRepository<TEntity>, ISoftDeleteableRepository<TEntity> 
         where TEntity : class, ISoftDeleteableEntity
     {
-        protected BaseSoftDeleteableRepository(CinemaAppDbContext dbContext) 
+        protected BaseSoftDeleteableRepository(NutriWeekDbContext dbContext) 
             : base(dbContext)
         {
 
