@@ -17,14 +17,14 @@ namespace NutriWeek.Data.Repository.Interfaces.Common
 
 
 
-        Task<TEntity> GetById(Guid id);
-        Task<TEntity> GetByIdAsNoTracking(Guid id);
-        Task<TEntity> GetByIdWithDeleted(Guid id);
-        Task<TEntity> GetByIdAsNoTrackingWithDeleted(Guid id);
+        void GetById(Guid id);
+        void GetByIdAsNoTracking(Guid id);
+        void GetByIdWithDeleted(Guid id);
+        void GetByIdAsNoTrackingWithDeleted(Guid id);
 
 
-        Task<TEntity> Add(TEntity entity);
-        Task AddAsync(TEntity entity);
+        void Add(TEntity entity);
+        void AddAsync(TEntity entity);
 
         void UpdateAsync(TEntity entity);
         void Update(TEntity entity);
