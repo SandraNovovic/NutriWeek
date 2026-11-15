@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CinemaApp.Data.Common.Models;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace NutriWeek.Data.Models
 {
-    public class DailyMenu
+    public class DailyMenu:ISoftDeleteableEntity
     {
         [Key]
         public int Id { get; set; }
@@ -17,5 +18,6 @@ namespace NutriWeek.Data.Models
         public WeeklyMenu WeeklyMenu { get; set; } = null!;
 
         public ICollection<Meal> Meals { get; set; } = new HashSet<Meal>();
+        public bool IsDeleted { get ; set ; }
     }
 }
