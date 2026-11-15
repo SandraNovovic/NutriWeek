@@ -1,4 +1,7 @@
-﻿using System;
+﻿using CinemaApp.Data.Repository.Common;
+using NutriWeek.Data.Models;
+using NutriWeek.Data.Repository.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +9,12 @@ using System.Threading.Tasks;
 
 namespace NutriWeek.Data.Repository
 {
-    internal class IDishRepository
+    public class DishRepository:BaseSoftDeleteableRepository<Dish>, IDishRepository
     {
+        public DishRepository(NutriWeekDbContext dbContext)
+            : base(dbContext)
+        {
+
+        }
     }
 }

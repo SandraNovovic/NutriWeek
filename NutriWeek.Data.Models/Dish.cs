@@ -1,11 +1,12 @@
-﻿using NutriWeek.Data.Models.Enums;
+﻿using CinemaApp.Data.Common.Models;
+using NutriWeek.Data.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 using static NutriWeek.GCommon.EntityValidations;
 
 namespace NutriWeek.Data.Models
 {
 
-    public class Dish
+    public class Dish:ISoftDeleteableEntity
     {
         [Key]
         public int Id { get; set; }
@@ -41,6 +42,6 @@ namespace NutriWeek.Data.Models
         public string? UserId { get; set; }
 
         public bool IsShared { get; set; }
-
+        public bool IsDeleted { get; set; }
     }
 }
