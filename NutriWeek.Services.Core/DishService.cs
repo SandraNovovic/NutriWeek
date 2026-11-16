@@ -1,253 +1,624 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NutriWeek.Data;
+﻿using CinemaApp.Services.Common.Utilities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using NutriWeek.Data.Models;
 using NutriWeek.Data.Models.Enums;
+using NutriWeek.Data.Repository.Interfaces;
+using NutriWeek.Services.Core.Data.Dish.Request;
+using NutriWeek.Services.Core.Data.Dish.Response;
 using NutriWeek.Services.Core.Interfaces;
 using NutriWeek.Web.ViewModels;
-using NutriWeek.Web.ViewModels.Dishes;
 
 namespace NutriWeek.Services.Core.Services
 {
     public class DishService : IDishService
     {
-        private readonly NutriWeekDbContext _dbContext;
+        private readonly IDishRepository _dishRepository;
+        private readonly BasicModelValidator _modelValidator;
+        private readonly ILogger<DishService> _logger;
+
 
         public DishService(
-            NutriWeekDbContext dbContext)
+            IDishRepository dishRepository,
+            BasicModelValidator modelValidator,
+            ILogger<DishService> logger)
         {
-            _dbContext = dbContext;
+            _dishRepository = dishRepository;
+            _modelValidator = modelValidator;
+            _logger = logger;
         }
 
 
-        public async Task<IEnumerable<DishIndexViewModel>> GetAllAsync(string userId)
+        public async Task<IEnumerable<GetAllDishesResponseModel>> GetAllAsync( string userId)
         {
-            List<DishIndexViewModel> dishes =
-                await _dbContext.Dishes
-                    .AsNoTracking()
-                    .Where(d =>d.IsShared || d.UserId == userId)
-                    .Select(d =>
-                        new DishIndexViewModel
-                        {
-                            Id = d.Id,
-                            Name = d.Name,
-                            Description = d.Description,
-                            Calories = d.Calories,
-                            PreparationTime = d.PreparationTime,
-                            Portions = d.Portions,
-                            ImageUrl = d.ImageUrl,
-                            DishType = d.DishType,
-                            IsShared = d.IsShared
-                        })
-                    .ToListAsync();
+            try
+            {
+                List<GetAllDishesResponseModel> dishes =
+                    await _dishRepository
+                        .GetAllAsNoTracking()
+                        .Where(d =>
+                            d.IsShared ||
+                            d.UserId == userId)
+                        .Select(d =>
+                            new GetAllDishesResponseModel
+                            {
+                                Id = d.Id,
+                                Name = d.Name,
+                                Description = d.Description,
+                                Calories = d.Calories,
+                                PreparationTime =
+                                    d.PreparationTime,
+                                Portions = d.Portions,
+                                ImageUrl = d.ImageUrl,
+                                DishType = d.DishType,
+                                IsShared = d.IsShared
+                            })
+                        .ToListAsync();
 
-            return dishes;
+                return dishes;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "An error occurred while loading dishes for user {UserId}.",
+                    userId);
+
+                throw;
+            }
         }
 
 
         public IEnumerable<DropdownViewModel> LoadDishTypes()
         {
-            return Enum.GetValues<DishType>()
-                .Select(dt => new DropdownViewModel
-                {
-                    Id = (int)dt,
-                    Name = dt.ToString()
-                })
+            return Enum
+                .GetValues<DishType>()
+                .Select(dt =>
+                    new DropdownViewModel
+                    {
+                        Id = (int)dt,
+                        Name = dt.ToString()
+                    })
                 .ToList();
         }
 
 
-        public async Task AddDishAsync(AddDishViewModel model,string userId)
+        public async Task<DishServiceStatusResponseModel> AddDishAsync( CreateDishRequestData request,string userId)
         {
+            DishServiceStatusResponseModel response =
+                new DishServiceStatusResponseModel();
+
+
+            bool isValid =
+                _modelValidator.IsValid(request);
+
+
+            if (!isValid)
+            {
+                response.Status = false;
+
+                response.ErrorMessages =
+                    _modelValidator
+                        .ValidationResults
+                        .Select(vr =>
+                            vr.ErrorMessage)
+                        .ToArray();
+
+                return response;
+            }
+
+
+            if (!IsDishTypeValid(request.DishType))
+            {
+                response.Status = false;
+
+                response.ErrorMessages =
+                    new[]
+                    {
+                        "Invalid dish type."
+                    };
+
+                return response;
+            }
+
+
             Dish dish =
                 new Dish
                 {
-                    Name = model.Name,
-                    Description = model.Description,
-                    Ingredients = model.Ingredients,
-                    Instructions = model.Instructions,
-                    Calories = model.Calories,
-                    PreparationTime = model.PreparationTime,
-                    Portions = model.Portions,
-                    ImageUrl = model.ImageUrl,
-                    DishType = model.DishType,
-                    UserId = userId,
-                    IsShared = false
+                    Name =
+                        request.Name,
+
+                    Description =
+                        request.Description,
+
+                    Ingredients =
+                        request.Ingredients,
+
+                    Instructions =
+                        request.Instructions,
+
+                    Calories =
+                        request.Calories,
+
+                    PreparationTime =
+                        request.PreparationTime,
+
+                    Portions =
+                        request.Portions,
+
+                    ImageUrl =
+                        request.ImageUrl,
+
+                    DishType =
+                        request.DishType,
+
+                    UserId =
+                        userId,
+
+                    IsShared =
+                        false
                 };
 
-            await _dbContext.Dishes.AddAsync(dish);
 
-            await _dbContext.SaveChangesAsync();
-        }
-
-
-        public async Task<AddDishViewModel?> GetDishForEditAsync(int id,string userId)
-        {
-            AddDishViewModel? dish =
-                await _dbContext.Dishes
-                    .AsNoTracking()
-                    .Where(d =>
-                        d.Id == id &&
-                        d.UserId == userId &&
-                        !d.IsShared)
-                    .Select(d =>
-                        new AddDishViewModel
-                        {
-                            Name = d.Name,
-                            Description = d.Description,
-                            Ingredients = d.Ingredients,
-                            Instructions = d.Instructions,
-                            Calories = d.Calories,
-                            PreparationTime =
-                                d.PreparationTime,
-                            Portions = d.Portions,
-                            ImageUrl = d.ImageUrl,
-                            DishType = d.DishType
-                        })
-                    .SingleOrDefaultAsync();
-
-            if (dish != null)
+            try
             {
-                dish.DishTypes =
-                    LoadDishTypes();
+                _dishRepository.Add( dish);
+
+                await _dishRepository
+                    .SaveChangesAsync();
+
+
+                response.Status = true;
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Database error while creating dish for user {UserId}.",
+                    userId);
+
+
+                response.Status = false;
+
+                response.ErrorMessages =
+                    new[]
+                    {
+                        "An error occurred while creating the dish."
+                    };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Unexpected error while creating dish for user {UserId}.",
+                    userId);
+
+
+                response.Status = false;
+
+                response.ErrorMessages =
+                    new[]
+                    {
+                        "An unexpected error occurred while creating the dish."
+                    };
             }
 
-            return dish;
+
+            return response;
         }
 
 
-        public bool IsDishTypeValid( DishType dishType)
+        public async Task<GetDishForEditResponseModel?> GetDishForEditAsync(int id,string userId)
         {
-            return Enum.IsDefined( typeof(DishType),dishType);
-        }
-
-
-        public async Task<bool> EditDishAsync( int id,AddDishViewModel dish,string userId)
-        {
-            Dish? dishToEdit =
-                await _dbContext.Dishes
-                    .FirstOrDefaultAsync(d =>
-                        d.Id == id &&
-                        d.UserId == userId &&
-                        !d.IsShared);
-
-            if (dishToEdit == null)
+            try
             {
-                return false;
+                GetDishForEditResponseModel? dish =
+                    await _dishRepository
+                        .GetAllAsNoTracking()
+                        .Where(d =>
+                            d.Id == id &&
+                            d.UserId == userId &&
+                            !d.IsShared)
+                        .Select(d =>
+                            new GetDishForEditResponseModel
+                            {
+                                Id =
+                                    d.Id,
+
+                                Name =
+                                    d.Name,
+
+                                Description =
+                                    d.Description,
+
+                                Ingredients =
+                                    d.Ingredients,
+
+                                Instructions =
+                                    d.Instructions,
+
+                                Calories =
+                                    d.Calories,
+
+                                PreparationTime =
+                                    d.PreparationTime,
+
+                                Portions =
+                                    d.Portions,
+
+                                ImageUrl =
+                                    d.ImageUrl,
+
+                                DishType =
+                                    d.DishType
+                            })
+                        .SingleOrDefaultAsync();
+
+
+                return dish;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "An error occurred while loading dish {DishId} for editing.",
+                    id);
+
+                throw;
+            }
+        }
+
+
+        public bool IsDishTypeValid(DishType dishType)
+        {
+            return Enum.IsDefined(
+                typeof(DishType),
+                dishType);
+        }
+
+
+        public async Task<DishServiceStatusResponseModel> EditDishAsync(int id,EditDishRequestData request, string userId)
+        {
+            DishServiceStatusResponseModel response =new DishServiceStatusResponseModel();
+
+
+            bool isValid =
+                _modelValidator.IsValid(request);
+
+
+            if (!isValid)
+            {
+                response.Status = false;
+
+                response.ErrorMessages =
+                    _modelValidator
+                        .ValidationResults
+                        .Select(vr =>
+                            vr.ErrorMessage)
+                        .ToArray();
+
+                return response;
             }
 
-            dishToEdit.Name =
-                dish.Name;
 
-            dishToEdit.Description =
-                dish.Description;
-
-            dishToEdit.Ingredients =
-                dish.Ingredients;
-
-            dishToEdit.Instructions =
-                dish.Instructions;
-
-            dishToEdit.Calories =
-                dish.Calories;
-
-            dishToEdit.PreparationTime =
-                dish.PreparationTime;
-
-            dishToEdit.Portions =
-                dish.Portions;
-
-            dishToEdit.ImageUrl =
-                dish.ImageUrl;
-
-            dishToEdit.DishType =
-                dish.DishType;
-
-            await _dbContext.SaveChangesAsync();
-
-            return true;
-        }
-
-
-        public async Task<DeleteDishViewModel?> GetDishForDeleteAsync(int id,string userId)
-        {
-            DeleteDishViewModel? deletingDish =
-                await _dbContext.Dishes
-                    .AsNoTracking()
-                    .Where(d =>
-                        d.Id == id &&
-                        d.UserId == userId &&
-                        !d.IsShared)
-                    .Select(d =>
-                        new DeleteDishViewModel
-                        {
-                            Id = d.Id,
-                            Name = d.Name
-                        })
-                    .SingleOrDefaultAsync();
-
-            return deletingDish;
-        }
-
-
-        public async Task<bool> DeleteDishAsync(int id,string userId)
-        {
-            Dish? dishToDelete =
-                await _dbContext.Dishes
-                    .FirstOrDefaultAsync(d =>
-                        d.Id == id &&
-                        d.UserId == userId &&
-                        !d.IsShared);
-
-            if (dishToDelete == null)
+            if (!IsDishTypeValid(request.DishType))
             {
-                return false;
+                response.Status = false;
+
+                response.ErrorMessages =
+                    new[]
+                    {
+                        "Invalid dish type."
+                    };
+
+                return response;
             }
 
-            _dbContext.Dishes.Remove(
-                dishToDelete);
 
-            await _dbContext.SaveChangesAsync();
+            try
+            {
+                Dish? dishToEdit =
+                    await _dishRepository
+                        .GetAll()
+                        .FirstOrDefaultAsync(d =>
+                            d.Id == id &&
+                            d.UserId == userId &&
+                            !d.IsShared);
 
-            return true;
-        }
 
+                if (dishToEdit == null)
+                {
+                    response.Status = false;
 
-        public async Task<DetailsDishViewModel?> GetDishDetailsAsync( int id,string userId)
-        {
-            DetailsDishViewModel? dish =
-                await _dbContext.Dishes
-                    .AsNoTracking()
-                    .Where(d =>
-                        d.Id == id &&
-                        (d.IsShared ||
-                         d.UserId == userId))
-                    .Select(d =>
-                        new DetailsDishViewModel
+                    response.ErrorMessages =
+                        new[]
                         {
-                            Id = d.Id,
-                            Name = d.Name,
-                            Description =
-                                d.Description,
-                            Ingredients =
-                                d.Ingredients,
-                            Instructions =
-                                d.Instructions,
-                            Calories =
-                                d.Calories,
-                            PreparationTime =
-                                d.PreparationTime,
-                            Portions =
-                                d.Portions,
-                            ImageUrl =
-                                d.ImageUrl,
-                            DishType =
-                                d.DishType
-                        })
-                    .SingleOrDefaultAsync();
+                            "Dish not found."
+                        };
 
-            return dish;
+                    return response;
+                }
+
+
+                dishToEdit.Name =
+                    request.Name;
+
+                dishToEdit.Description =
+                    request.Description;
+
+                dishToEdit.Ingredients =
+                    request.Ingredients;
+
+                dishToEdit.Instructions =
+                    request.Instructions;
+
+                dishToEdit.Calories =
+                    request.Calories;
+
+                dishToEdit.PreparationTime =
+                    request.PreparationTime;
+
+                dishToEdit.Portions =
+                    request.Portions;
+
+                dishToEdit.ImageUrl =
+                    request.ImageUrl;
+
+                dishToEdit.DishType =
+                    request.DishType;
+
+
+                await _dishRepository
+                    .SaveChangesAsync();
+
+
+                response.Status = true;
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Database error while editing dish {DishId} for user {UserId}.",
+                    id,
+                    userId);
+
+
+                response.Status = false;
+
+                response.ErrorMessages =
+                    new[]
+                    {
+                        "An error occurred while updating the dish."
+                    };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Unexpected error while editing dish {DishId} for user {UserId}.",
+                    id,
+                    userId);
+
+
+                response.Status = false;
+
+                response.ErrorMessages =
+                    new[]
+                    {
+                        "An unexpected error occurred while updating the dish."
+                    };
+            }
+
+
+            return response;
         }
 
 
+        public async Task<GetDishByIdResponseModel?> GetDishForDeleteAsync(int id, string userId)
+        {
+            try
+            {
+                GetDishByIdResponseModel? dish =
+                    await _dishRepository
+                        .GetAllAsNoTracking()
+                        .Where(d =>
+                            d.Id == id &&
+                            d.UserId == userId &&
+                            !d.IsShared)
+                        .Select(d =>
+                            new GetDishByIdResponseModel
+                            {
+                                Id =
+                                    d.Id,
+
+                                Name =
+                                    d.Name,
+
+                                Description =
+                                    d.Description,
+
+                                Ingredients =
+                                    d.Ingredients,
+
+                                Instructions =
+                                    d.Instructions,
+
+                                Calories =
+                                    d.Calories,
+
+                                PreparationTime =
+                                    d.PreparationTime,
+
+                                Portions =
+                                    d.Portions,
+
+                                ImageUrl =
+                                    d.ImageUrl,
+
+                                DishType =
+                                    d.DishType,
+
+                                IsShared =
+                                    d.IsShared
+                            })
+                        .SingleOrDefaultAsync();
+
+
+                return dish;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "An error occurred while loading dish {DishId} for deletion.",
+                    id);
+
+                throw;
+            }
+        }
+
+
+        public async Task<DishServiceStatusResponseModel> DeleteDishAsync( int id, string userId)
+        {
+            DishServiceStatusResponseModel response = new DishServiceStatusResponseModel();
+
+
+            try
+            {
+                Dish? dishToDelete =
+                    await _dishRepository
+                        .GetAll()
+                        .FirstOrDefaultAsync(d =>
+                            d.Id == id &&
+                            d.UserId == userId &&
+                            !d.IsShared);
+
+
+                if (dishToDelete == null)
+                {
+                    response.Status = false;
+
+                    response.ErrorMessages =
+                        new[]
+                        {
+                            "Dish not found."
+                        };
+
+                    return response;
+                }
+
+
+                _dishRepository.Remove(
+                    dishToDelete);
+
+
+                await _dishRepository
+                    .SaveChangesAsync();
+
+
+                response.Status = true;
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Database error while deleting dish {DishId} for user {UserId}.",
+                    id,
+                    userId);
+
+
+                response.Status = false;
+
+                response.ErrorMessages =
+                    new[]
+                    {
+                        "An error occurred while deleting the dish."
+                    };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Unexpected error while deleting dish {DishId} for user {UserId}.",
+                    id,
+                    userId);
+
+
+                response.Status = false;
+
+                response.ErrorMessages =
+                    new[]
+                    {
+                        "An unexpected error occurred while deleting the dish."
+                    };
+            }
+
+
+            return response;
+        }
+
+
+        public async Task<GetDishDetailsResponseModel?> GetDishDetailsAsync(  int id,string userId)
+        {
+            try
+            {
+                GetDishDetailsResponseModel? dish =
+                    await _dishRepository
+                        .GetAllAsNoTracking()
+                        .Where(d =>
+                            d.Id == id &&
+                            (d.IsShared ||
+                             d.UserId == userId))
+                        .Select(d =>
+                            new GetDishDetailsResponseModel
+                            {
+                                Id =
+                                    d.Id,
+
+                                Name =
+                                    d.Name,
+
+                                Description =
+                                    d.Description,
+
+                                Ingredients =
+                                    d.Ingredients,
+
+                                Instructions =
+                                    d.Instructions,
+
+                                Calories =
+                                    d.Calories,
+
+                                PreparationTime =
+                                    d.PreparationTime,
+
+                                Portions =
+                                    d.Portions,
+
+                                ImageUrl =
+                                    d.ImageUrl,
+
+                                DishType =
+                                    d.DishType,
+
+                                IsShared =
+                                    d.IsShared
+                            })
+                        .SingleOrDefaultAsync();
+
+
+                return dish;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "An error occurred while loading details for dish {DishId}.",
+                    id);
+
+                throw;
+            }
+        }
     }
 }
