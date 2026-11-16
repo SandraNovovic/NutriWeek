@@ -1,9 +1,9 @@
-﻿using NutriWeek.Web.ViewModels.DailyMenus;
+﻿using NutriWeek.Services.Core.Data.DailyMenu.Response;
 
 namespace NutriWeek.Services.Core.Interfaces
 {
     public interface IDailyMenuService
     {
-        Task<List<DailyMenuIndexViewModel>> GetAllAsync(string userId);
+        Task<List<GetAllDailyMenusResponseModel>> GetAllAsync( string userId);
     }
 }
