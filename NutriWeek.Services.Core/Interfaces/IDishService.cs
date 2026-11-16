@@ -1,46 +1,36 @@
 ﻿using NutriWeek.Data.Models.Enums;
+using NutriWeek.Services.Core.Data.Dish.Request;
+using NutriWeek.Services.Core.Data.Dish.Response;
 using NutriWeek.Web.ViewModels;
-using NutriWeek.Web.ViewModels.Dishes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NutriWeek.Services.Core.Interfaces
 {
     public interface IDishService
     {
-        Task<IEnumerable<DishIndexViewModel>> GetAllAsync(string userId);
+        Task<IEnumerable<GetAllDishesResponseModel>> GetAllAsync(string userId);
+
 
         IEnumerable<DropdownViewModel> LoadDishTypes();
 
-        Task AddDishAsync(
-            AddDishViewModel model,
-            string userId);
 
-        Task<AddDishViewModel?> GetDishForEditAsync(
-            int id,
-            string userId);
+        Task<DishServiceStatusResponseModel> AddDishAsync(  CreateDishRequestData request,string userId);
 
-        bool IsDishTypeValid(DishType dishType);
 
-        Task<bool> EditDishAsync(
-            int id,
-            AddDishViewModel dish,
-            string userId);
+        Task<GetDishForEditResponseModel?> GetDishForEditAsync( int id, string userId);
 
-        Task<DeleteDishViewModel?> GetDishForDeleteAsync(
-            int id,
-            string userId);
 
-        Task<bool> DeleteDishAsync(
-            int id,
-            string userId);
+        bool IsDishTypeValid(  DishType dishType);
 
-        Task<DetailsDishViewModel?> GetDishDetailsAsync(
-            int id,
-            string userId);
+
+        Task<DishServiceStatusResponseModel> EditDishAsync( int id, EditDishRequestData request, string userId);
+
+
+        Task<GetDishByIdResponseModel?> GetDishForDeleteAsync( int id,string userId);
+
+
+        Task<DishServiceStatusResponseModel> DeleteDishAsync( int id, string userId);
+
+
+        Task<GetDishDetailsResponseModel?> GetDishDetailsAsync( int id, string userId);
     }
-
 }
