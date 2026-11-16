@@ -18,6 +18,7 @@ namespace NutriWeek.Services.Core.Data.Meal.Response
 
         public DateTime Date { get; set; }
 
+        public DishType DishType { get; set; }
         public MealType MealType { get; set; }
 
         public int Calories { get; set; }

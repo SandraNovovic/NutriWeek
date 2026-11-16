@@ -1,42 +1,69 @@
+using CinemaApp.Services.Common.Utilities;
 using Microsoft.EntityFrameworkCore;
-using NutriWeek.Data;
+using Microsoft.Extensions.Logging;
+
 using NutriWeek.Data.Models;
 using NutriWeek.Data.Models.Enums;
+
+using NutriWeek.Data.Repository.Interfaces;
+
+using NutriWeek.Services.Core.Data.Meal.Request;
+using NutriWeek.Services.Core.Data.Meal.Response;
 using NutriWeek.Services.Core.Interfaces;
+
 using NutriWeek.Web.ViewModels;
-using NutriWeek.Web.ViewModels.Meals;
 
 namespace NutriWeek.Services.Core.Implementations
 {
     public class MealService : IMealService
     {
-        private readonly NutriWeekDbContext _dbContext;
+        private readonly IMealRepository mealRepository;
+        private readonly IDishRepository dishRepository;
+        private readonly IDailyMenuRepository dailyMenuRepository;
+        private readonly IWeeklyMenuRepository weeklyMenuRepository;
+
+        private readonly BasicModelValidator modelValidator;
+        private readonly ILogger<MealService> logger;
 
         public MealService(
-            NutriWeekDbContext dbContext)
+            IMealRepository mealRepository,
+            IDishRepository dishRepository,
+            IDailyMenuRepository dailyMenuRepository,
+            IWeeklyMenuRepository weeklyMenuRepository,
+            BasicModelValidator modelValidator,
+            ILogger<MealService> logger)
         {
-            _dbContext = dbContext;
+            this.mealRepository = mealRepository;
+            this.dishRepository = dishRepository;
+            this.dailyMenuRepository = dailyMenuRepository;
+            this.weeklyMenuRepository = weeklyMenuRepository;
+
+            this.modelValidator = modelValidator;
+            this.logger = logger;
         }
 
 
-        public async Task<List<MealIndexViewModel>> GetAllAsync(string userId)
+        public async Task<List<GetAllMealsResponseModel>> GetAllAsync(string userId)
         {
-            List<MealIndexViewModel> meals =
-                await _dbContext.Meals
-                    .AsNoTracking()
+            List<GetAllMealsResponseModel> meals =
+                await mealRepository
+                    .GetAllAsNoTracking()
                     .Where(m =>
-                        m.DailyMenu.WeeklyMenu.UserId ==
-                        userId)
-                    .OrderBy(m => m.DailyMenu.Date)
-                    .ThenBy(m => m.MealType)
+                        m.DailyMenu
+                            .WeeklyMenu
+                            .UserId == userId)
+                    .OrderBy(m =>
+                        m.DailyMenu.Date)
+                    .ThenBy(m =>
+                        m.MealType)
                     .Select(m =>
-                        new MealIndexViewModel
+                        new GetAllMealsResponseModel
                         {
                             Id = m.Id,
                             Date = m.DailyMenu.Date,
                             DishName = m.Dish.Name,
                             Calories = m.Dish.Calories,
-                            Preparation =
+                            PreparationTime =
                                 m.Dish.PreparationTime,
                             MealType = m.MealType
                         })
@@ -46,14 +73,15 @@ namespace NutriWeek.Services.Core.Implementations
         }
 
 
-        public async Task<IEnumerable<DropdownViewModel>> LoadDishesAsync( string userId)
+        public async Task<IEnumerable<DropdownViewModel>> LoadDishesAsync(string userId)
         {
             IEnumerable<DropdownViewModel> dishes =
-                await _dbContext.Dishes
-                    .AsNoTracking()
+                await dishRepository
+                    .GetAllAsNoTracking()
                     .Where(d =>
                         d.IsShared ||
                         d.UserId == userId)
+                    .OrderBy(d => d.Name)
                     .Select(d =>
                         new DropdownViewModel
                         {
@@ -65,74 +93,151 @@ namespace NutriWeek.Services.Core.Implementations
             return dishes;
         }
 
+
         public IEnumerable<DropdownViewModel> LoadMealTypes()
         {
-            return Enum.GetValues<MealType>()
-                .Select(m => new DropdownViewModel
-                {
-                    Id = (int)m,
-                    Name = m.ToString()
-                })
+            return Enum
+                .GetValues<MealType>()
+                .Select(m =>
+                    new DropdownViewModel
+                    {
+                        Id = (int)m,
+                        Name = m.ToString()
+                    })
                 .ToList();
         }
 
 
-        public async Task<bool> AddMealAsync(AddMealViewModel model, string userId)
+        public async Task<MealServiceStatusResponseModel> AddMealAsync(  CreateMealRequestData requestData, string userId)
         {
-            DateTime selectedDate = model.Date!.Value.Date;
+            MealServiceStatusResponseModel response =
+                new MealServiceStatusResponseModel
+                {
+                    Status = false,
+                    ErrorMessages = Enumerable.Empty<string?>()
+                };
 
-            (DailyMenu dailyMenu, bool dailyMenuCreated) =
-                await GetOrCreateDailyMenuAsync(selectedDate, userId);
-
-            Meal meal = new Meal
+            try
             {
-                DishId = model.DishId,
-                MealType = model.MealType,
-                DailyMenuId = dailyMenu.Id
-            };
+                if (!modelValidator.IsValid(requestData))
+                {
+                    response.ErrorMessages =
+                        modelValidator
+                            .ValidationResults
+                            .Select(vr =>
+                                vr.ErrorMessage)
+                            .ToArray();
 
-            await _dbContext.Meals.AddAsync(meal);
-            await _dbContext.SaveChangesAsync();
+                    return response;
+                }
 
-            return dailyMenuCreated;
+
+                if (!IsMealTypeValid(requestData.MealType))
+                {
+                    response.ErrorMessages =
+                        new[]
+                        {
+                            "Invalid meal type."
+                        };
+
+                    return response;
+                }
+
+
+                bool dishExists =
+                    await DishExistsAsync(
+                        requestData.DishId,
+                        userId);
+
+                if (!dishExists)
+                {
+                    response.ErrorMessages =
+                        new[]
+                        {
+                            "Dish does not exist."
+                        };
+
+                    return response;
+                }
+
+
+                DateTime selectedDate = requestData.Date!.Value.Date;
+
+
+                (DailyMenu dailyMenu, _) =
+                    await GetOrCreateDailyMenuAsync(
+                        selectedDate,
+                        userId);
+
+
+                Meal meal = new Meal
+                {
+                    DishId =
+                        requestData.DishId,
+
+                    MealType =
+                        requestData.MealType,
+
+                    DailyMenuId =
+                        dailyMenu.Id
+                };
+
+
+                mealRepository.AddAsync(meal);
+
+                await mealRepository
+                    .SaveChangesAsync();
+
+
+                response.Status = true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Error while adding meal for user {UserId}.",
+                    userId);
+
+                response.Status = false;
+
+                response.ErrorMessages =
+                    new[]
+                    {
+                        ex.Message
+                    };
+            }
+
+
+            return response;
         }
 
 
-        public async Task<AddMealViewModel?> GetMealForEditAsync( int id, string userId)
+        public async Task<GetMealForEditResponseModel?> GetMealForEditAsync(  int id,  string userId)
         {
-            AddMealViewModel? meal =
-                await _dbContext.Meals
-                    .AsNoTracking()
+            GetMealForEditResponseModel? meal =
+                await mealRepository
+                    .GetAllAsNoTracking()
                     .Where(m =>
                         m.Id == id &&
-                        m.DailyMenu.WeeklyMenu.UserId ==
-                        userId)
+                        m.DailyMenu
+                            .WeeklyMenu
+                            .UserId == userId)
                     .Select(m =>
-                        new AddMealViewModel
+                        new GetMealForEditResponseModel
                         {
+                            Id = m.Id,
                             DishId = m.DishId,
-
-                            MealType =
-                                m.MealType,
-
-                            Date =
-                                m.DailyMenu.Date
+                            Date = m.DailyMenu.Date,
+                            MealType = m.MealType
                         })
                     .SingleOrDefaultAsync();
-
-
-            if (meal != null)
-            {
-                meal.Dishes = await LoadDishesAsync(userId);
-                meal.MealTypes = LoadMealTypes();
-            }
 
 
             return meal;
         }
 
 
-        public bool IsMealTypeValid(MealType mealType)
+        public bool IsMealTypeValid( MealType mealType)
         {
             return Enum.IsDefined(
                 typeof(MealType),
@@ -140,135 +245,167 @@ namespace NutriWeek.Services.Core.Implementations
         }
 
 
-        public async Task<bool> DishExistsAsync( int dishId,string userId)
+        public async Task<bool> DishExistsAsync(  int dishId, string userId)
         {
-            return await _dbContext.Dishes
+            return await dishRepository
+                .GetAllAsNoTracking()
                 .AnyAsync(d =>
                     d.Id == dishId &&
-                    (d.IsShared ||
-                     d.UserId == userId));
+                    (
+                        d.IsShared ||
+                        d.UserId == userId
+                    ));
         }
 
 
-        public async Task<bool> EditMealAsync(int id, AddMealViewModel meal, string userId)
+        public async Task<MealServiceStatusResponseModel> EditMealAsync( int id, EditMealRequestData requestData,string userId)
         {
-            Meal? mealToEdit =
-                await _dbContext.Meals
-                    .FirstOrDefaultAsync(m =>
-                        m.Id == id &&
-                        m.DailyMenu.WeeklyMenu.UserId == userId);
+            MealServiceStatusResponseModel response =
+                new MealServiceStatusResponseModel
+                {
+                    Status = false,
+                    ErrorMessages = Enumerable.Empty<string?>()
+                };
 
-            if (mealToEdit == null)
+            try
             {
-                return false;
-            }
+                if (!modelValidator.IsValid(requestData))
+                {
+                    response.ErrorMessages =
+                        modelValidator
+                            .ValidationResults
+                            .Select(vr =>
+                                vr.ErrorMessage)
+                            .ToArray();
 
-            DateTime selectedDate = meal.Date!.Value.Date;
-            (DailyMenu dailyMenu, _) =
-                await GetOrCreateDailyMenuAsync(selectedDate, userId);
-
-            mealToEdit.DishId = meal.DishId;
-            mealToEdit.MealType = meal.MealType;
-            mealToEdit.DailyMenuId = dailyMenu.Id;
-
-            await _dbContext.SaveChangesAsync();
-            return true;
-        }
+                    return response;
+                }
 
 
-        public async Task<DeleteMealViewModel?> GetMealForDeleteAsync( int id, string userId)
-        {
-            DeleteMealViewModel? deletingMeal =
-                await _dbContext.Meals
-                    .AsNoTracking()
-                    .Where(m =>
-                        m.Id == id &&
-                        m.DailyMenu.WeeklyMenu.UserId ==
-                        userId)
-                    .Select(m =>
-                        new DeleteMealViewModel
+                if (!IsMealTypeValid(
+                        requestData.MealType))
+                {
+                    response.ErrorMessages =
+                        new[]
                         {
-                            Id =
-                                m.Id,
+                            "Invalid meal type."
+                        };
 
-                            DishName =
-                                m.Dish.Name,
-
-                            Date =
-                                m.DailyMenu.Date,
-
-                            MealType =
-                                m.MealType.ToString(),
-
-                            ImageUrl =
-                                m.Dish.ImageUrl
-                        })
-                    .SingleOrDefaultAsync();
+                    return response;
+                }
 
 
-            return deletingMeal;
-        }
+                bool dishExists =
+                    await DishExistsAsync(
+                        requestData.DishId,
+                        userId);
+
+                if (!dishExists)
+                {
+                    response.ErrorMessages =
+                        new[]
+                        {
+                            "Dish does not exist."
+                        };
+
+                    return response;
+                }
 
 
-        public async Task<bool> DeleteMealAsync( int id, string userId)
-        {
-            Meal? mealToDelete =
-                await _dbContext.Meals
-                    .FirstOrDefaultAsync(m =>
-                        m.Id == id &&
-                        m.DailyMenu.WeeklyMenu.UserId ==
+                Meal? mealToEdit =
+                    await mealRepository
+                        .GetAll()
+                        .FirstOrDefaultAsync(m =>
+                            m.Id == id &&
+                            m.DailyMenu
+                                .WeeklyMenu
+                                .UserId == userId);
+
+
+                if (mealToEdit == null)
+                {
+                    response.ErrorMessages =
+                        new[]
+                        {
+                            "Meal was not found."
+                        };
+
+                    return response;
+                }
+
+
+                DateTime selectedDate = requestData.Date!.Value.Date;
+
+
+                (DailyMenu dailyMenu, _) =
+                    await GetOrCreateDailyMenuAsync(
+                        selectedDate,
                         userId);
 
 
-            if (mealToDelete == null)
+                mealToEdit.DishId =
+                    requestData.DishId;
+
+                mealToEdit.MealType =
+                    requestData.MealType;
+
+                mealToEdit.DailyMenuId =
+                    dailyMenu.Id;
+
+
+                await mealRepository
+                    .SaveChangesAsync();
+
+
+                response.Status = true;
+            }
+            catch (Exception ex)
             {
-                return false;
+                logger.LogError(
+                    ex,
+                    "Error while editing meal {MealId} for user {UserId}.",
+                    id,
+                    userId);
+
+                response.Status = false;
+
+                response.ErrorMessages =
+                    new[]
+                    {
+                        ex.Message
+                    };
             }
 
 
-            _dbContext.Meals.Remove(
-                mealToDelete);
-
-
-            await _dbContext
-                .SaveChangesAsync();
-
-
-            return true;
+            return response;
         }
 
 
-        public async Task<MealDetailsViewModel?> GetMealDetailsAsync(int id, string userId)
+        public async Task<GetMealByIdResponseModel?> GetMealForDeleteAsync( int id, string userId)
         {
-            MealDetailsViewModel? meal =
-                await _dbContext.Meals
-                    .AsNoTracking()
+            GetMealByIdResponseModel? meal =
+                await mealRepository
+                    .GetAllAsNoTracking()
                     .Where(m =>
                         m.Id == id &&
-                        m.DailyMenu.WeeklyMenu.UserId ==
-                        userId)
+                        m.DailyMenu
+                            .WeeklyMenu
+                            .UserId == userId)
                     .Select(m =>
-                        new MealDetailsViewModel
+                        new GetMealByIdResponseModel
                         {
-                            Id =
-                                m.Id,
+                            Id = m.Id,
 
-                            Date =
-                                m.DailyMenu.Date,
+                            DishId = m.DishId,
 
                             DishName =
                                 m.Dish.Name,
 
-                            Description =
-                                m.Dish.Description,
-
-                            DishType =
-                                m.Dish.DishType
-                                    .ToString(),
+                            Date =
+                                m.DailyMenu.Date,
 
                             MealType =
-                                m.MealType
-                                    .ToString(),
+                                m.MealType,
 
                             Calories =
                                 m.Dish.Calories,
@@ -287,61 +424,214 @@ namespace NutriWeek.Services.Core.Implementations
 
             return meal;
         }
-        private async Task<(DailyMenu DailyMenu, bool WasCreated)> GetOrCreateDailyMenuAsync(
-            DateTime selectedDate,
-            string userId)
+
+
+        public async Task<MealServiceStatusResponseModel> DeleteMealAsync( int id, string userId)
+        {
+            MealServiceStatusResponseModel response =
+                new MealServiceStatusResponseModel
+                {
+                    Status = false,
+                    ErrorMessages =Enumerable.Empty<string?>()
+                };
+
+            try
+            {
+                Meal? mealToDelete =
+                    await mealRepository
+                        .GetAll()
+                        .FirstOrDefaultAsync(m =>
+                            m.Id == id &&
+                            m.DailyMenu
+                                .WeeklyMenu
+                                .UserId == userId);
+
+
+                if (mealToDelete == null)
+                {
+                    response.ErrorMessages =
+                        new[]
+                        {
+                            "Meal was not found."
+                        };
+
+                    return response;
+                }
+
+
+                mealRepository.Remove(mealToDelete);
+
+
+                await mealRepository .SaveChangesAsync();
+
+
+                response.Status = true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Error while deleting meal {MealId} for user {UserId}.",
+                    id,
+                    userId);
+
+                response.Status = false;
+
+                response.ErrorMessages =
+                    new[]
+                    {
+                        ex.Message
+                    };
+            }
+
+
+            return response;
+        }
+
+
+        public async Task<GetMealDetailsResponseModel?>  GetMealDetailsAsync( int id, string userId)
+        {
+            GetMealDetailsResponseModel? meal =
+                await mealRepository
+                    .GetAllAsNoTracking()
+                    .Where(m =>
+                        m.Id == id &&
+                        m.DailyMenu
+                            .WeeklyMenu
+                            .UserId == userId)
+                    .Select(m =>
+                        new GetMealDetailsResponseModel
+                        {
+                            Id = m.Id,
+
+                            DishId = m.DishId,
+
+                            Date =
+                                m.DailyMenu.Date,
+
+                            DishName =
+                                m.Dish.Name,
+
+                            Description =
+                                m.Dish.Description,
+
+                            DishType =  m.Dish.DishType,
+
+                            MealType = m.MealType,
+
+                            Calories =
+                                m.Dish.Calories,
+
+                            PreparationTime =
+                                m.Dish.PreparationTime,
+
+                            Portions =
+                                m.Dish.Portions,
+
+                            ImageUrl =
+                                m.Dish.ImageUrl
+                        })
+                    .SingleOrDefaultAsync();
+
+
+            return meal;
+        }
+
+
+        private async Task<(DailyMenu DailyMenu, bool WasCreated)>GetOrCreateDailyMenuAsync( DateTime selectedDate, string userId)
         {
             DateTime weekStartDate = GetWeekStart(selectedDate);
 
+
             WeeklyMenu? weeklyMenu =
-                await _dbContext.WeeklyMenus
+                await weeklyMenuRepository
+                    .GetAll()
                     .FirstOrDefaultAsync(w =>
                         w.UserId == userId &&
-                        w.WeekStartDate.Date == weekStartDate);
+                        w.WeekStartDate.Date ==
+                        weekStartDate);
+
 
             if (weeklyMenu == null)
             {
-                weeklyMenu = new WeeklyMenu
-                {
-                    WeekStartDate = weekStartDate,
-                    Title = $"Week of {weekStartDate:dd.MM.yyyy}",
-                    UserId = userId
-                };
+                weeklyMenu =
+                    new WeeklyMenu
+                    {
+                        WeekStartDate =
+                            weekStartDate,
 
-                await _dbContext.WeeklyMenus.AddAsync(weeklyMenu);
-                await _dbContext.SaveChangesAsync();
+                        Title =
+                            $"Week of {weekStartDate:dd.MM.yyyy}",
+
+                        UserId =
+                            userId
+                    };
+
+
+                weeklyMenuRepository.AddAsync(weeklyMenu);
+
+
+                await weeklyMenuRepository
+                    .SaveChangesAsync();
             }
 
+
             DailyMenu? dailyMenu =
-                await _dbContext.DailyMenus
+                await dailyMenuRepository
+                    .GetAll()
                     .FirstOrDefaultAsync(d =>
-                        d.WeeklyMenu.UserId == userId &&
-                        d.Date.Date == selectedDate);
+                        d.WeeklyMenu.UserId ==
+                        userId &&
+                        d.Date.Date ==
+                        selectedDate);
+
 
             if (dailyMenu != null)
             {
-                return (dailyMenu, false);
+                return (
+                    dailyMenu,
+                    false);
             }
 
-            dailyMenu = new DailyMenu
-            {
-                Date = selectedDate,
-                WeeklyMenuId = weeklyMenu.Id
-            };
 
-            await _dbContext.DailyMenus.AddAsync(dailyMenu);
-            await _dbContext.SaveChangesAsync();
+            dailyMenu =
+                new DailyMenu
+                {
+                    Date =
+                        selectedDate,
 
-            return (dailyMenu, true);
+                    WeeklyMenuId =
+                        weeklyMenu.Id
+                };
+
+
+            dailyMenuRepository
+                .AddAsync(dailyMenu);
+
+
+            await dailyMenuRepository
+                .SaveChangesAsync();
+
+
+            return (
+                dailyMenu,
+                true);
         }
 
-        private static DateTime GetWeekStart(DateTime date)
+
+        private static DateTime GetWeekStart( DateTime date)
         {
             int difference =
-                ((int)date.DayOfWeek - (int)DayOfWeek.Monday + 7) % 7;
+                (
+                    (int)date.DayOfWeek -
+                    (int)DayOfWeek.Monday +
+                    7
+                ) % 7;
 
-            return date.AddDays(-difference).Date;
+
+            return date
+                .AddDays(-difference)
+                .Date;
         }
-
     }
 }
