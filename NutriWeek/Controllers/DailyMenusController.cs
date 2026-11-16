@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+using NutriWeek.Services.Core.Data.DailyMenu.Response;
 using NutriWeek.Services.Core.Interfaces;
-using NutriWeek.Web.ViewModels.DailyMenus;
+
 using System.Security.Claims;
 
 namespace NutriWeek.Web.Controllers
@@ -21,12 +23,12 @@ namespace NutriWeek.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            string userId =User.FindFirstValue(
-                    ClaimTypes.NameIdentifier)!;
+            string userId =   User.FindFirstValue( ClaimTypes.NameIdentifier)!;
 
-            List<DailyMenuIndexViewModel> dailyMenus =
+
+            List<GetAllDailyMenusResponseModel> dailyMenus =
                 await _dailyMenuService
-                    .GetAllAsync( userId);
+                    .GetAllAsync(userId);
 
 
             return View(dailyMenus);
