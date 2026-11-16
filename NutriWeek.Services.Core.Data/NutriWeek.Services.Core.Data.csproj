@@ -7,10 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Dish\" />
-    <Folder Include="Meal\" />
-    <Folder Include="DailyMenu\" />
-    <Folder Include="WeeklyMenu\" />
+    <Folder Include="DailyMenu\Request\" />
+    <Folder Include="WeeklyMenu\Request\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NutriWeek.Data.Models\NutriWeek.Data.Models.csproj" />
   </ItemGroup>
 
 </Project>
