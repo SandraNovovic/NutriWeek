@@ -1,11 +1,17 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NutriWeek.Data;
+
 using NutriWeek.Data.Models.Enums;
 using NutriWeek.GCommon;
+
+using NutriWeek.Services.Core.Data.Meal.Request;
+using NutriWeek.Services.Core.Data.Meal.Response;
 using NutriWeek.Services.Core.Interfaces;
+
 using NutriWeek.Web.ViewModels.Meals;
+
 using System.Security.Claims;
+
 using static NutriWeek.GCommon.TempDateMessages;
 
 namespace NutriWeek.Web.Controllers
@@ -16,8 +22,9 @@ namespace NutriWeek.Web.Controllers
         private readonly IMealService _mealService;
         private readonly ILogger<MealsController> _logger;
 
-
-        public MealsController(IMealService mealService,ILogger<MealsController> logger)
+        public MealsController(
+            IMealService mealService,
+            ILogger<MealsController> logger)
         {
             _mealService = mealService;
             _logger = logger;
@@ -28,108 +35,119 @@ namespace NutriWeek.Web.Controllers
         public async Task<IActionResult> Index()
         {
             string userId =
-                User.FindFirstValue(
-                    ClaimTypes.NameIdentifier)!;
+                User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-            List<MealIndexViewModel> meals =
-                await _mealService.GetAllAsync(
-                    userId);
 
-            return View(meals);
+            List<GetAllMealsResponseModel> meals =
+                await _mealService
+                    .GetAllAsync(userId);
+
+
+            List<MealIndexViewModel> viewModels =
+                meals
+                    .Select(m =>
+                        new MealIndexViewModel
+                        {
+                            Id = m.Id,
+                            Date = m.Date,
+                            DishName = m.DishName,
+                            Calories = m.Calories,
+                            Preparation =
+                                m.PreparationTime,
+                            MealType =
+                                m.MealType
+                        })
+                    .ToList();
+
+
+            return View(viewModels);
         }
 
 
         [HttpGet]
         public async Task<IActionResult> Add( DateTime? date, MealType? mealType)
         {
-            string userId =User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            string userId =
+                User.FindFirstValue( ClaimTypes.NameIdentifier)!;
 
-            AddMealViewModel dishes =
+
+            AddMealViewModel model =
                 new AddMealViewModel
                 {
                     Dishes =
                         await _mealService
                             .LoadDishesAsync(userId),
-                    MealTypes = _mealService.LoadMealTypes(),
-                    Date =
-                        date,
+
+                    MealTypes =
+                        _mealService
+                            .LoadMealTypes(),
+
+                    Date = date,
+
                     MealType =
                         mealType ??
                         MealType.Breakfast
                 };
 
 
-            return View(dishes);
+            return View(model);
         }
 
 
         [HttpPost]
-        public async Task<IActionResult> Add(AddMealViewModel model)
+        public async Task<IActionResult> Add( AddMealViewModel model)
         {
             string userId =
-                User.FindFirstValue(
-                    ClaimTypes.NameIdentifier)!;
+                User.FindFirstValue(  ClaimTypes.NameIdentifier)!;
+
 
             if (!ModelState.IsValid)
             {
-                model.Dishes =
-                    await _mealService
-                        .LoadDishesAsync(
-                            userId);
-                model.MealTypes = _mealService.LoadMealTypes();
-                return View(model);
-            }
-
-
-            bool dishExists =
-                await _mealService
-                    .DishExistsAsync(model.DishId, userId);
-
-
-            if (!dishExists)
-            {
-                ModelState.AddModelError(
-                    nameof(model.DishId),
-                    ErrorMessages.DishNotFound);
-
-
-                model.Dishes =
-                    await _mealService
-                        .LoadDishesAsync(userId);
-                model.MealTypes = _mealService.LoadMealTypes();
+                await LoadDropdownDataAsync(
+                    model,
+                    userId);
 
                 return View(model);
             }
 
 
-            try
-            {
-                bool dailyMenuCreated =
-                    await _mealService
-                        .AddMealAsync( model,userId);
-
-
-                if (dailyMenuCreated)
+            CreateMealRequestData requestData =
+                new CreateMealRequestData
                 {
-                    TempData["SuccessMessage"] =
-                        AddDailyMenuSuccessMessage;
+                    DishId =
+                        model.DishId,
+
+                    Date =
+                        model.Date,
+
+                    MealType =
+                        model.MealType
+                };
+
+
+            MealServiceStatusResponseModel response =
+                await _mealService
+                    .AddMealAsync(
+                        requestData,
+                        userId);
+
+
+            if (!response.Status)
+            {
+                foreach (string? error
+                         in response.ErrorMessages)
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        error ??
+                        ErrorMessages.InvalidRequest);
                 }
 
 
-                TempData["SuccessMessage"] =
-                    AddMealSuccessMessage;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    ErrorMessages.InvalidRequest);
+                await LoadDropdownDataAsync(
+                    model,
+                    userId);
 
-
-                model.Dishes =
-                    await _mealService
-                        .LoadDishesAsync(userId);
-                model.MealTypes = _mealService.LoadMealTypes();
 
                 TempData["ErrorMessage"] =
                     AddMealErrorMessage;
@@ -139,16 +157,76 @@ namespace NutriWeek.Web.Controllers
             }
 
 
-            return RedirectToAction("Index");
+            TempData["SuccessMessage"] =
+                AddMealSuccessMessage;
+
+
+            return RedirectToAction(
+                nameof(Index));
         }
 
 
         [HttpGet]
         public async Task<IActionResult> Edit( [FromRoute] int? id)
         {
-            if (!id.HasValue || id.Value <= 0)
+            if (!id.HasValue ||
+                id.Value <= 0)
             {
                 return BadRequest(ErrorMessages.InvalidRequest);
+            }
+
+
+            string userId =
+                User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+
+            GetMealForEditResponseModel? response =
+                await _mealService
+                    .GetMealForEditAsync(
+                        id.Value,
+                        userId);
+
+
+            if (response == null)
+            {
+                return NotFound(
+                    ErrorMessages.MealNotFound);
+            }
+
+
+            AddMealViewModel model =
+                new AddMealViewModel
+                {
+                    DishId =
+                        response.DishId,
+
+                    Date =
+                        response.Date,
+
+                    MealType =
+                        response.MealType,
+
+                    Dishes =
+                        await _mealService
+                            .LoadDishesAsync(userId),
+
+                    MealTypes =
+                        _mealService
+                            .LoadMealTypes()
+                };
+
+
+            return View(model);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(  [FromRoute] int? id, AddMealViewModel model)
+        {
+            if (!id.HasValue ||
+                id.Value <= 0)
+            {
+                return BadRequest( ErrorMessages.InvalidRequest);
             }
 
 
@@ -156,120 +234,65 @@ namespace NutriWeek.Web.Controllers
                 User.FindFirstValue( ClaimTypes.NameIdentifier)!;
 
 
-            AddMealViewModel? meal =
-                await _mealService
-                    .GetMealForEditAsync(id.Value,userId);
-
-
-            if (meal == null)
-            {
-                return NotFound(ErrorMessages.MealNotFound);
-            }
-
-
-            return View(meal);
-        }
-
-
-        [HttpPost]
-        public async Task<IActionResult> Edit( [FromRoute] int? id,AddMealViewModel meal)
-        {
-            string userId =  User.FindFirstValue( ClaimTypes.NameIdentifier)!;
-
-
-            if (!id.HasValue ||   id.Value <= 0)
-            {
-                return BadRequest();
-            }
-
-
             if (!ModelState.IsValid)
             {
-                meal.Dishes =
-                    await _mealService
-                        .LoadDishesAsync( userId);
+                await LoadDropdownDataAsync(
+                    model,
+                    userId);
 
-                meal.MealTypes = _mealService.LoadMealTypes();
-                return View(meal);
+                return View(model);
             }
 
 
-            bool mealTypeExists =
-                _mealService
-                    .IsMealTypeValid( meal.MealType);
-
-
-            if (!mealTypeExists)
-            {
-                ModelState.AddModelError(
-                    nameof(meal.MealType),
-                    ErrorMessages.InvalidMealType);
-
-
-                meal.Dishes =
-                    await _mealService
-                        .LoadDishesAsync(userId);
-                meal.MealTypes = _mealService.LoadMealTypes();
-
-                return View(meal);
-            }
-
-
-            bool dishExists =
-                await _mealService
-                    .DishExistsAsync( meal.DishId, userId);
-
-
-            if (!dishExists)
-            {
-                ModelState.AddModelError(
-                    nameof(meal.DishId),
-                    ErrorMessages.DishNotFound);
-
-
-                meal.Dishes =
-                    await _mealService
-                        .LoadDishesAsync(userId);
-                meal.MealTypes = _mealService.LoadMealTypes();
-
-                return View(meal);
-            }
-
-
-            try
-            {
-                bool edited =
-                    await _mealService
-                        .EditMealAsync( id.Value, meal,  userId);
-
-
-                if (!edited)
+            EditMealRequestData requestData =
+                new EditMealRequestData
                 {
-                    return NotFound();
+                    DishId =
+                        model.DishId,
+
+                    Date =
+                        model.Date,
+
+                    MealType =
+                        model.MealType
+                };
+
+
+            MealServiceStatusResponseModel response =
+                await _mealService
+                    .EditMealAsync(
+                        id.Value,
+                        requestData,
+                        userId);
+
+
+            if (!response.Status)
+            {
+                foreach (string? error
+                         in response.ErrorMessages)
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        error ??
+                        ErrorMessages.InvalidRequest);
                 }
 
 
-                TempData["Success"] =
-                    UpdateMealSuccessMessage;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    ErrorMessages.InvalidRequest);
+                await LoadDropdownDataAsync(
+                    model,
+                    userId);
 
 
                 TempData["Error"] =
                     UpdateMealErrorMessage;
 
 
-                meal.Dishes =
-                    await _mealService
-                        .LoadDishesAsync(userId);
-                meal.MealTypes = _mealService.LoadMealTypes();
-
-                return View(meal);
+                return View(model);
             }
+
+
+            TempData["Success"] =
+                UpdateMealSuccessMessage;
 
 
             return RedirectToAction(
@@ -280,68 +303,90 @@ namespace NutriWeek.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete( [FromRoute] int? id)
         {
-            if (!id.HasValue || id.Value <= 0)
+            if (!id.HasValue ||
+                id.Value <= 0)
             {
-                return BadRequest( ErrorMessages.InvalidRequestTryAgain);
+                return BadRequest(ErrorMessages .InvalidRequestTryAgain);
             }
 
 
-            string userId = User.FindFirstValue( ClaimTypes.NameIdentifier)!;
+            string userId =
+                User.FindFirstValue( ClaimTypes.NameIdentifier)!;
 
 
-            DeleteMealViewModel? deletingMeal =
+            GetMealByIdResponseModel? response =
                 await _mealService
-                    .GetMealForDeleteAsync( id.Value, userId);
+                    .GetMealForDeleteAsync(
+                        id.Value,
+                        userId);
 
 
-            if (deletingMeal == null)
+            if (response == null)
             {
-                return NotFound( ErrorMessages.MealNotFound);
+                return NotFound(
+                    ErrorMessages.MealNotFound);
             }
 
 
-            return View(deletingMeal);
+            DeleteMealViewModel model =
+                new DeleteMealViewModel
+                {
+                    Id =
+                        response.Id,
+
+                    DishName =
+                        response.DishName,
+
+                    Date =
+                        response.Date,
+
+                    MealType =
+                        response.MealType
+                            .ToString(),
+
+                    ImageUrl =
+                        response.ImageUrl
+                };
+
+
+            return View(model);
         }
 
 
         [HttpPost]
-        public async Task<IActionResult> Delete([FromRoute] int? id, DeleteMealViewModel meal,bool fromWeeklyMenu = false,string? weekStart = null)
+        public async Task<IActionResult> Delete(  [FromRoute] int? id, DeleteMealViewModel model,bool fromWeeklyMenu = false, string? weekStart = null)
         {
-            if (!id.HasValue || id.Value <= 0)
+            if (!id.HasValue ||
+                id.Value <= 0)
             {
                 return BadRequest( ErrorMessages.InvalidRequestTryAgain);
             }
 
 
-            string userId =  User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            string userId =
+                User.FindFirstValue( ClaimTypes.NameIdentifier)!;
 
 
-            try
+            MealServiceStatusResponseModel response =
+                await _mealService
+                    .DeleteMealAsync(
+                        id.Value,
+                        userId);
+
+
+            if (!response.Status)
             {
-                bool deleted =
-                    await _mealService
-                        .DeleteMealAsync(  id.Value, userId);
-
-
-                if (!deleted)
-                {
-                    return NotFound();
-                }
-
-
-                TempData["Success"] =
-                    DeleteMealSuccessMessage;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    ErrorMessages.InvalidRequest);
-
-
                 TempData["Error"] =
                     DeleteMealErrorMessage;
+
+
+                return NotFound(
+                    ErrorMessages.MealNotFound);
             }
+
+
+            TempData["Success"] =
+                DeleteMealSuccessMessage;
 
 
             if (fromWeeklyMenu)
@@ -351,7 +396,7 @@ namespace NutriWeek.Web.Controllers
                     "WeeklyMenus",
                     new
                     {
-                        weekStart = weekStart
+                        weekStart
                     });
             }
 
@@ -361,31 +406,80 @@ namespace NutriWeek.Web.Controllers
         }
 
 
-
         [HttpGet]
         public async Task<IActionResult> Details( [FromRoute] int? id)
         {
-            if (!id.HasValue || id.Value <= 0)
+            if (!id.HasValue ||id.Value <= 0)
             {
-                return BadRequest(  ErrorMessages.InvalidRequest);
+                return BadRequest( ErrorMessages.InvalidRequest);
             }
 
 
             string userId = User.FindFirstValue( ClaimTypes.NameIdentifier)!;
 
 
-            MealDetailsViewModel? meal =
+            GetMealDetailsResponseModel? response =
                 await _mealService
-                    .GetMealDetailsAsync(  id.Value, userId);
+                    .GetMealDetailsAsync(
+                        id.Value,
+                        userId);
 
 
-            if (meal == null)
+            if (response == null)
             {
-                return NotFound( ErrorMessages.MealNotFound);
+                return NotFound(
+                    ErrorMessages.MealNotFound);
             }
 
 
-            return View(meal);
+            MealDetailsViewModel model =
+                new MealDetailsViewModel
+                {
+                    Id =
+                        response.Id,
+
+                    Date =
+                        response.Date,
+
+                    DishName =
+                        response.DishName,
+
+                    Description =
+                        response.Description,
+
+                    DishType =
+                        response.DishType
+                            .ToString(),
+
+                    MealType =
+                        response.MealType
+                            .ToString(),
+
+                    Calories =
+                        response.Calories,
+
+                    PreparationTime =
+                        response.PreparationTime,
+
+                    Portions =
+                        response.Portions,
+
+                    ImageUrl =
+                        response.ImageUrl
+                };
+
+
+            return View(model);
+        }
+
+
+        private async Task LoadDropdownDataAsync(AddMealViewModel model, string userId)
+        {
+            model.Dishes =
+                await _mealService .LoadDishesAsync(userId);
+
+            model.MealTypes =
+                _mealService .LoadMealTypes();
         }
     }
 }
