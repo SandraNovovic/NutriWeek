@@ -10,6 +10,7 @@
     <ProjectReference Include="..\NutriWeek.Data.Models\NutriWeek.Data.Models.csproj" />
     <ProjectReference Include="..\NutriWeek.Data\NutriWeek.Data.csproj" />
     <ProjectReference Include="..\NutriWeek.GCommon\NutriWeek.GCommon.csproj" />
+    <ProjectReference Include="..\NutriWeek.Services.Core.Data\NutriWeek.Services.Core.Data.csproj" />
     <ProjectReference Include="..\NutriWeek.Web.ViewModels\NutriWeek.Web.ViewModels.csproj" />
   </ItemGroup>
 
