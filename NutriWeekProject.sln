@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36518.9 d17.14
+VisualStudioVersion = 17.14.36518.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NutriWeek.Web", "NutriWeek\NutriWeek.Web.csproj", "{8A4029F2-DE02-4227-B188-B22AAF9F977E}"
 EndProject
@@ -14,6 +14,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NutriWeek.Services.Core", "NutriWeek.Services.Core\NutriWeek.Services.Core.csproj", "{B9E23D30-A74D-4CBF-B371-DE796CB3D6A4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NutriWeek.Web.ViewModels", "NutriWeek.Web.ViewModels\NutriWeek.Web.ViewModels.csproj", "{990CC853-1A6C-4261-9432-AABE383EF713}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NutriWeek.Services.Core.Data", "NutriWeek.Services.Core.Data\NutriWeek.Services.Core.Data.csproj", "{5E3A2C67-02C9-410D-AE26-DD73FB22608C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NutriWeek.Web.Infrastructure", "NutriWeek.Web.Infrastructure\NutriWeek.Web.Infrastructure.csproj", "{18B6D973-ADFA-40E8-9098-982250E23A4D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +49,14 @@ Global
 		{990CC853-1A6C-4261-9432-AABE383EF713}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{990CC853-1A6C-4261-9432-AABE383EF713}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{990CC853-1A6C-4261-9432-AABE383EF713}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E3A2C67-02C9-410D-AE26-DD73FB22608C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E3A2C67-02C9-410D-AE26-DD73FB22608C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E3A2C67-02C9-410D-AE26-DD73FB22608C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E3A2C67-02C9-410D-AE26-DD73FB22608C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18B6D973-ADFA-40E8-9098-982250E23A4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18B6D973-ADFA-40E8-9098-982250E23A4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18B6D973-ADFA-40E8-9098-982250E23A4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18B6D973-ADFA-40E8-9098-982250E23A4D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
