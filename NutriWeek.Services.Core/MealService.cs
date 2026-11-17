@@ -224,16 +224,15 @@ namespace NutriWeek.Services.Core.Implementations
         }
 
 
-        public async Task<bool> DishExistsAsync(  int dishId, string userId)
+        public async Task<bool> DishExistsAsync(int dishId,string userId)
         {
             return await dishRepository
                 .GetAllAsNoTracking()
                 .AnyAsync(d =>
                     d.Id == dishId &&
-                    (
-                        d.IsShared ||
-                        d.UserId == userId
-                    ));
+                    !d.IsDeleted &&
+                    (d.IsShared ||
+                     d.UserId == userId));
         }
 
 
@@ -611,18 +610,23 @@ namespace NutriWeek.Services.Core.Implementations
 
         public async Task<IEnumerable<DropdownResponseModel>> LoadAvailableDishesAsync(string userId)
         {
-            IEnumerable<DropdownResponseModel> dishTypes = await dishRepository
-                .GetAllAsNoTracking()
-                .Where(d=>d.UserId == userId || d.IsShared)
-                .OrderBy(d => d.Name)
-                .Select(d=>new DropdownResponseModel
-                {
-                    Id = d.Id,
-                    Name= d.Name,
-                })
-                .ToListAsync();
+            IEnumerable<DropdownResponseModel> dishes =
+                await dishRepository
+                    .GetAllAsNoTracking()
+                    .Where(d =>
+                        !d.IsDeleted &&
+                        (d.IsShared ||
+                         d.UserId == userId))
+                    .OrderBy(d => d.Name)
+                    .Select(d =>
+                        new DropdownResponseModel
+                        {
+                            Id = d.Id,
+                            Name = d.Name
+                        })
+                    .ToListAsync();
 
-            return dishTypes;
+            return dishes;
         }
     }
 }

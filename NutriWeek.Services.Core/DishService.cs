@@ -38,8 +38,8 @@ namespace NutriWeek.Services.Core.Services
                     await _dishRepository
                         .GetAllAsNoTracking()
                         .Where(d =>
-                            d.IsShared ||
-                            d.UserId == userId)
+                            !d.IsDeleted &&(d.IsShared ||
+                            d.UserId == userId))
                         .Select(d =>
                             new GetAllDishesResponseModel
                             {
@@ -217,8 +217,9 @@ namespace NutriWeek.Services.Core.Services
                         .GetAllAsNoTracking()
                         .Where(d =>
                             d.Id == id &&
-                            d.UserId == userId &&
-                            !d.IsShared)
+                            !d.IsDeleted &&
+                            (d.IsShared ||
+                             d.UserId == userId))
                         .Select(d =>
                             new GetDishForEditResponseModel
                             {
@@ -322,8 +323,8 @@ namespace NutriWeek.Services.Core.Services
                         .GetAll()
                         .FirstOrDefaultAsync(d =>
                             d.Id == id &&
-                            d.UserId == userId &&
-                            !d.IsShared);
+                            !d.IsDeleted &&
+                            d.UserId == userId);
 
 
                 if (dishToEdit == null)
@@ -423,8 +424,8 @@ namespace NutriWeek.Services.Core.Services
                         .GetAllAsNoTracking()
                         .Where(d =>
                             d.Id == id &&
-                            d.UserId == userId &&
-                            !d.IsShared)
+                            (d.IsShared ||
+                             d.UserId == userId))
                         .Select(d =>
                             new GetDishByIdResponseModel
                             {
@@ -490,8 +491,8 @@ namespace NutriWeek.Services.Core.Services
                         .GetAll()
                         .FirstOrDefaultAsync(d =>
                             d.Id == id &&
-                            d.UserId == userId &&
-                            !d.IsShared);
+                            !d.IsDeleted &&
+                            d.UserId == userId);
 
 
                 if (dishToDelete == null)
