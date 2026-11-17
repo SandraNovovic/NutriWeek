@@ -20,7 +20,11 @@ namespace NutriWeek.Data
 
         public DbSet<Meal> Meals { get; set; } = null!;
 
+        public DbSet<Ingredient> Ingredients { get; set; } = null!;
 
+        public DbSet<DishIngredient> DishIngredients { get; set; } = null!;
+
+        public DbSet<PantryItem> PantryItems { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

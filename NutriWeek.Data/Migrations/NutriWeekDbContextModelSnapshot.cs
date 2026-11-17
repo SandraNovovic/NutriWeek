@@ -363,6 +363,58 @@ namespace NutriWeek.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("NutriWeek.Data.Models.DishIngredient", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DishId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IngredientId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<int>("Unit")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IngredientId");
+
+                    b.HasIndex("DishId", "IngredientId")
+                        .IsUnique();
+
+                    b.ToTable("DishIngredients");
+                });
+
+            modelBuilder.Entity("NutriWeek.Data.Models.Ingredient", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Ingredients");
+                });
+
             modelBuilder.Entity("NutriWeek.Data.Models.Meal", b =>
                 {
                     b.Property<int>("Id")
@@ -390,6 +442,38 @@ namespace NutriWeek.Data.Migrations
                     b.HasIndex("DishId");
 
                     b.ToTable("Meals");
+                });
+
+            modelBuilder.Entity("NutriWeek.Data.Models.PantryItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("IngredientId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<int>("Unit")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IngredientId");
+
+                    b.HasIndex("UserId", "IngredientId")
+                        .IsUnique();
+
+                    b.ToTable("PantryItems");
                 });
 
             modelBuilder.Entity("NutriWeek.Data.Models.WeeklyMenu", b =>
@@ -484,6 +568,25 @@ namespace NutriWeek.Data.Migrations
                     b.Navigation("WeeklyMenu");
                 });
 
+            modelBuilder.Entity("NutriWeek.Data.Models.DishIngredient", b =>
+                {
+                    b.HasOne("NutriWeek.Data.Models.Dish", "Dish")
+                        .WithMany("DishIngredients")
+                        .HasForeignKey("DishId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NutriWeek.Data.Models.Ingredient", "Ingredient")
+                        .WithMany("DishIngredients")
+                        .HasForeignKey("IngredientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Dish");
+
+                    b.Navigation("Ingredient");
+                });
+
             modelBuilder.Entity("NutriWeek.Data.Models.Meal", b =>
                 {
                     b.HasOne("NutriWeek.Data.Models.DailyMenu", "DailyMenu")
@@ -503,9 +606,32 @@ namespace NutriWeek.Data.Migrations
                     b.Navigation("Dish");
                 });
 
+            modelBuilder.Entity("NutriWeek.Data.Models.PantryItem", b =>
+                {
+                    b.HasOne("NutriWeek.Data.Models.Ingredient", "Ingredient")
+                        .WithMany("PantryItems")
+                        .HasForeignKey("IngredientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Ingredient");
+                });
+
             modelBuilder.Entity("NutriWeek.Data.Models.DailyMenu", b =>
                 {
                     b.Navigation("Meals");
+                });
+
+            modelBuilder.Entity("NutriWeek.Data.Models.Dish", b =>
+                {
+                    b.Navigation("DishIngredients");
+                });
+
+            modelBuilder.Entity("NutriWeek.Data.Models.Ingredient", b =>
+                {
+                    b.Navigation("DishIngredients");
+
+                    b.Navigation("PantryItems");
                 });
 
             modelBuilder.Entity("NutriWeek.Data.Models.WeeklyMenu", b =>

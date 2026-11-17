@@ -43,5 +43,8 @@ namespace NutriWeek.Data.Models
 
         public bool IsShared { get; set; }
         public bool IsDeleted { get; set; }
+
+        public ICollection<DishIngredient> DishIngredients { get; set; }
+            = new HashSet<DishIngredient>();
     }
 }
