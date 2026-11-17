@@ -235,12 +235,16 @@ namespace NutriWeek.Data.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<int>("WeeklyMenuId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("WeeklyMenuId");
+                    b.HasIndex("WeeklyMenuId", "Date")
+                        .IsUnique();
 
                     b.ToTable("DailyMenus");
                 });
@@ -276,6 +280,9 @@ namespace NutriWeek.Data.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsShared")
                         .HasColumnType("bit");
 
@@ -306,6 +313,7 @@ namespace NutriWeek.Data.Migrations
                             DishType = 0,
                             Ingredients = "Chicken breast, rice, tomato, cucumber, olive oil",
                             Instructions = "Cook the rice. Cook the chicken. Chop the vegetables and serve everything together.",
+                            IsDeleted = false,
                             IsShared = true,
                             Name = "Chicken Rice Bowl",
                             Portions = 2,
@@ -319,6 +327,7 @@ namespace NutriWeek.Data.Migrations
                             DishType = 2,
                             Ingredients = "Pasta, tomato sauce, zucchini, bell pepper, parmesan",
                             Instructions = "Cook the pasta. Cook the vegetables and tomato sauce. Mix everything together.",
+                            IsDeleted = false,
                             IsShared = true,
                             Name = "Vegetarian Pasta",
                             Portions = 2,
@@ -332,6 +341,7 @@ namespace NutriWeek.Data.Migrations
                             DishType = 1,
                             Ingredients = "Salmon, broccoli, carrots, olive oil, lemon",
                             Instructions = "Season the salmon and vegetables. Bake until cooked and serve with lemon.",
+                            IsDeleted = false,
                             IsShared = true,
                             Name = "Salmon with Vegetables",
                             Portions = 2,
@@ -345,6 +355,7 @@ namespace NutriWeek.Data.Migrations
                             DishType = 3,
                             Ingredients = "Oats, oat milk, banana, blueberries, strawberries",
                             Instructions = "Cook the oats with oat milk. Add sliced banana and berries before serving.",
+                            IsDeleted = false,
                             IsShared = true,
                             Name = "Vegan Oatmeal",
                             Portions = 1,
@@ -366,6 +377,9 @@ namespace NutriWeek.Data.Migrations
                     b.Property<int>("DishId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<int>("MealType")
                         .HasColumnType("int");
 
@@ -386,17 +400,24 @@ namespace NutriWeek.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("WeekStartDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId", "WeekStartDate")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("WeeklyMenus");
                 });
