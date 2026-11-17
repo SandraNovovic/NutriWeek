@@ -29,7 +29,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddScoped<IWeeklyMenuService, WeeklyMenuService>()
 
                 .AddScoped<IIngredientRepository, IngredientRepository>()
-                .AddScoped<IPantryItemRepository, PantryItemRepository>();
+                .AddScoped<IPantryItemRepository, PantryItemRepository>()
+
+                .AddScoped<IPantryService, PantryService>();
         }
     }
 }
