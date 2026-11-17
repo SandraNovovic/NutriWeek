@@ -75,6 +75,7 @@ namespace NutriWeek.Data.Configurations
         public void Configure(EntityTypeBuilder<Dish> builder)
         {
             builder.HasData(seedDishes);
+            builder.HasQueryFilter(d => !d.IsDeleted);
         }
     }
 }
