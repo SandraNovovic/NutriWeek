@@ -8,7 +8,13 @@ namespace NutriWeek.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<WeeklyMenu> builder)
         {
-
+            builder
+                .HasIndex(w => new
+                {
+                    w.UserId,
+                    w.WeekStartDate
+                })
+                .IsUnique();
         }
     }
 }
