@@ -1,4 +1,4 @@
-﻿using CinemaApp.Data.Common.Models;
+﻿using NutriWeek.GCommon.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 

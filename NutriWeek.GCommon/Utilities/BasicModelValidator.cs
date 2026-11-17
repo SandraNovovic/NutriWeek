@@ -1,4 +1,4 @@
-﻿namespace CinemaApp.Services.Common.Utilities
+﻿namespace NutriWeek.GCommon.Utilities
 {
     using System.ComponentModel.DataAnnotations;
 

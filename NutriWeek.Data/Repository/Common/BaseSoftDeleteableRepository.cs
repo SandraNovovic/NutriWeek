@@ -2,10 +2,11 @@
 {
     using Microsoft.EntityFrameworkCore;
     
-    using Contracts.Common;
-    using Data.Common.Models;
+
     using NutriWeek.Data.Repository.Common;
     using NutriWeek.Data;
+    using NutriWeek.Data.Repository.Interfaces.Common;
+    using NutriWeek.GCommon.Models;
 
     public abstract class BaseSoftDeleteableRepository<TEntity> 
         : BaseRepository<TEntity>, ISoftDeleteableRepository<TEntity> 

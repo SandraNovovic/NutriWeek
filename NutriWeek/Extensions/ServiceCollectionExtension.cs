@@ -1,4 +1,4 @@
-﻿using CinemaApp.Services.Common.Utilities;
+﻿using NutriWeek.GCommon.Utilities;
 
 using NutriWeek.Data.Repository;
 using NutriWeek.Data.Repository.Interfaces;

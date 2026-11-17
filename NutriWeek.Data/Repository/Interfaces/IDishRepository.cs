@@ -1,4 +1,4 @@
-﻿using CinemaApp.Data.Repository.Contracts.Common;
+﻿using NutriWeek.Data.Repository.Interfaces.Common;
 using NutriWeek.Data.Models;
 using System;
 using System.Collections.Generic;

@@ -1,4 +1,4 @@
-﻿using CinemaApp.Data.Common.Models;
+﻿using NutriWeek.GCommon.Models;
 using NutriWeek.Data.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 using static NutriWeek.GCommon.EntityValidations;

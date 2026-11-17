@@ -1,7 +1,8 @@
-﻿namespace CinemaApp.Data.Repository.Contracts.Common
+﻿namespace NutriWeek.Data.Repository.Interfaces.Common
 {
-    using Data.Common.Models;
+    using Data.Repository.Common;
     using NutriWeek.Data.Repository.Interfaces.Common;
+    using NutriWeek.GCommon.Models;
 
     public interface ISoftDeleteableRepository<TEntity> : IRepository<TEntity>
         where TEntity : class, ISoftDeleteableEntity

@@ -1,4 +1,4 @@
-﻿namespace CinemaApp.Data.Common.Models
+﻿namespace NutriWeek.GCommon.Models
 {
     public interface ISoftDeleteableEntity
     {

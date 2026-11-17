@@ -1,7 +1,7 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using CinemaApp.Data.Common.Models;
+using NutriWeek.GCommon.Models;
 using NutriWeek.Data.Models.Enums;
 namespace NutriWeek.Data.Models
 {

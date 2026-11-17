@@ -1,4 +1,4 @@
-﻿using CinemaApp.Services.Common.Utilities;
+﻿using NutriWeek.GCommon.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NutriWeek.Data.Models;
