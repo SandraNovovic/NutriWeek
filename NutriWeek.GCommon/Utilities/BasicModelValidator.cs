@@ -16,10 +16,15 @@
 
         public bool IsValid(object model)
         {
-            var validationContext = new ValidationContext(model);
+            validationResults.Clear();
 
-            return Validator
-                .TryValidateObject(model, validationContext, validationResults, true);
+            ValidationContext validationContext = new ValidationContext(model);
+
+            return Validator.TryValidateObject(
+                model,
+                validationContext,
+                validationResults,
+                true);
         }
 
         public static bool IsValid(object model, List<ValidationResult> validationResults)
