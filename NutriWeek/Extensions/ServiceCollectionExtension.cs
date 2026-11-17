@@ -26,7 +26,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddScoped<IDishService, DishService>()
                 .AddScoped<IMealService, MealService>()
                 .AddScoped<IDailyMenuService, DailyMenuService>()
-                .AddScoped<IWeeklyMenuService, WeeklyMenuService>();
+                .AddScoped<IWeeklyMenuService, WeeklyMenuService>()
+
+                .AddScoped<IIngredientRepository, IngredientRepository>()
+                .AddScoped<IPantryItemRepository, PantryItemRepository>();
         }
     }
 }
