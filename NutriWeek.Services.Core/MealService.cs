@@ -163,7 +163,7 @@ namespace NutriWeek.Services.Core.Implementations
                 };
 
 
-                mealRepository.AddAsync(meal);
+               await mealRepository.AddAsync(meal);
 
                 await mealRepository
                     .SaveChangesAsync();
@@ -548,7 +548,7 @@ namespace NutriWeek.Services.Core.Implementations
                     };
 
 
-                weeklyMenuRepository.AddAsync(weeklyMenu);
+               await weeklyMenuRepository.AddAsync(weeklyMenu);
 
 
                 await weeklyMenuRepository
@@ -585,7 +585,7 @@ namespace NutriWeek.Services.Core.Implementations
                 };
 
 
-            dailyMenuRepository
+          await dailyMenuRepository
                 .AddAsync(dailyMenu);
 
 
