@@ -175,15 +175,14 @@ namespace NutriWeek.Services.Core.Implementations
             {
                 logger.LogError(
                     ex,
-                    "Error while adding meal for user {UserId}.",
-                    userId);
+                    "An unexpected error occurred.");
 
                 response.Status = false;
 
                 response.ErrorMessages =
                     new[]
                     {
-                        ex.Message
+            "An unexpected error occurred. Please try again."
                     };
             }
 
@@ -343,16 +342,14 @@ namespace NutriWeek.Services.Core.Implementations
             {
                 logger.LogError(
                     ex,
-                    "Error while editing meal {MealId} for user {UserId}.",
-                    id,
-                    userId);
+                    "An unexpected error occurred.");
 
                 response.Status = false;
 
                 response.ErrorMessages =
                     new[]
                     {
-                        ex.Message
+            "An unexpected error occurred. Please try again."
                     };
             }
 
@@ -451,16 +448,14 @@ namespace NutriWeek.Services.Core.Implementations
             {
                 logger.LogError(
                     ex,
-                    "Error while deleting meal {MealId} for user {UserId}.",
-                    id,
-                    userId);
+                    "An unexpected error occurred.");
 
                 response.Status = false;
 
                 response.ErrorMessages =
                     new[]
                     {
-                        ex.Message
+            "An unexpected error occurred. Please try again."
                     };
             }
 
