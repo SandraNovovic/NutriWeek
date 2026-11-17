@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NutriWeek.Data;
 
@@ -19,7 +20,11 @@ namespace NutriWeek
 
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<NutriWeekDbContext>();
-            builder.Services.AddControllersWithViews();
+            builder.Services.AddControllersWithViews(options =>
+            {
+                options.Filters.Add(
+                    new AutoValidateAntiforgeryTokenAttribute());
+            });
             builder.Services.AddApplicationServices();
             var app = builder.Build();
 
