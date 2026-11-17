@@ -96,36 +96,42 @@ namespace NutriWeek.Services.Core.Services
         }
 
 
-        public async Task<WeeklyMenuResponseModel?> GetCurrentWeekAsync(string userId)
+        public async Task<WeeklyMenuResponseModel?> GetCurrentWeekAsync( string userId)
         {
             DateTime today = DateTime.Today;
 
-
-            int currentYear =  ISOWeek.GetYear(today);
-
+            int currentYear = ISOWeek.GetYear(today);
 
             int currentWeekNumber = ISOWeek.GetWeekOfYear(today);
 
-
-            DateTime currentWeekStart =
-                ISOWeek.ToDateTime(
+            DateTime currentWeekStart =  ISOWeek.ToDateTime(
                     currentYear,
                     currentWeekNumber,
                     DayOfWeek.Monday);
 
 
-            List<WeeklyMenuResponseModel> weeklyMenus =
-                await GetAllAsync(
-                    currentYear,
-                    userId);
+            WeeklyMenu? weeklyMenu =
+                await weeklyMenuRepository
+                    .GetAllAsNoTracking()
+                    .Include(w => w.DailyMenus)
+                        .ThenInclude(d => d.Meals)
+                            .ThenInclude(m => m.Dish)
+                    .FirstOrDefaultAsync(w =>
+                        w.UserId == userId &&
+                        w.WeekStartDate.Date ==
+                        currentWeekStart.Date);
 
 
-            return weeklyMenus
-                .FirstOrDefault(w =>
-                    w.StartDate.Date ==
-                    currentWeekStart.Date);
+            if (weeklyMenu == null)
+            {
+                return CreateEmptyWeek(
+                    currentWeekStart);
+            }
+
+
+            return MapWeeklyMenu(
+                weeklyMenu);
         }
-
 
         private static WeeklyMenuResponseModel MapWeeklyMenu(WeeklyMenu weeklyMenu)
         {
