@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using NutriWeek.Data.Models;
 using NutriWeek.Data.Models.Enums;
 using NutriWeek.Data.Repository.Interfaces;
+using NutriWeek.Services.Core.Data.Common.Response;
 using NutriWeek.Services.Core.Data.Dish.Request;
 using NutriWeek.Services.Core.Data.Dish.Response;
 using NutriWeek.Services.Core.Interfaces;
@@ -69,19 +70,18 @@ namespace NutriWeek.Services.Core.Services
         }
 
 
-        public IEnumerable<DropdownViewModel> LoadDishTypes()
+        public IEnumerable<DropdownResponseModel> LoadDishTypes()
         {
             return Enum
                 .GetValues<DishType>()
-                .Select(dt =>
-                    new DropdownViewModel
+                .Select(d =>
+                    new DropdownResponseModel
                     {
-                        Id = (int)dt,
-                        Name = dt.ToString()
+                        Id = (int)d,
+                        Name = d.ToString()
                     })
                 .ToList();
         }
-
 
         public async Task<DishServiceStatusResponseModel> AddDishAsync( CreateDishRequestData request,string userId)
         {

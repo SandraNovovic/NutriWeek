@@ -1,4 +1,5 @@
 ﻿using NutriWeek.Data.Models.Enums;
+using NutriWeek.Services.Core.Data.Common.Response;
 using NutriWeek.Services.Core.Data.Meal.Request;
 using NutriWeek.Services.Core.Data.Meal.Response;
 using NutriWeek.Web.ViewModels;
@@ -10,10 +11,10 @@ namespace NutriWeek.Services.Core.Interfaces
         Task<List<GetAllMealsResponseModel>> GetAllAsync( string userId);
 
 
-        Task<IEnumerable<DropdownViewModel>> LoadDishesAsync( string userId);
+        Task<IEnumerable<DropdownResponseModel>> LoadAvailableDishesAsync( string userId);
 
 
-        IEnumerable<DropdownViewModel> LoadMealTypes();
+        IEnumerable<DropdownResponseModel> LoadMealTypes();
 
 
         Task<MealServiceStatusResponseModel> AddMealAsync(CreateMealRequestData request, string userId);

@@ -8,6 +8,7 @@ using NutriWeek.Services.Core.Data.Meal.Request;
 using NutriWeek.Services.Core.Data.Meal.Response;
 using NutriWeek.Services.Core.Interfaces;
 
+using NutriWeek.Web.ViewModels;
 using NutriWeek.Web.ViewModels.Meals;
 
 using System.Security.Claims;
@@ -22,9 +23,8 @@ namespace NutriWeek.Web.Controllers
         private readonly IMealService _mealService;
         private readonly ILogger<MealsController> _logger;
 
-        public MealsController(
-            IMealService mealService,
-            ILogger<MealsController> logger)
+
+        public MealsController(IMealService mealService,  ILogger<MealsController> logger)
         {
             _mealService = mealService;
             _logger = logger;
@@ -34,12 +34,10 @@ namespace NutriWeek.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            string userId =
-                User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            string userId =  User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
 
-            List<GetAllMealsResponseModel> meals =
-                await _mealService
+            List<GetAllMealsResponseModel> meals = await _mealService
                     .GetAllAsync(userId);
 
 
@@ -52,10 +50,8 @@ namespace NutriWeek.Web.Controllers
                             Date = m.Date,
                             DishName = m.DishName,
                             Calories = m.Calories,
-                            Preparation =
-                                m.PreparationTime,
-                            MealType =
-                                m.MealType
+                            Preparation = m.PreparationTime,
+                            MealType = m.MealType
                         })
                     .ToList();
 
@@ -65,22 +61,19 @@ namespace NutriWeek.Web.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Add( DateTime? date, MealType? mealType)
+        public async Task<IActionResult> Add( DateTime? date,  MealType? mealType)
         {
-            string userId =
-                User.FindFirstValue( ClaimTypes.NameIdentifier)!;
+            string userId = User.FindFirstValue( ClaimTypes.NameIdentifier)!;
 
 
             AddMealViewModel model =
                 new AddMealViewModel
                 {
                     Dishes =
-                        await _mealService
-                            .LoadDishesAsync(userId),
+                        await LoadDishesAsync(userId),
 
                     MealTypes =
-                        _mealService
-                            .LoadMealTypes(),
+                        LoadMealTypes(),
 
                     Date = date,
 
@@ -95,10 +88,9 @@ namespace NutriWeek.Web.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Add( AddMealViewModel model)
+        public async Task<IActionResult> Add(AddMealViewModel model)
         {
-            string userId =
-                User.FindFirstValue(  ClaimTypes.NameIdentifier)!;
+            string userId =   User.FindFirstValue( ClaimTypes.NameIdentifier)!;
 
 
             if (!ModelState.IsValid)
@@ -114,14 +106,9 @@ namespace NutriWeek.Web.Controllers
             CreateMealRequestData requestData =
                 new CreateMealRequestData
                 {
-                    DishId =
-                        model.DishId,
-
-                    Date =
-                        model.Date,
-
-                    MealType =
-                        model.MealType
+                    DishId = model.DishId,
+                    Date = model.Date,
+                    MealType = model.MealType
                 };
 
 
@@ -169,15 +156,13 @@ namespace NutriWeek.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit( [FromRoute] int? id)
         {
-            if (!id.HasValue ||
-                id.Value <= 0)
+            if (!id.HasValue ||id.Value <= 0)
             {
-                return BadRequest(ErrorMessages.InvalidRequest);
+                return BadRequest( ErrorMessages.InvalidRequest);
             }
 
 
-            string userId =
-                User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            string userId = User.FindFirstValue( ClaimTypes.NameIdentifier)!;
 
 
             GetMealForEditResponseModel? response =
@@ -197,22 +182,15 @@ namespace NutriWeek.Web.Controllers
             AddMealViewModel model =
                 new AddMealViewModel
                 {
-                    DishId =
-                        response.DishId,
-
-                    Date =
-                        response.Date,
-
-                    MealType =
-                        response.MealType,
+                    DishId = response.DishId,
+                    Date = response.Date,
+                    MealType = response.MealType,
 
                     Dishes =
-                        await _mealService
-                            .LoadDishesAsync(userId),
+                        await LoadDishesAsync(userId),
 
                     MealTypes =
-                        _mealService
-                            .LoadMealTypes()
+                        LoadMealTypes()
                 };
 
 
@@ -221,17 +199,15 @@ namespace NutriWeek.Web.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Edit(  [FromRoute] int? id, AddMealViewModel model)
+        public async Task<IActionResult> Edit([FromRoute] int? id,AddMealViewModel model)
         {
-            if (!id.HasValue ||
-                id.Value <= 0)
+            if (!id.HasValue ||id.Value <= 0)
             {
-                return BadRequest( ErrorMessages.InvalidRequest);
+                return BadRequest(  ErrorMessages.InvalidRequest);
             }
 
 
-            string userId =
-                User.FindFirstValue( ClaimTypes.NameIdentifier)!;
+            string userId =   User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
 
             if (!ModelState.IsValid)
@@ -247,14 +223,9 @@ namespace NutriWeek.Web.Controllers
             EditMealRequestData requestData =
                 new EditMealRequestData
                 {
-                    DishId =
-                        model.DishId,
-
-                    Date =
-                        model.Date,
-
-                    MealType =
-                        model.MealType
+                    DishId = model.DishId,
+                    Date = model.Date,
+                    MealType = model.MealType
                 };
 
 
@@ -303,15 +274,16 @@ namespace NutriWeek.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete( [FromRoute] int? id)
         {
-            if (!id.HasValue ||
-                id.Value <= 0)
+            if (!id.HasValue ||id.Value <= 0)
             {
-                return BadRequest(ErrorMessages .InvalidRequestTryAgain);
+                return BadRequest(
+                    ErrorMessages.InvalidRequestTryAgain);
             }
 
 
             string userId =
-                User.FindFirstValue( ClaimTypes.NameIdentifier)!;
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier)!;
 
 
             GetMealByIdResponseModel? response =
@@ -331,21 +303,15 @@ namespace NutriWeek.Web.Controllers
             DeleteMealViewModel model =
                 new DeleteMealViewModel
                 {
-                    Id =
-                        response.Id,
-
-                    DishName =
-                        response.DishName,
-
-                    Date =
-                        response.Date,
+                    Id = response.Id,
+                    DishName = response.DishName,
+                    Date = response.Date,
 
                     MealType =
                         response.MealType
                             .ToString(),
 
-                    ImageUrl =
-                        response.ImageUrl
+                    ImageUrl = response.ImageUrl
                 };
 
 
@@ -354,17 +320,17 @@ namespace NutriWeek.Web.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Delete(  [FromRoute] int? id, DeleteMealViewModel model,bool fromWeeklyMenu = false, string? weekStart = null)
+        public async Task<IActionResult> Delete( [FromRoute] int? id,  DeleteMealViewModel model, bool fromWeeklyMenu = false,string? weekStart = null)
         {
-            if (!id.HasValue ||
-                id.Value <= 0)
+            if (!id.HasValue ||id.Value <= 0)
             {
-                return BadRequest( ErrorMessages.InvalidRequestTryAgain);
+                return BadRequest(  ErrorMessages.InvalidRequestTryAgain);
             }
 
 
             string userId =
-                User.FindFirstValue( ClaimTypes.NameIdentifier)!;
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier)!;
 
 
             MealServiceStatusResponseModel response =
@@ -407,15 +373,17 @@ namespace NutriWeek.Web.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Details( [FromRoute] int? id)
+        public async Task<IActionResult> Details([FromRoute] int? id)
         {
-            if (!id.HasValue ||id.Value <= 0)
+            if (!id.HasValue ||
+                id.Value <= 0)
             {
                 return BadRequest( ErrorMessages.InvalidRequest);
             }
 
 
-            string userId = User.FindFirstValue( ClaimTypes.NameIdentifier)!;
+            string userId =
+                User.FindFirstValue( ClaimTypes.NameIdentifier)!;
 
 
             GetMealDetailsResponseModel? response =
@@ -427,25 +395,17 @@ namespace NutriWeek.Web.Controllers
 
             if (response == null)
             {
-                return NotFound(
-                    ErrorMessages.MealNotFound);
+                return NotFound( ErrorMessages.MealNotFound);
             }
 
 
             MealDetailsViewModel model =
                 new MealDetailsViewModel
                 {
-                    Id =
-                        response.Id,
-
-                    Date =
-                        response.Date,
-
-                    DishName =
-                        response.DishName,
-
-                    Description =
-                        response.Description,
+                    Id = response.Id,
+                    Date = response.Date,
+                    DishName = response.DishName,
+                    Description = response.Description,
 
                     DishType =
                         response.DishType
@@ -455,17 +415,10 @@ namespace NutriWeek.Web.Controllers
                         response.MealType
                             .ToString(),
 
-                    Calories =
-                        response.Calories,
-
-                    PreparationTime =
-                        response.PreparationTime,
-
-                    Portions =
-                        response.Portions,
-
-                    ImageUrl =
-                        response.ImageUrl
+                    Calories = response.Calories,
+                    PreparationTime = response.PreparationTime,
+                    Portions = response.Portions,
+                    ImageUrl = response.ImageUrl
                 };
 
 
@@ -473,13 +426,39 @@ namespace NutriWeek.Web.Controllers
         }
 
 
-        private async Task LoadDropdownDataAsync(AddMealViewModel model, string userId)
+        private async Task LoadDropdownDataAsync(  AddMealViewModel model, string userId)
         {
-            model.Dishes =
-                await _mealService .LoadDishesAsync(userId);
+            model.Dishes = await LoadDishesAsync(userId);
 
-            model.MealTypes =
-                _mealService .LoadMealTypes();
+            model.MealTypes = LoadMealTypes();
+        }
+
+
+        private async Task<IEnumerable<DropdownViewModel>> LoadDishesAsync(string userId)
+        {
+            return (await _mealService
+                    .LoadAvailableDishesAsync(userId))
+                .Select(x =>
+                    new DropdownViewModel
+                    {
+                        Id = x.Id,
+                        Name = x.Name
+                    })
+                .ToList();
+        }
+
+
+        private IEnumerable<DropdownViewModel> LoadMealTypes()
+        {
+            return _mealService
+                .LoadMealTypes()
+                .Select(x =>
+                    new DropdownViewModel
+                    {
+                        Id = x.Id,
+                        Name = x.Name
+                    })
+                .ToList();
         }
     }
 }

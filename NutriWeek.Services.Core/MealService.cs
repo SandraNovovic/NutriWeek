@@ -10,8 +10,10 @@ using NutriWeek.Data.Repository.Interfaces;
 using NutriWeek.Services.Core.Data.Meal.Request;
 using NutriWeek.Services.Core.Data.Meal.Response;
 using NutriWeek.Services.Core.Interfaces;
+using NutriWeek.Services.Core.Data.Common.Response;
 
 using NutriWeek.Web.ViewModels;
+using NutriWeek.Services.Core.Data.Dish.Response;
 
 namespace NutriWeek.Services.Core.Implementations
 {
@@ -73,40 +75,18 @@ namespace NutriWeek.Services.Core.Implementations
         }
 
 
-        public async Task<IEnumerable<DropdownViewModel>> LoadDishesAsync(string userId)
-        {
-            IEnumerable<DropdownViewModel> dishes =
-                await dishRepository
-                    .GetAllAsNoTracking()
-                    .Where(d =>
-                        d.IsShared ||
-                        d.UserId == userId)
-                    .OrderBy(d => d.Name)
-                    .Select(d =>
-                        new DropdownViewModel
-                        {
-                            Id = d.Id,
-                            Name = d.Name
-                        })
-                    .ToListAsync();
-
-            return dishes;
-        }
-
-
-        public IEnumerable<DropdownViewModel> LoadMealTypes()
+        public IEnumerable<DropdownResponseModel> LoadMealTypes()
         {
             return Enum
                 .GetValues<MealType>()
                 .Select(m =>
-                    new DropdownViewModel
+                    new DropdownResponseModel
                     {
                         Id = (int)m,
                         Name = m.ToString()
                     })
                 .ToList();
         }
-
 
         public async Task<MealServiceStatusResponseModel> AddMealAsync(  CreateMealRequestData requestData, string userId)
         {
@@ -632,6 +612,22 @@ namespace NutriWeek.Services.Core.Implementations
             return date
                 .AddDays(-difference)
                 .Date;
+        }
+
+        public async Task<IEnumerable<DropdownResponseModel>> LoadAvailableDishesAsync(string userId)
+        {
+            IEnumerable<DropdownResponseModel> dishTypes = await dishRepository
+                .GetAllAsNoTracking()
+                .Where(d=>d.UserId == userId || d.IsShared)
+                .OrderBy(d => d.Name)
+                .Select(d=>new DropdownResponseModel
+                {
+                    Id = d.Id,
+                    Name= d.Name,
+                })
+                .ToListAsync();
+
+            return dishTypes;
         }
     }
 }
