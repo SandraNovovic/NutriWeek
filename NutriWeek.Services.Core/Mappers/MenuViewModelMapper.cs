@@ -1,50 +1,74 @@
-using NutriWeek.Data.Models;
-using NutriWeek.Data.Models.Enums;
-using NutriWeek.Web.ViewModels.DailyMenus;
+using NutriWeek.Services.Core.Data.DailyMenu.Response;
+using NutriWeek.Services.Core.Data.WeeklyMenu.Response;
 
-namespace NutriWeek.Services.Core.Mappers
+using NutriWeek.Web.ViewModels.DailyMenus;
+using NutriWeek.Web.ViewModels.WeeklyMenus;
+
+namespace NutriWeek.Web.Mappers
 {
-    internal static class MenuViewModelMapper
+    public static class MenuViewModelMapper
     {
-        public static DailyMenuIndexViewModel MapDailyMenu(DailyMenu dailyMenu)
+        public static WeeklyMenuIndexViewModel MapWeeklyMenu( WeeklyMenuResponseModel response)
         {
-            return new DailyMenuIndexViewModel
+            return new WeeklyMenuIndexViewModel
             {
-                Date = dailyMenu.Date,
-                Calories = dailyMenu.Meals.Sum(m => m.Dish.Calories),
-                PreparationTime = dailyMenu.Meals.Sum(m => m.Dish.PreparationTime),
-                TotalMeals = dailyMenu.Meals.Count,
-                Portions = dailyMenu.Meals.Sum(m => m.Dish.Portions),
-                BreakfastMeals = MapMeals(dailyMenu.Meals, MealType.Breakfast),
-                LunchMeals = MapMeals(dailyMenu.Meals, MealType.Lunch),
-                DinnerMeals = MapMeals(dailyMenu.Meals, MealType.Dinner)
+                Id = response.Id,
+                StartDate = response.StartDate,
+                TotalCalories = response.TotalCalories,
+                TotalPreparationTime = response.TotalPreparationTime,
+                TotalMeals = response.TotalMeals,
+                TotalPortions = response.TotalPortions,
+
+                DailyMenus =
+                    response.DailyMenus
+                        .Select(MapDailyMenu)
+                        .ToList()
             };
         }
 
-        private static List<DailyMenuMealViewModel> MapMeals(
-            IEnumerable<Meal> meals,
-            MealType mealType)
+
+        public static DailyMenuIndexViewModel MapDailyMenu( GetAllDailyMenusResponseModel response)
         {
-            return meals
-                .Where(m => m.MealType == mealType)
-                .Select(MapMeal)
-                .ToList();
+            return new DailyMenuIndexViewModel
+            {
+                Date = response.Date,
+                Calories = response.Calories,
+                PreparationTime = response.PreparationTime,
+                TotalMeals = response.TotalMeals,
+                Portions = response.Portions,
+
+                BreakfastMeals =
+                    response.BreakfastMeals
+                        .Select(MapMeal)
+                        .ToList(),
+
+                LunchMeals =
+                    response.LunchMeals
+                        .Select(MapMeal)
+                        .ToList(),
+
+                DinnerMeals =
+                    response.DinnerMeals
+                        .Select(MapMeal)
+                        .ToList()
+            };
         }
 
-        private static DailyMenuMealViewModel MapMeal(Meal meal)
+
+        public static DailyMenuMealViewModel MapMeal( DailyMenuMealResponseModel response)
         {
             return new DailyMenuMealViewModel
             {
-                MealId = meal.Id,
-                DishId = meal.DishId,
-                DishName = meal.Dish.Name,
-                Description = meal.Dish.Description,
-                DishType = meal.Dish.DishType.ToString(),
-                MealType = meal.MealType.ToString(),
-                Calories = meal.Dish.Calories,
-                PreparationTime = meal.Dish.PreparationTime,
-                Portions = meal.Dish.Portions,
-                ImageUrl = meal.Dish.ImageUrl
+                MealId = response.MealId,
+                DishId = response.DishId,
+                DishName = response.DishName,
+                Description = response.Description,
+                DishType = response.DishType,
+                MealType = response.MealType,
+                Calories = response.Calories,
+                PreparationTime = response.PreparationTime,
+                Portions = response.Portions,
+                ImageUrl = response.ImageUrl
             };
         }
     }
