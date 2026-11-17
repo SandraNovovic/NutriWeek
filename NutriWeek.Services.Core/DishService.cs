@@ -508,12 +508,10 @@ namespace NutriWeek.Services.Core.Services
                 }
 
 
-                _dishRepository.Remove(
-                    dishToDelete);
+                _dishRepository.SoftDelete( dishToDelete);
 
 
-                await _dishRepository
-                    .SaveChangesAsync();
+                await _dishRepository.SaveChangesAsync();
 
 
                 response.Status = true;
