@@ -101,8 +101,7 @@ namespace NutriWeek.Services.Core.Services
                 Ingredient? ingredient =
                     await ingredientRepository
                         .GetAll()
-                        .FirstOrDefaultAsync(i =>
-                            i.Name == ingredientName);
+                        .FirstOrDefaultAsync(i => i.Name == ingredientName);
 
 
                 if (ingredient == null)
@@ -110,16 +109,13 @@ namespace NutriWeek.Services.Core.Services
                     ingredient =
                         new Ingredient
                         {
-                            Name =
-                                ingredientName
+                            Name = ingredientName
                         };
 
 
-                    await ingredientRepository
-                        .AddAsync(ingredient);
+                    await ingredientRepository.AddAsync(ingredient);
 
-                    await ingredientRepository
-                        .SaveChangesAsync();
+                    await ingredientRepository.SaveChangesAsync();
                 }
 
 
@@ -161,11 +157,9 @@ namespace NutriWeek.Services.Core.Services
                     };
 
 
-                await pantryItemRepository
-                    .AddAsync(pantryItem);
+                await pantryItemRepository.AddAsync(pantryItem);
 
-                await pantryItemRepository
-                    .SaveChangesAsync();
+                await pantryItemRepository .SaveChangesAsync();
 
 
                 response.Status = true;

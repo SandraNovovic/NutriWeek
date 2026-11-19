@@ -1,15 +1,16 @@
-﻿using NutriWeek.GCommon.Utilities;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NutriWeek.Data.Models;
 using NutriWeek.Data.Models.Enums;
+using NutriWeek.Data.Repository;
 using NutriWeek.Data.Repository.Interfaces;
+using NutriWeek.GCommon.Utilities;
 using NutriWeek.Services.Core.Data.Common.Response;
 using NutriWeek.Services.Core.Data.Dish.Request;
 using NutriWeek.Services.Core.Data.Dish.Response;
 using NutriWeek.Services.Core.Interfaces;
 using NutriWeek.Web.ViewModels;
-
+using DishEntity = NutriWeek.Data.Models.Dish;
 namespace NutriWeek.Services.Core.Services
 {
     public class DishService : IDishService
@@ -126,9 +127,32 @@ namespace NutriWeek.Services.Core.Services
                 return response;
             }
 
+            bool hasDuplicateIngredients = false;
 
-            Dish dish =
-                new Dish
+            for (int i = 0; i < request.IngredientItems.Count; i++)
+            {
+                for (int j = i + 1; j < request.IngredientItems.Count; j++)
+                {
+                    if (request.IngredientItems[i].Name.Trim().ToLower() == request.IngredientItems[j].Name.Trim().ToLower())
+                    {
+                        hasDuplicateIngredients = true;
+                    }
+                }
+            }
+
+            if (hasDuplicateIngredients)
+            {
+                response.ErrorMessages =
+                    new[]
+                    {
+            "Each ingredient can only be added once to a dish."
+                    };
+
+                return response;
+            }
+
+            DishEntity dish =
+                new DishEntity
                 {
                     Name =
                         request.Name,
@@ -167,7 +191,11 @@ namespace NutriWeek.Services.Core.Services
 
             try
             {
-                _dishRepository.Add( dish);
+                await _dishRepository.AddAsync( dish);
+
+                await AddDishIngredientsAsync(
+                    dish,
+                    request.IngredientItems);
 
                 await _dishRepository
                     .SaveChangesAsync();
@@ -323,7 +351,7 @@ namespace NutriWeek.Services.Core.Services
 
             try
             {
-                Dish? dishToEdit =
+                DishEntity? dishToEdit =
                     await _dishRepository
                         .GetAll()
                         .FirstOrDefaultAsync(d =>
@@ -491,7 +519,7 @@ namespace NutriWeek.Services.Core.Services
 
             try
             {
-                Dish? dishToDelete =
+                DishEntity? dishToDelete =
                     await _dishRepository
                         .GetAll()
                         .FirstOrDefaultAsync(d =>
@@ -622,6 +650,43 @@ namespace NutriWeek.Services.Core.Services
                     id);
 
                 throw;
+            }
+        }
+
+        private async Task AddDishIngredientsAsync(DishEntity dish, IEnumerable<DishIngredientRequestData> ingredientItems)
+        {
+            foreach (DishIngredientRequestData item in ingredientItems)
+            {
+                string ingredientName = item.Name.Trim();
+
+                Ingredient? ingredient =
+                    await _ingredientRepository
+                        .GetAll()
+                        .FirstOrDefaultAsync(i =>
+                            i.Name == ingredientName);
+
+                if (ingredient == null)
+                {
+                    ingredient = new Ingredient
+                    {
+                        Name = ingredientName
+                    };
+
+                    await _ingredientRepository
+                        .AddAsync(ingredient);
+                }
+
+                DishIngredient dishIngredient =
+                    new DishIngredient
+                    {
+                        Dish = dish,
+                        Ingredient = ingredient,
+                        Quantity = item.Quantity,
+                        Unit = item.Unit
+                    };
+
+                await _dishIngredientRepository
+                    .AddAsync(dishIngredient);
             }
         }
     }
