@@ -8,8 +8,7 @@ namespace NutriWeek.Data.Repository
         : BaseRepository<PantryItem>,
           IPantryItemRepository
     {
-        public PantryItemRepository(
-            NutriWeekDbContext dbContext)
+        public PantryItemRepository(NutriWeekDbContext dbContext)
             : base(dbContext)
         {
         }

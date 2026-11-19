@@ -8,8 +8,7 @@ namespace NutriWeek.Data.Repository
         : BaseRepository<Ingredient>,
           IIngredientRepository
     {
-        public IngredientRepository(
-            NutriWeekDbContext dbContext)
+        public IngredientRepository( NutriWeekDbContext dbContext)
             : base(dbContext)
         {
         }
