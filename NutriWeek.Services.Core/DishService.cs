@@ -17,16 +17,21 @@ namespace NutriWeek.Services.Core.Services
         private readonly IDishRepository _dishRepository;
         private readonly BasicModelValidator _modelValidator;
         private readonly ILogger<DishService> _logger;
-
+        private readonly IIngredientRepository _ingredientRepository;
+        private readonly IDishIngredientRepository _dishIngredientRepository;
 
         public DishService(
             IDishRepository dishRepository,
             BasicModelValidator modelValidator,
-            ILogger<DishService> logger)
+            ILogger<DishService> logger,
+            IIngredientRepository ingredientRepository,
+            IDishIngredientRepository dishIngredientRepository)
         {
             _dishRepository = dishRepository;
             _modelValidator = modelValidator;
             _logger = logger;
+            _ingredientRepository = ingredientRepository;
+            _dishIngredientRepository = dishIngredientRepository;
         }
 
 

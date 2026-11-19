@@ -45,5 +45,8 @@ namespace NutriWeek.Services.Core.Data.Dish.Request
 
         public DishType DishType { get; set; }
 
+        public List<DishIngredientRequestData> IngredientItems { get; set; }
+            = new List<DishIngredientRequestData>();
+
     }
 }
