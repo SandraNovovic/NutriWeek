@@ -32,8 +32,4 @@
     <ProjectReference Include="..\NutriWeek.Web.ViewModels\NutriWeek.Web.ViewModels.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\Api\" />
-  </ItemGroup>
-
 </Project>
