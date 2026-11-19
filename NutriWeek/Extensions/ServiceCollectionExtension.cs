@@ -30,6 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 .AddScoped<IIngredientRepository, IngredientRepository>()
                 .AddScoped<IPantryItemRepository, PantryItemRepository>()
+                .AddScoped<IDishIngredientRepository, DishIngredientRepository>()
 
                 .AddScoped<IPantryService, PantryService>();
         }
