@@ -293,7 +293,16 @@ namespace NutriWeek.Web.Controllers
                     PreparationTime = model.PreparationTime,
                     Portions = model.Portions,
                     ImageUrl = model.ImageUrl,
-                    DishType = model.DishType
+                    DishType = model.DishType,
+
+                    IngredientItems = model.IngredientItems
+                        .Select(i => new DishIngredientRequestData
+                        {
+                            Name = i.Name,
+                            Quantity = i.Quantity,
+                            Unit = i.Unit
+                        })
+                        .ToList()
                 };
 
 

@@ -251,8 +251,7 @@ namespace NutriWeek.Services.Core.Services
                         .Where(d =>
                             d.Id == id &&
                             !d.IsDeleted &&
-                            (d.IsShared ||
-                             d.UserId == userId))
+                            d.UserId == userId)
                         .Select(d =>
                             new GetDishForEditResponseModel
                             {
@@ -325,8 +324,7 @@ namespace NutriWeek.Services.Core.Services
             DishServiceStatusResponseModel response =new DishServiceStatusResponseModel();
 
 
-            bool isValid =
-                _modelValidator.IsValid(request);
+            bool isValid = _modelValidator.IsValid(request);
 
 
             if (!isValid)
@@ -351,7 +349,45 @@ namespace NutriWeek.Services.Core.Services
                 response.ErrorMessages =
                     new[]
                     {
-                        "Invalid dish type."
+                "Invalid dish type."
+                    };
+
+                return response;
+            }
+
+
+            bool hasDuplicateIngredients = false;
+
+
+            for (int i = 0; i < request.IngredientItems.Count; i++)
+            {
+                for (int j = i + 1;
+                     j < request.IngredientItems.Count;
+                     j++)
+                {
+                    if (request.IngredientItems[i]
+                            .Name
+                            .Trim()
+                            .ToLower() ==
+                        request.IngredientItems[j]
+                            .Name
+                            .Trim()
+                            .ToLower())
+                    {
+                        hasDuplicateIngredients = true;
+                    }
+                }
+            }
+
+
+            if (hasDuplicateIngredients)
+            {
+                response.Status = false;
+
+                response.ErrorMessages =
+                    new[]
+                    {
+                "Each ingredient can only be added once to a dish."
                     };
 
                 return response;
@@ -360,13 +396,14 @@ namespace NutriWeek.Services.Core.Services
 
             try
             {
-                DishEntity? dishToEdit = await _dishRepository
-                    .GetAllAsNoTracking()
-                    .Include(d => d.DishIngredients)
-                        .ThenInclude(di => di.Ingredient)
-                    .FirstOrDefaultAsync(d =>
-                        d.Id == id &&
-                        d.UserId == userId);
+                DishEntity? dishToEdit =
+                    await _dishRepository
+                        .GetAll()
+                        .Include(d => d.DishIngredients)
+                        .FirstOrDefaultAsync(d =>
+                            d.Id == id &&
+                            !d.IsDeleted &&
+                            d.UserId == userId);
 
 
                 if (dishToEdit == null)
@@ -376,7 +413,7 @@ namespace NutriWeek.Services.Core.Services
                     response.ErrorMessages =
                         new[]
                         {
-                            "Dish not found."
+                    "Dish not found."
                         };
 
                     return response;
@@ -411,8 +448,18 @@ namespace NutriWeek.Services.Core.Services
                     request.DishType;
 
 
-                await _dishRepository
-                    .SaveChangesAsync();
+                foreach (DishIngredient ingredient
+                         in dishToEdit.DishIngredients.ToList())
+                {
+                    _dishIngredientRepository
+                        .Remove(ingredient);
+                }
+
+
+                await AddDishIngredientsAsync(  dishToEdit,  request.IngredientItems);
+
+
+                await _dishRepository .SaveChangesAsync();
 
 
                 response.Status = true;
@@ -431,7 +478,7 @@ namespace NutriWeek.Services.Core.Services
                 response.ErrorMessages =
                     new[]
                     {
-                        "An error occurred while updating the dish."
+                "An error occurred while updating the dish."
                     };
             }
             catch (Exception ex)
@@ -448,14 +495,13 @@ namespace NutriWeek.Services.Core.Services
                 response.ErrorMessages =
                     new[]
                     {
-                        "An unexpected error occurred while updating the dish."
+                "An unexpected error occurred while updating the dish."
                     };
             }
 
 
             return response;
         }
-
 
         public async Task<GetDishByIdResponseModel?> GetDishForDeleteAsync(int id, string userId)
         {
