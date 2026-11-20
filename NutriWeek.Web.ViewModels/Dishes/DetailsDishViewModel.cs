@@ -1,4 +1,5 @@
 ﻿using NutriWeek.Data.Models.Enums;
+using NutriWeek.Web.ViewModels.Dish;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +29,9 @@ namespace NutriWeek.Web.ViewModels.Dishes
         public string? ImageUrl { get; set; }
 
         public DishType DishType { get; set; }
+
+        public List<DishIngredientInputViewModel> IngredientItems { get; set; }
+            = new List<DishIngredientInputViewModel>();
     }
 
 }

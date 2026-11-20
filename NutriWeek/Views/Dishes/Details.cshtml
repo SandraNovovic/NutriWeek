@@ -437,11 +437,27 @@
 
                     <div class="detail-box">
 
-                        <p class="detail-text">
-                            @Model.Ingredients
-                        </p>
+                        @if (Model.IngredientItems.Any())
+                        {
+                            @foreach (var ingredient in Model.IngredientItems)
+                            {
+                                <p class="detail-text">
+                                    @ingredient.Name -
+                                    @ingredient.Quantity
+                                    @ingredient.Unit
+                                </p>
+                            }
+                        }
+                        else
+                        {
+                            <p class="detail-text">
+                                @Model.Ingredients
+                            </p>
+                        }
 
                     </div>
+
+                </div>
 
                 </div>
 

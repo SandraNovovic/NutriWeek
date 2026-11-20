@@ -25,5 +25,8 @@ namespace NutriWeek.Services.Core.Data.Dish.Response
         public DishType DishType { get; set; }
 
         public bool IsShared { get; set; }
+
+        public List<DishIngredientResponseModel> IngredientItems { get; set; }
+            = new List<DishIngredientResponseModel>();
     }
 }

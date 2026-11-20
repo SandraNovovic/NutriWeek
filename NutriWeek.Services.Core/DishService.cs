@@ -690,7 +690,23 @@ namespace NutriWeek.Services.Core.Services
                                     d.DishType,
 
                                 IsShared =
-                                    d.IsShared
+                                    d.IsShared,
+
+                                IngredientItems =
+                               d.DishIngredients
+                                   .Select(di =>
+                                       new DishIngredientResponseModel
+                                       {
+                                           Name =
+                                               di.Ingredient.Name,
+                              
+                                           Quantity =
+                                               di.Quantity,
+                              
+                                           Unit =
+                                               di.Unit
+                                       })
+                                   .ToList(),
                             })
                         .SingleOrDefaultAsync();
 

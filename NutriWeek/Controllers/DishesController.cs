@@ -483,14 +483,11 @@ namespace NutriWeek.Web.Controllers
         {
             if (!id.HasValue || id.Value <= 0)
             {
-                return BadRequest(
-                    ErrorMessages.InvalidRequest);
+                return BadRequest( ErrorMessages.InvalidRequest);
             }
 
 
-            string userId =
-                User.FindFirstValue(
-                    ClaimTypes.NameIdentifier)!;
+            string userId =  User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
 
             GetDishDetailsResponseModel? response =
@@ -502,8 +499,7 @@ namespace NutriWeek.Web.Controllers
 
             if (response == null)
             {
-                return NotFound(
-                    ErrorMessages.DishNotFound);
+                return NotFound( ErrorMessages.DishNotFound);
             }
 
 
@@ -519,7 +515,21 @@ namespace NutriWeek.Web.Controllers
                     PreparationTime = response.PreparationTime,
                     Portions = response.Portions,
                     ImageUrl = response.ImageUrl,
-                    DishType = response.DishType
+                    DishType = response.DishType,
+                    IngredientItems =  response.IngredientItems
+                               .Select(i =>
+                                   new DishIngredientInputViewModel
+                                   {
+                                       Name =
+                                           i.Name,
+                          
+                                       Quantity =
+                                           i.Quantity,
+                          
+                                       Unit =
+                                           i.Unit
+                                   })
+                               .ToList(),
                 };
 
 
