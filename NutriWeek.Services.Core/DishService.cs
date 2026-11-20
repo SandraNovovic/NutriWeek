@@ -284,7 +284,16 @@ namespace NutriWeek.Services.Core.Services
                                     d.ImageUrl,
 
                                 DishType =
-                                    d.DishType
+                                    d.DishType,
+
+                                IngredientItems = d.DishIngredients
+                                          .Select(di => new DishIngredientResponseModel
+                                          {
+                                              Name = di.Ingredient.Name,
+                                              Quantity = di.Quantity,
+                                              Unit = di.Unit
+                                          })
+                                          .ToList()
                             })
                         .SingleOrDefaultAsync();
 
@@ -351,13 +360,13 @@ namespace NutriWeek.Services.Core.Services
 
             try
             {
-                DishEntity? dishToEdit =
-                    await _dishRepository
-                        .GetAll()
-                        .FirstOrDefaultAsync(d =>
-                            d.Id == id &&
-                            !d.IsDeleted &&
-                            d.UserId == userId);
+                DishEntity? dishToEdit = await _dishRepository
+                    .GetAllAsNoTracking()
+                    .Include(d => d.DishIngredients)
+                        .ThenInclude(di => di.Ingredient)
+                    .FirstOrDefaultAsync(d =>
+                        d.Id == id &&
+                        d.UserId == userId);
 
 
                 if (dishToEdit == null)

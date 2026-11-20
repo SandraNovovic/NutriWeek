@@ -8,6 +8,7 @@ using NutriWeek.Services.Core.Data.Dish.Response;
 using NutriWeek.Services.Core.Interfaces;
 
 using NutriWeek.Web.ViewModels;
+using NutriWeek.Web.ViewModels.Dish;
 using NutriWeek.Web.ViewModels.Dishes;
 
 using System.Security.Claims;
@@ -83,8 +84,7 @@ namespace NutriWeek.Web.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Add(
-            [FromForm] AddDishViewModel model)
+        public async Task<IActionResult> Add( [FromForm] AddDishViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -96,8 +96,7 @@ namespace NutriWeek.Web.Controllers
 
 
             string userId =
-                User.FindFirstValue(
-                    ClaimTypes.NameIdentifier)!;
+                User.FindFirstValue( ClaimTypes.NameIdentifier)!;
 
 
 
@@ -183,20 +182,17 @@ namespace NutriWeek.Web.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Edit(
-            [FromRoute] int? id)
+        public async Task<IActionResult> Edit( [FromRoute] int? id)
         {
             if (!id.HasValue ||
                 id.Value <= 0)
             {
-                return BadRequest(
-                    ErrorMessages.InvalidRequest);
+                return BadRequest( ErrorMessages.InvalidRequest);
             }
 
 
             string userId =
-                User.FindFirstValue(
-                    ClaimTypes.NameIdentifier)!;
+                User.FindFirstValue( ClaimTypes.NameIdentifier)!;
 
 
             GetDishForEditResponseModel? response =
@@ -225,7 +221,14 @@ namespace NutriWeek.Web.Controllers
                     Portions = response.Portions,
                     ImageUrl = response.ImageUrl,
                     DishType = response.DishType,
-
+                    IngredientItems = response.IngredientItems
+                    .Select(i => new DishIngredientInputViewModel
+                    {
+                        Name = i.Name,
+                        Quantity = i.Quantity,
+                        Unit = i.Unit
+                    })
+                    .ToList(),
                     DishTypes =
                         LoadDishTypes()
                 };
@@ -236,15 +239,11 @@ namespace NutriWeek.Web.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Edit(
-            [FromRoute] int? id,
-            AddDishViewModel model)
+        public async Task<IActionResult> Edit([FromRoute] int? id, AddDishViewModel model)
         {
-            if (!id.HasValue ||
-                id.Value <= 0)
+            if (!id.HasValue || id.Value <= 0)
             {
-                return BadRequest(
-                    ErrorMessages.InvalidRequest);
+                return BadRequest( ErrorMessages.InvalidRequest);
             }
 
 
@@ -365,20 +364,16 @@ namespace NutriWeek.Web.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Delete(
-            [FromRoute] int? id)
+        public async Task<IActionResult> Delete(  [FromRoute] int? id)
         {
-            if (!id.HasValue ||
-                id.Value <= 0)
+            if (!id.HasValue || id.Value <= 0)
             {
-                return BadRequest(
-                    ErrorMessages.InvalidRequestTryAgain);
+                return BadRequest( ErrorMessages.InvalidRequestTryAgain);
             }
 
 
             string userId =
-                User.FindFirstValue(
-                    ClaimTypes.NameIdentifier)!;
+                User.FindFirstValue( ClaimTypes.NameIdentifier)!;
 
 
             GetDishByIdResponseModel? response =
@@ -408,21 +403,16 @@ namespace NutriWeek.Web.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Delete(
-            [FromRoute] int? id,
-            DeleteDishViewModel model)
+        public async Task<IActionResult> Delete([FromRoute] int? id,  DeleteDishViewModel model)
         {
-            if (!id.HasValue ||
-                id.Value <= 0)
+            if (!id.HasValue || id.Value <= 0)
             {
-                return BadRequest(
-                    ErrorMessages.InvalidRequestTryAgain);
+                return BadRequest( ErrorMessages.InvalidRequestTryAgain);
             }
 
 
             string userId =
-                User.FindFirstValue(
-                    ClaimTypes.NameIdentifier)!;
+                User.FindFirstValue( ClaimTypes.NameIdentifier)!;
 
 
             try
@@ -480,11 +470,9 @@ namespace NutriWeek.Web.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Details(
-            [FromRoute] int? id)
+        public async Task<IActionResult> Details([FromRoute] int? id)
         {
-            if (!id.HasValue ||
-                id.Value <= 0)
+            if (!id.HasValue || id.Value <= 0)
             {
                 return BadRequest(
                     ErrorMessages.InvalidRequest);
