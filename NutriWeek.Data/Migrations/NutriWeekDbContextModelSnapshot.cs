@@ -246,7 +246,7 @@ namespace NutriWeek.Data.Migrations
                     b.HasIndex("WeeklyMenuId", "Date")
                         .IsUnique();
 
-                    b.ToTable("DailyMenus");
+                    b.ToTable("DailyMenus", (string)null);
                 });
 
             modelBuilder.Entity("NutriWeek.Data.Models.Dish", b =>
@@ -302,7 +302,7 @@ namespace NutriWeek.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Dishes");
+                    b.ToTable("Dishes", (string)null);
 
                     b.HasData(
                         new
@@ -391,7 +391,7 @@ namespace NutriWeek.Data.Migrations
                     b.HasIndex("DishId", "IngredientId")
                         .IsUnique();
 
-                    b.ToTable("DishIngredients");
+                    b.ToTable("DishIngredients", (string)null);
                 });
 
             modelBuilder.Entity("NutriWeek.Data.Models.Ingredient", b =>
@@ -412,7 +412,7 @@ namespace NutriWeek.Data.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Ingredients");
+                    b.ToTable("Ingredients", (string)null);
                 });
 
             modelBuilder.Entity("NutriWeek.Data.Models.Meal", b =>
@@ -441,7 +441,7 @@ namespace NutriWeek.Data.Migrations
 
                     b.HasIndex("DishId");
 
-                    b.ToTable("Meals");
+                    b.ToTable("Meals", (string)null);
                 });
 
             modelBuilder.Entity("NutriWeek.Data.Models.PantryItem", b =>
@@ -473,7 +473,7 @@ namespace NutriWeek.Data.Migrations
                     b.HasIndex("UserId", "IngredientId")
                         .IsUnique();
 
-                    b.ToTable("PantryItems");
+                    b.ToTable("PantryItems", (string)null);
                 });
 
             modelBuilder.Entity("NutriWeek.Data.Models.WeeklyMenu", b =>
@@ -503,7 +503,7 @@ namespace NutriWeek.Data.Migrations
                         .IsUnique()
                         .HasFilter("[UserId] IS NOT NULL");
 
-                    b.ToTable("WeeklyMenus");
+                    b.ToTable("WeeklyMenus", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Folder Include="DailyMenu\Request\" />
+    <Folder Include="ShoppingList\Request\" />
     <Folder Include="WeeklyMenu\Request\" />
   </ItemGroup>
 

@@ -52,15 +52,15 @@
 
 
     /* =====================================================
-                               NAVBAR
-                               ===================================================== */
+                                   NAVBAR
+                                   ===================================================== */
 
 
 
 
     /* =====================================================
-                               PAGE
-                               ===================================================== */
+                                   PAGE
+                                   ===================================================== */
 
     .weekly-page {
         position: relative;
@@ -100,8 +100,8 @@
 
 
     /* =====================================================
-                               WEEK TOOLBAR
-                               ===================================================== */
+                                   WEEK TOOLBAR
+                                   ===================================================== */
 
     .week-toolbar {
         margin: 4px 0 18px;
@@ -190,8 +190,8 @@
 
 
     /* =====================================================
-                               SUMMARY
-                               ===================================================== */
+                                   SUMMARY
+                                   ===================================================== */
 
     .week-panel {
         display: none;
@@ -266,8 +266,8 @@
 
 
     /* =====================================================
-                               WEEK GRID
-                               ===================================================== */
+                                   WEEK GRID
+                                   ===================================================== */
 
     .week-grid-wrapper {
         overflow-x: auto;
@@ -334,8 +334,8 @@
 
 
     /* =====================================================
-                               MEALS
-                               ===================================================== */
+                                   MEALS
+                                   ===================================================== */
 
     .week-meal-group {
         margin: 8px;
@@ -496,8 +496,8 @@
 
 
     /* =====================================================
-                               BOTTOM ADD
-                               ===================================================== */
+                                   BOTTOM ADD
+                                   ===================================================== */
 
     .add-another {
         margin-top: 16px;
@@ -1806,17 +1806,21 @@
 
                     items.forEach(function (item) {
 
-                        const unit =
-                            getUnitName(
-                                item.unit
-                            );
-
                         const row =
                             createShoppingRow(
                                 item.ingredientName,
-                                `${item.requiredQuantity} ${unit}`,
-                                `${item.pantryQuantity} ${unit}`,
-                                `${item.quantityToBuy} ${unit}`
+                                formatQuantity(
+                                    item.requiredQuantity,
+                                    item.unit
+                                ),
+                                formatQuantity(
+                                    item.pantryQuantity,
+                                    item.unit
+                                ),
+                                formatQuantity(
+                                    item.quantityToBuy,
+                                    item.unit
+                                )
                             );
 
                         row
@@ -1882,6 +1886,49 @@
 
 
                     return row;
+                }
+
+
+                function formatQuantity(
+                    quantity,
+                    unit
+                ) {
+
+                    if (unit === 0 &&
+                        quantity >= 1000) {
+
+                        return `${formatNumber(
+                            quantity / 1000
+                        )} kg`;
+                    }
+
+
+                    if (unit === 2 &&
+                        quantity >= 1000) {
+
+                        return `${formatNumber(
+                            quantity / 1000
+                        )} l`;
+                    }
+
+
+                    return `${formatNumber(
+                        quantity
+                    )} ${getUnitName(unit)}`;
+                }
+
+
+                function formatNumber(
+                    value
+                ) {
+
+                    return Number(value)
+                        .toLocaleString(
+                            undefined,
+                            {
+                                maximumFractionDigits: 2
+                            }
+                        );
                 }
 
 
