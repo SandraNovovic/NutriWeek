@@ -52,15 +52,15 @@
 
 
     /* =====================================================
-                           NAVBAR
-                           ===================================================== */
+                               NAVBAR
+                               ===================================================== */
 
 
 
 
     /* =====================================================
-                           PAGE
-                           ===================================================== */
+                               PAGE
+                               ===================================================== */
 
     .weekly-page {
         position: relative;
@@ -100,8 +100,8 @@
 
 
     /* =====================================================
-                           WEEK TOOLBAR
-                           ===================================================== */
+                               WEEK TOOLBAR
+                               ===================================================== */
 
     .week-toolbar {
         margin: 4px 0 18px;
@@ -190,8 +190,8 @@
 
 
     /* =====================================================
-                           SUMMARY
-                           ===================================================== */
+                               SUMMARY
+                               ===================================================== */
 
     .week-panel {
         display: none;
@@ -266,8 +266,8 @@
 
 
     /* =====================================================
-                           WEEK GRID
-                           ===================================================== */
+                               WEEK GRID
+                               ===================================================== */
 
     .week-grid-wrapper {
         overflow-x: auto;
@@ -316,10 +316,26 @@
         font-size: 10px;
     }
 
+    .day-shopping-button {
+        margin-top: 9px;
+        padding: 6px 10px;
+        border: 1px solid #d8e5d5;
+        border-radius: 8px;
+        background: #f7fbf5;
+        color: #3f7c45;
+        font-size: 10px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+        .day-shopping-button:hover {
+            background: #edf6e9;
+        }
+
 
     /* =====================================================
-                           MEALS
-                           ===================================================== */
+                               MEALS
+                               ===================================================== */
 
     .week-meal-group {
         margin: 8px;
@@ -480,8 +496,8 @@
 
 
     /* =====================================================
-                           BOTTOM ADD
-                           ===================================================== */
+                               BOTTOM ADD
+                               ===================================================== */
 
     .add-another {
         margin-top: 16px;
@@ -973,6 +989,15 @@
                                                                 CultureInfo.InvariantCulture)
 
                             </div>
+
+
+                            <button type="button"
+                                    class="day-shopping-button"
+                                    data-date="@currentDate.ToString("yyyy-MM-dd")">
+
+                                🛒 Shopping List
+
+                            </button>
 
 
                             <div class="day-stats">
@@ -1468,6 +1493,12 @@
                     );
 
 
+                const dayShoppingButtons =
+                    document.querySelectorAll(
+                        ".day-shopping-button"
+                    );
+
+
                 let currentIndex = 0;
 
 
@@ -1602,10 +1633,34 @@
                 );
 
 
+                dayShoppingButtons.forEach(
+                    function (button) {
+
+                        button.addEventListener(
+                            "click",
+                            function () {
+
+                                loadDailyShoppingList(
+                                    this.dataset.date
+                                );
+                            }
+                        );
+                    }
+                );
+
+
                 async function loadShoppingList() {
 
                     const activePanel =
                         panels[currentIndex];
+
+                    const title =
+                        activePanel.querySelector(
+                            ".shopping-list-header h3"
+                        );
+
+                    title.textContent =
+                        "🛒 Weekly Shopping List";
 
                     const weeklyMenuId =
                         activePanel.dataset.weekId;
@@ -1650,6 +1705,66 @@
 
                     showShoppingList(
                         shoppingList.items,
+                        content
+                    );
+                }
+
+
+                async function loadDailyShoppingList(
+                    date
+                ) {
+
+                    const activePanel =
+                        panels[currentIndex];
+
+                    const card =
+                        activePanel.querySelector(
+                            ".shopping-list-card"
+                        );
+
+                    const content =
+                        activePanel.querySelector(
+                            ".shopping-list-content"
+                        );
+
+                    const title =
+                        activePanel.querySelector(
+                            ".shopping-list-header h3"
+                        );
+
+
+                    card.classList.add(
+                        "visible"
+                    );
+
+                    title.textContent =
+                        `🛒 Shopping List - ${date}`;
+
+                    content.textContent =
+                        "Generating shopping list...";
+
+
+                    const response =
+                        await fetch(
+                            `/api/shopping-list/day/${date}`
+                        );
+
+
+                    if (!response.ok) {
+
+                        content.textContent =
+                            "Could not generate shopping list.";
+
+                        return;
+                    }
+
+
+                    const items =
+                        await response.json();
+
+
+                    showShoppingList(
+                        items,
                         content
                     );
                 }
