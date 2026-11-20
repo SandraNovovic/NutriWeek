@@ -106,8 +106,7 @@ namespace NutriWeek.Services.Core.Services
                 response.ErrorMessages =
                     _modelValidator
                         .ValidationResults
-                        .Select(vr =>
-                            vr.ErrorMessage)
+                        .Select(vr =>vr.ErrorMessage)
                         .ToArray();
 
                 return response;

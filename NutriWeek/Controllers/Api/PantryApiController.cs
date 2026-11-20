@@ -30,8 +30,7 @@ namespace NutriWeek.Web.Controllers.Api
 
 
             List<PantryItemResponseModel> pantryItems =
-                await _pantryService
-                    .GetAllAsync(userId);
+                await _pantryService .GetAllAsync(userId);
 
 
             return Ok(pantryItems);
@@ -39,8 +38,7 @@ namespace NutriWeek.Web.Controllers.Api
 
 
         [HttpGet("ingredients")]
-        public async Task<IActionResult> SearchIngredients(
-            [FromQuery] string search)
+        public async Task<IActionResult> SearchIngredients([FromQuery] string search)
         {
             var ingredients =
                 await _pantryService
