@@ -1,4 +1,4 @@
-@using System.Globalization
+﻿@using System.Globalization
 @using NutriWeek.Web.ViewModels.WeeklyMenus
 @using NutriWeek.Web.ViewModels.DailyMenus
 @using NutriWeek.Data.Models.Enums
@@ -52,15 +52,15 @@
 
 
     /* =====================================================
-                                   NAVBAR
-                                   ===================================================== */
+                               NAVBAR
+                               ===================================================== */
 
 
 
 
     /* =====================================================
-                                   PAGE
-                                   ===================================================== */
+                               PAGE
+                               ===================================================== */
 
     .weekly-page {
         position: relative;
@@ -100,8 +100,8 @@
 
 
     /* =====================================================
-                                   WEEK TOOLBAR
-                                   ===================================================== */
+                               WEEK TOOLBAR
+                               ===================================================== */
 
     .week-toolbar {
         margin: 4px 0 18px;
@@ -190,8 +190,8 @@
 
 
     /* =====================================================
-                                   SUMMARY
-                                   ===================================================== */
+                               SUMMARY
+                               ===================================================== */
 
     .week-panel {
         display: none;
@@ -266,8 +266,8 @@
 
 
     /* =====================================================
-                                   WEEK GRID
-                                   ===================================================== */
+                               WEEK GRID
+                               ===================================================== */
 
     .week-grid-wrapper {
         overflow-x: auto;
@@ -334,8 +334,8 @@
 
 
     /* =====================================================
-                                   MEALS
-                                   ===================================================== */
+                               MEALS
+                               ===================================================== */
 
     .week-meal-group {
         margin: 8px;
@@ -496,8 +496,8 @@
 
 
     /* =====================================================
-                                   BOTTOM ADD
-                                   ===================================================== */
+                               BOTTOM ADD
+                               ===================================================== */
 
     .add-another {
         margin-top: 16px;
@@ -792,7 +792,7 @@
                     type="button"
                     class="shopping-list-button">
 
-                🛒 Generate Shopping List
+                🛒 Shopping List
 
             </button>
 
@@ -1629,7 +1629,17 @@
 
                 shoppingListButton.addEventListener(
                     "click",
-                    loadShoppingList
+                    function () {
+
+                        const weeklyMenuId =
+                            panels[currentIndex]
+                                .dataset
+                                .weekId;
+
+
+                        window.location.href =
+                            `/ShoppingList?weeklyMenuId=${weeklyMenuId}`;
+                    }
                 );
 
 
@@ -1640,9 +1650,8 @@
                             "click",
                             function () {
 
-                                loadDailyShoppingList(
-                                    this.dataset.date
-                                );
+                                window.location.href =
+                                    `/ShoppingList?date=${this.dataset.date}`;
                             }
                         );
                     }
@@ -1806,21 +1815,17 @@
 
                     items.forEach(function (item) {
 
+                        const unit =
+                            getUnitName(
+                                item.unit
+                            );
+
                         const row =
                             createShoppingRow(
                                 item.ingredientName,
-                                formatQuantity(
-                                    item.requiredQuantity,
-                                    item.unit
-                                ),
-                                formatQuantity(
-                                    item.pantryQuantity,
-                                    item.unit
-                                ),
-                                formatQuantity(
-                                    item.quantityToBuy,
-                                    item.unit
-                                )
+                                `${item.requiredQuantity} ${unit}`,
+                                `${item.pantryQuantity} ${unit}`,
+                                `${item.quantityToBuy} ${unit}`
                             );
 
                         row
@@ -1886,49 +1891,6 @@
 
 
                     return row;
-                }
-
-
-                function formatQuantity(
-                    quantity,
-                    unit
-                ) {
-
-                    if (unit === 0 &&
-                        quantity >= 1000) {
-
-                        return `${formatNumber(
-                            quantity / 1000
-                        )} kg`;
-                    }
-
-
-                    if (unit === 2 &&
-                        quantity >= 1000) {
-
-                        return `${formatNumber(
-                            quantity / 1000
-                        )} l`;
-                    }
-
-
-                    return `${formatNumber(
-                        quantity
-                    )} ${getUnitName(unit)}`;
-                }
-
-
-                function formatNumber(
-                    value
-                ) {
-
-                    return Number(value)
-                        .toLocaleString(
-                            undefined,
-                            {
-                                maximumFractionDigits: 2
-                            }
-                        );
                 }
 
 

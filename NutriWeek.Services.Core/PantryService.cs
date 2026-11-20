@@ -211,6 +211,192 @@ namespace NutriWeek.Services.Core.Services
         }
 
 
+        public async Task<PantryServiceStatusResponseModel> AddPurchasedItemAsync(
+            CreatePantryItemRequestData request,
+            string userId)
+        {
+            PantryServiceStatusResponseModel response =
+                new PantryServiceStatusResponseModel();
+
+
+            try
+            {
+                if (!modelValidator.IsValid(request))
+                {
+                    response.ErrorMessages =
+                        modelValidator
+                            .ValidationResults
+                            .Select(v =>
+                                v.ErrorMessage)
+                            .ToArray();
+
+                    return response;
+                }
+
+
+                bool ingredientExists =
+                    await ingredientRepository
+                        .GetAllAsNoTracking()
+                        .AnyAsync(i =>
+                            i.Id == request.IngredientId);
+
+
+                if (!ingredientExists)
+                {
+                    response.ErrorMessages =
+                        new[]
+                        {
+                            "Ingredient not found."
+                        };
+
+                    return response;
+                }
+
+
+                PantryItem? pantryItem =
+                    await pantryItemRepository
+                        .GetAll()
+                        .FirstOrDefaultAsync(p =>
+                            p.UserId == userId &&
+                            p.IngredientId ==
+                                request.IngredientId);
+
+
+                if (pantryItem == null)
+                {
+                    pantryItem =
+                        new PantryItem
+                        {
+                            UserId =
+                                userId,
+
+                            IngredientId =
+                                request.IngredientId,
+
+                            Quantity =
+                                request.Quantity,
+
+                            Unit =
+                                request.Unit
+                        };
+
+
+                    await pantryItemRepository
+                        .AddAsync(pantryItem);
+                }
+                else
+                {
+                    MeasurementUnit pantryBaseUnit =
+                        GetBaseUnit(
+                            pantryItem.Unit);
+
+                    MeasurementUnit purchasedBaseUnit =
+                        GetBaseUnit(
+                            request.Unit);
+
+
+                    if (pantryBaseUnit !=
+                        purchasedBaseUnit)
+                    {
+                        response.ErrorMessages =
+                            new[]
+                            {
+                                "The purchased quantity uses an incompatible measurement unit."
+                            };
+
+                        return response;
+                    }
+
+
+                    decimal purchasedBaseQuantity =
+                        ConvertToBaseQuantity(
+                            request.Quantity,
+                            request.Unit);
+
+
+                    pantryItem.Quantity +=
+                        ConvertFromBaseQuantity(
+                            purchasedBaseQuantity,
+                            pantryItem.Unit);
+                }
+
+
+                await pantryItemRepository
+                    .SaveChangesAsync();
+
+
+                response.Status = true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Error while moving purchased ingredient {IngredientId} to pantry for user {UserId}.",
+                    request.IngredientId,
+                    userId);
+
+
+                response.ErrorMessages =
+                    new[]
+                    {
+                        "An unexpected error occurred. Please try again."
+                    };
+            }
+
+
+            return response;
+        }
+
+
+        private static decimal ConvertToBaseQuantity(
+            decimal quantity,
+            MeasurementUnit unit)
+        {
+            if (unit == MeasurementUnit.Kilogram ||
+                unit == MeasurementUnit.Liter)
+            {
+                return quantity * 1000;
+            }
+
+
+            return quantity;
+        }
+
+
+        private static decimal ConvertFromBaseQuantity(
+            decimal quantity,
+            MeasurementUnit unit)
+        {
+            if (unit == MeasurementUnit.Kilogram ||
+                unit == MeasurementUnit.Liter)
+            {
+                return quantity / 1000;
+            }
+
+
+            return quantity;
+        }
+
+
+        private static MeasurementUnit GetBaseUnit(
+            MeasurementUnit unit)
+        {
+            if (unit == MeasurementUnit.Kilogram)
+            {
+                return MeasurementUnit.Gram;
+            }
+
+
+            if (unit == MeasurementUnit.Liter)
+            {
+                return MeasurementUnit.Milliliter;
+            }
+
+
+            return unit;
+        }
+
+
         public async Task<PantryServiceStatusResponseModel> EditAsync( int id,EditPantryItemRequestData request, string userId)
         {
             PantryServiceStatusResponseModel response =new PantryServiceStatusResponseModel();

@@ -1,0 +1,416 @@
+﻿@using NutriWeek.Data.Models.Enums
+@using NutriWeek.Web.ViewModels.ShoppingList
+
+@model ShoppingListPageViewModel
+
+@{
+    ViewData["Title"] = "Shopping List";
+
+    int totalIngredients =
+        Model.Items.Count;
+
+    int missingIngredients =
+        Model.Items.Count(i =>
+            i.QuantityToBuy > 0);
+
+    int readyIngredients =
+        totalIngredients -
+        missingIngredients;
+
+    string periodText =
+        Model.IsWeekly
+            ? $"{Model.WeekStartDate:dd MMM} - {Model.WeekStartDate.AddDays(6):dd MMM yyyy}"
+            : Model.Date?.ToString("dddd, dd MMMM yyyy") ?? string.Empty;
+}
+
+@functions
+{
+    string FormatQuantity(
+        decimal quantity,
+        MeasurementUnit unit)
+    {
+        if (unit == MeasurementUnit.Gram &&
+            quantity >= 1000)
+        {
+            return $"{quantity / 1000:0.##} kg";
+        }
+
+        if (unit == MeasurementUnit.Milliliter &&
+            quantity >= 1000)
+        {
+            return $"{quantity / 1000:0.##} l";
+        }
+
+        if (unit == MeasurementUnit.Gram)
+        {
+            return $"{quantity:0.##} g";
+        }
+
+        if (unit == MeasurementUnit.Kilogram)
+        {
+            return $"{quantity:0.##} kg";
+        }
+
+        if (unit == MeasurementUnit.Milliliter)
+        {
+            return $"{quantity:0.##} ml";
+        }
+
+        if (unit == MeasurementUnit.Liter)
+        {
+            return $"{quantity:0.##} l";
+        }
+
+        return $"{quantity:0.##} pcs";
+    }
+}
+
+<link rel="stylesheet"
+      href="~/css/shopping-list.css"
+      asp-append-version="true" />
+
+
+<div class="shopping-page">
+
+    <div class="shopping-container">
+
+
+        <header class="shopping-hero">
+
+            <div>
+
+                <div class="shopping-eyebrow">
+                    🌿 NutriWeek planner
+                </div>
+
+                <h1 class="shopping-title">
+                    @(Model.IsWeekly
+                        ? "Weekly Shopping List"
+                        : "Daily Shopping List")
+                </h1>
+
+                <p class="shopping-subtitle">
+                    @periodText · Calculated from your planned meals
+                    and the ingredients currently available in your pantry.
+                </p>
+
+            </div>
+
+
+            <div class="shopping-actions">
+
+                <a asp-controller="WeeklyMenus"
+                   asp-action="Index"
+                   asp-route-weekStart="@Model.WeekStartDate.ToString("yyyy-MM-dd")"
+                   class="shopping-action">
+
+                    ← Weekly Menu
+
+                </a>
+
+                <a asp-controller="Pantry"
+                   asp-action="Index"
+                   class="shopping-action primary">
+
+                    🧺 Manage Pantry
+
+                </a>
+
+            </div>
+
+        </header>
+
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="shopping-message success">
+
+                <span class="shopping-message-icon">
+                    ✓
+                </span>
+
+                <span>
+                    @TempData["Success"]
+                </span>
+
+            </div>
+        }
+
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="shopping-message error">
+
+                <span class="shopping-message-icon">
+                    !
+                </span>
+
+                <span>
+                    @TempData["Error"]
+                </span>
+
+            </div>
+        }
+
+
+        <section class="shopping-summary">
+
+            <div class="shopping-summary-card">
+
+                <div class="shopping-summary-icon">
+                    🛒
+                </div>
+
+                <div>
+
+                    <div class="shopping-summary-value">
+                        @totalIngredients
+                    </div>
+
+                    <div class="shopping-summary-label">
+                        Total ingredients
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="shopping-summary-card">
+
+                <div class="shopping-summary-icon">
+                    📝
+                </div>
+
+                <div>
+
+                    <div class="shopping-summary-value">
+                        @missingIngredients
+                    </div>
+
+                    <div class="shopping-summary-label">
+                        Need to buy
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="shopping-summary-card">
+
+                <div class="shopping-summary-icon">
+                    ✓
+                </div>
+
+                <div>
+
+                    <div class="shopping-summary-value">
+                        @readyIngredients
+                    </div>
+
+                    <div class="shopping-summary-label">
+                        Already covered
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="shopping-card">
+
+            <div class="shopping-card-header">
+
+                <div>
+
+                    <h2 class="shopping-card-title">
+                        Ingredients
+                    </h2>
+
+                    <p class="shopping-card-text">
+                        When you buy an ingredient, move the missing
+                        quantity directly to your pantry.
+                    </p>
+
+                </div>
+
+                <span class="shopping-count">
+                    @missingIngredients to buy
+                </span>
+
+            </div>
+
+
+            @if (Model.Items.Any())
+            {
+                <div class="shopping-table">
+
+                    <div class="shopping-row shopping-row-head">
+
+                        <span>Ingredient</span>
+                        <span>Needed</span>
+                        <span>In pantry</span>
+                        <span>To buy</span>
+                        <span>Action</span>
+
+                    </div>
+
+
+                    @foreach (ShoppingListItemViewModel item
+                              in Model.Items
+                                  .OrderByDescending(i =>
+                                      i.QuantityToBuy > 0)
+                                  .ThenBy(i =>
+                                      i.IngredientName))
+                    {
+                        bool isMissing =
+                            item.QuantityToBuy > 0;
+
+
+                        <div class="shopping-row">
+
+                            <div class="shopping-ingredient">
+
+                                <div class="shopping-ingredient-icon @(isMissing ? "" : "ready")">
+                                    @(isMissing ? "🛒" : "✓")
+                                </div>
+
+                                <div>
+
+                                    <div class="shopping-ingredient-name">
+                                        @item.IngredientName
+                                    </div>
+
+                                    <div class="shopping-ingredient-status">
+                                        @(isMissing
+                                            ? "Still needed"
+                                            : "Covered by pantry")
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="shopping-quantity shopping-needed">
+                                @FormatQuantity(
+                                    item.RequiredQuantity,
+                                    item.Unit)
+                            </div>
+
+
+                            <div class="shopping-quantity shopping-pantry">
+                                @FormatQuantity(
+                                    item.PantryQuantity,
+                                    item.Unit)
+                            </div>
+
+
+                            <div class="shopping-quantity buy shopping-buy">
+
+                                @(isMissing
+                                    ? FormatQuantity(
+                                        item.QuantityToBuy,
+                                        item.Unit)
+                                    : "—")
+
+                            </div>
+
+
+                            <div class="shopping-row-action">
+
+                                @if (isMissing)
+                                {
+                                    <form asp-controller="ShoppingList"
+                                          asp-action="MoveToPantry"
+                                          method="post">
+
+                                        <input type="hidden"
+                                               name="ingredientId"
+                                               value="@item.IngredientId" />
+
+                                        <input type="hidden"
+                                               name="quantity"
+                                               value="@item.QuantityToBuy.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+
+                                        <input type="hidden"
+                                               name="unit"
+                                               value="@((int)item.Unit)" />
+
+                                        @if (Model.WeeklyMenuId.HasValue)
+                                        {
+                                            <input type="hidden"
+                                                   name="weeklyMenuId"
+                                                   value="@Model.WeeklyMenuId.Value" />
+                                        }
+
+                                        @if (Model.Date.HasValue)
+                                        {
+                                            <input type="hidden"
+                                                   name="date"
+                                                   value="@Model.Date.Value.ToString("yyyy-MM-dd")" />
+                                        }
+
+
+                                        <button type="submit"
+                                                class="move-pantry-button">
+
+                                            ✓ Bought
+                                            <span>→ Pantry</span>
+
+                                        </button>
+
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="ready-badge">
+                                        ✓ Ready
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <div class="shopping-empty">
+
+                    <div class="shopping-empty-icon">
+                        🧺
+                    </div>
+
+                    <div class="shopping-empty-title">
+                        Nothing to add yet
+                    </div>
+
+                    <p class="shopping-empty-text">
+                        Add meals with structured ingredients to your menu.
+                        NutriWeek will calculate what you need automatically.
+                    </p>
+
+                </div>
+            }
+
+        </section>
+
+
+        <div class="shopping-tip">
+
+            💡 Clicking <strong>Bought → Pantry</strong>
+            adds exactly the missing quantity to your pantry.
+            The shopping list is recalculated immediately.
+
+        </div>
+
+
+    </div>
+
+</div>

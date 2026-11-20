@@ -12,6 +12,10 @@ namespace NutriWeek.Services.Core.Interfaces
 
         Task<PantryServiceStatusResponseModel> AddAsync( CreatePantryItemRequestData request,string userId);
 
+        Task<PantryServiceStatusResponseModel> AddPurchasedItemAsync(
+            CreatePantryItemRequestData request,
+            string userId);
+
         Task<PantryServiceStatusResponseModel> EditAsync( int id, EditPantryItemRequestData request, string userId);
 
         Task<PantryServiceStatusResponseModel> DeleteAsync(int id,string userId);
