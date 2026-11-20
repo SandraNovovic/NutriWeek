@@ -1,5 +1,6 @@
 ﻿using NutriWeek.Data.Models.Enums;
 using NutriWeek.Web.ViewModels;
+using NutriWeek.Web.ViewModels.Dish;
 using System.ComponentModel.DataAnnotations;
 using static NutriWeek.GCommon.EntityValidations;
 namespace NutriWeek.Web.ViewModels.Dishes
@@ -47,5 +48,8 @@ namespace NutriWeek.Web.ViewModels.Dishes
         public DishType DishType { get; set; }
 
         public IEnumerable<DropdownViewModel> DishTypes { get; set; } = new List<DropdownViewModel>();
+
+        public List<DishIngredientInputViewModel> IngredientItems { get; set; }
+            = new List<DishIngredientInputViewModel>();
     }
 }
