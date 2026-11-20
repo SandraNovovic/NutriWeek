@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NutriWeek.Data;
+using NutriWeek.Data.Seeding;
 
 namespace NutriWeek
 {
@@ -27,6 +28,19 @@ namespace NutriWeek
             });
             builder.Services.AddApplicationServices();
             var app = builder.Build();
+
+            using (IServiceScope scope = app.Services.CreateScope())
+            {
+                NutriWeekDbContext dbContext =
+                    scope.ServiceProvider
+                        .GetRequiredService<NutriWeekDbContext>();
+
+
+                SharedDishIngredientsSeeder
+                    .SeedAsync(dbContext)
+                    .GetAwaiter()
+                    .GetResult();
+            }
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
