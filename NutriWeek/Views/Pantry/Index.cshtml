@@ -4,105 +4,743 @@
 
 @Html.AntiForgeryToken()
 
-<div class="container py-4">
+<style>
 
-    <div class="mb-4">
-        <h1>My Pantry</h1>
-        <p class="text-muted">
-            Keep track of the ingredients you currently have at home.
-        </p>
-    </div>
+    .pantry-page {
+        position: relative;
+        left: 50%;
+        width: 100vw;
+        min-height: calc(100vh - 70px);
+        margin-left: -50vw;
+        padding: 34px 0 70px;
+        background-image: linear-gradient( rgba(250, 252, 247, .88), rgba(250, 252, 247, .94) ), url('@Url.Content("~/images/MealsImages/meals-background.png")');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
 
-    <div id="pantryAlert"></div>
+    .pantry-container {
+        width: min(1180px, calc(100% - 40px));
+        margin: 0 auto;
+    }
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
 
-            <h5 class="card-title mb-3">
-                Add Ingredient
-            </h5>
+    /* =====================================================
+                           HEADER
+           ===================================================== */
+
+    .pantry-header {
+        margin-bottom: 22px;
+    }
+
+    .pantry-title {
+        margin: 0 0 6px;
+        color: #173024;
+        font-family: Georgia, serif;
+        font-size: 46px;
+        font-weight: 700;
+    }
+
+    .pantry-subtitle {
+        max-width: 680px;
+        margin: 0;
+        color: #657068;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+
+    /* =====================================================
+                           INFO STRIP
+           ===================================================== */
+
+    .pantry-flow {
+        margin-bottom: 22px;
+        padding: 15px 18px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        border: 1px solid #e0e8dd;
+        border-radius: 16px;
+        background: rgba(255,255,255,.86);
+        box-shadow: 0 5px 18px rgba(27,65,34,.04);
+    }
+
+    .pantry-flow-item {
+        min-height: 62px;
+        padding: 9px 14px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-right: 1px solid #e8ede6;
+    }
+
+        .pantry-flow-item:last-child {
+            border-right: none;
+        }
+
+    .pantry-flow-icon {
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: #edf7e9;
+        font-size: 20px;
+    }
+
+    .pantry-flow-title {
+        color: #26382c;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .pantry-flow-text {
+        margin-top: 2px;
+        color: #8a948c;
+        font-size: 10px;
+        line-height: 1.4;
+    }
+
+
+    /* =====================================================
+                           ALERTS
+           ===================================================== */
+
+    #pantryAlert .alert {
+        margin-bottom: 18px;
+        border-radius: 13px;
+        font-size: 13px;
+    }
+
+
+    /* =====================================================
+                           ADD FORM
+           ===================================================== */
+
+    .pantry-card {
+        border: 1px solid #e0e7dd;
+        border-radius: 18px;
+        background: rgba(255,255,255,.96);
+        box-shadow: 0 6px 22px rgba(31,65,36,.055);
+    }
+
+    .pantry-add-card {
+        margin-bottom: 22px;
+        padding: 22px;
+    }
+
+    .pantry-card-heading {
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .pantry-card-icon {
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 12px;
+        background: #eaf6e7;
+        font-size: 20px;
+    }
+
+    .pantry-card-title {
+        margin: 0;
+        color: #203329;
+        font-size: 18px;
+        font-weight: 900;
+    }
+
+    .pantry-card-subtitle {
+        margin: 3px 0 0;
+        color: #8a948d;
+        font-size: 11px;
+    }
+
+    .pantry-form-grid {
+        display: grid;
+        grid-template-columns: 2.2fr 1fr 1fr auto;
+        gap: 14px;
+        align-items: end;
+    }
+
+    .pantry-field label {
+        margin-bottom: 6px;
+        display: block;
+        color: #526158;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .pantry-input,
+    .pantry-select {
+        width: 100%;
+        height: 44px;
+        padding: 0 13px;
+        border: 1px solid #dce5da;
+        border-radius: 11px;
+        outline: none;
+        background: #fbfcfa;
+        color: #243229;
+        font-size: 13px;
+        transition: .18s ease;
+    }
+
+        .pantry-input:focus,
+        .pantry-select:focus {
+            border-color: #74aa79;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(83,145,89,.10);
+        }
+
+    .pantry-add-button {
+        height: 44px;
+        min-width: 130px;
+        padding: 0 20px;
+        border: none;
+        border-radius: 11px;
+        background: linear-gradient(90deg, #397f40, #4d9a53);
+        color: white;
+        font-size: 13px;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: 0 7px 17px rgba(48,119,56,.18);
+        transition: .18s ease;
+    }
+
+        .pantry-add-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 9px 20px rgba(48,119,56,.23);
+        }
+
+
+    /* =====================================================
+                           PANTRY LIST
+           ===================================================== */
+
+    .pantry-list-card {
+        overflow: hidden;
+    }
+
+    .pantry-list-header {
+        padding: 20px 22px 17px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        border-bottom: 1px solid #edf1eb;
+    }
+
+    .pantry-list-heading {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .pantry-badge {
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #eef7eb;
+        color: #438049;
+        font-size: 10px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .pantry-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .pantry-table {
+        width: 100%;
+        margin: 0;
+        border-collapse: collapse;
+    }
+
+        .pantry-table thead th {
+            padding: 13px 20px;
+            border-bottom: 1px solid #e6ece3;
+            background: #f6f9f4;
+            color: #69756d;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .045em;
+        }
+
+        .pantry-table tbody td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #edf1eb;
+            color: #3b4b40;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        .pantry-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .pantry-table tbody tr {
+            transition: .16s ease;
+        }
+
+            .pantry-table tbody tr:hover {
+                background: #fafcf9;
+            }
+
+        .pantry-table tbody td:first-child {
+            color: #24362a;
+            font-weight: 800;
+        }
+
+        .pantry-table .btn-outline-primary {
+            border-color: #cddfca;
+            color: #4c8451;
+        }
+
+            .pantry-table .btn-outline-primary:hover {
+                border-color: #4c8451;
+                background: #4c8451;
+                color: white;
+            }
+
+        .pantry-table .btn-outline-danger {
+            border-color: #efd6d6;
+            color: #b45858;
+        }
+
+            .pantry-table .btn-outline-danger:hover {
+                border-color: #b45858;
+                background: #b45858;
+                color: white;
+            }
+
+        .pantry-table .btn-sm {
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+    .empty-pantry {
+        padding: 58px 24px;
+        text-align: center;
+    }
+
+    .empty-pantry-icon {
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #f0f6ed;
+        font-size: 31px;
+    }
+
+    .empty-pantry-title {
+        margin-bottom: 4px;
+        color: #34453a;
+        font-size: 15px;
+        font-weight: 900;
+    }
+
+    .empty-pantry-text {
+        color: #909a92;
+        font-size: 11px;
+    }
+
+
+    /* =====================================================
+                           MODAL
+           ===================================================== */
+
+    #editPantryModal .modal-content {
+        overflow: hidden;
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 18px 55px rgba(25,50,30,.18);
+    }
+
+    #editPantryModal .modal-header {
+        padding: 18px 20px;
+        border-bottom: 1px solid #e9eee7;
+        background: #f7faf5;
+    }
+
+    #editPantryModal .modal-title {
+        color: #26382c;
+        font-size: 17px;
+        font-weight: 900;
+    }
+
+    #editPantryModal .modal-body {
+        padding: 20px;
+    }
+
+    #editPantryModal .form-label {
+        color: #526158;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    #editPantryModal .form-control,
+    #editPantryModal .form-select {
+        min-height: 43px;
+        border: 1px solid #dce5da;
+        border-radius: 10px;
+        background: #fbfcfa;
+        font-size: 13px;
+    }
+
+        #editPantryModal .form-control:focus,
+        #editPantryModal .form-select:focus {
+            border-color: #74aa79;
+            box-shadow: 0 0 0 3px rgba(83,145,89,.10);
+        }
+
+    #editPantryModal .modal-footer {
+        padding: 14px 20px 18px;
+        border-top: 1px solid #edf1eb;
+    }
+
+    #editPantryModal .btn {
+        padding: 8px 17px;
+        border-radius: 9px;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    #saveEditButton {
+        border-color: #438a49;
+        background: #438a49;
+    }
+
+        #saveEditButton:hover {
+            border-color: #37763d;
+            background: #37763d;
+        }
+
+
+    /* =====================================================
+                           RESPONSIVE
+           ===================================================== */
+
+    @@media (max-width: 850px) {
+
+        .pantry-flow {
+            grid-template-columns: 1fr;
+        }
+
+        .pantry-flow-item {
+            border-right: none;
+            border-bottom: 1px solid #e8ede6;
+        }
+
+            .pantry-flow-item:last-child {
+                border-bottom: none;
+            }
+
+        .pantry-form-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .pantry-field:first-child {
+            grid-column: 1 / -1;
+        }
+
+        .pantry-add-button {
+            width: 100%;
+        }
+    }
+
+
+    @@media (max-width: 560px) {
+
+        .pantry-page {
+            padding-top: 24px;
+        }
+
+        .pantry-container {
+            width: calc(100% - 24px);
+        }
+
+        .pantry-title {
+            font-size: 38px;
+        }
+
+        .pantry-form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .pantry-field:first-child {
+            grid-column: auto;
+        }
+
+        .pantry-list-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .pantry-table thead th,
+        .pantry-table tbody td {
+            padding-left: 13px;
+            padding-right: 13px;
+        }
+    }
+
+</style>
+
+
+<div class="pantry-page">
+
+    <div class="pantry-container">
+
+
+        <header class="pantry-header">
+
+            <h1 class="pantry-title">
+                My Pantry
+            </h1>
+
+            <p class="pantry-subtitle">
+                Keep track of the ingredients you already have at home.
+                NutriWeek uses your pantry to calculate what you still need
+                to buy for your meal plan.
+            </p>
+
+        </header>
+
+
+        <div class="pantry-flow">
+
+            <div class="pantry-flow-item">
+
+                <div class="pantry-flow-icon">
+                    🥕
+                </div>
+
+                <div>
+
+                    <div class="pantry-flow-title">
+                        Add your ingredients
+                    </div>
+
+                    <div class="pantry-flow-text">
+                        Enter what you currently have at home.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="pantry-flow-item">
+
+                <div class="pantry-flow-icon">
+                    📅
+                </div>
+
+                <div>
+
+                    <div class="pantry-flow-title">
+                        Plan your meals
+                    </div>
+
+                    <div class="pantry-flow-text">
+                        Create your daily or weekly menu.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="pantry-flow-item">
+
+                <div class="pantry-flow-icon">
+                    🛒
+                </div>
+
+                <div>
+
+                    <div class="pantry-flow-title">
+                        Generate your shopping list
+                    </div>
+
+                    <div class="pantry-flow-text">
+                        NutriWeek calculates what is missing.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div id="pantryAlert"></div>
+
+
+        <section class="pantry-card pantry-add-card">
+
+            <div class="pantry-card-heading">
+
+                <div class="pantry-card-icon">
+                    ＋
+                </div>
+
+                <div>
+
+                    <h2 class="pantry-card-title">
+                        Add Ingredient
+                    </h2>
+
+                    <p class="pantry-card-subtitle">
+                        Add an ingredient and the quantity you currently have.
+                    </p>
+
+                </div>
+
+            </div>
+
 
             <form id="addPantryForm"
-                  class="row g-3">
+                  class="pantry-form-grid">
 
-                <div class="col-md-5">
-                    <label for="ingredientName"
-                           class="form-label">
+                <div class="pantry-field">
+
+                    <label for="ingredientName">
                         Ingredient
                     </label>
 
                     <input type="text"
                            id="ingredientName"
-                           class="form-control"
+                           class="pantry-input"
                            maxlength="100"
+                           placeholder="e.g. Chicken breast"
                            required />
+
                 </div>
 
-                <div class="col-md-3">
-                    <label for="quantity"
-                           class="form-label">
+
+                <div class="pantry-field">
+
+                    <label for="quantity">
                         Quantity
                     </label>
 
                     <input type="number"
                            id="quantity"
-                           class="form-control"
+                           class="pantry-input"
                            min="0.01"
                            step="0.01"
+                           placeholder="0.00"
                            required />
+
                 </div>
 
-                <div class="col-md-2">
-                    <label for="unit"
-                           class="form-label">
+
+                <div class="pantry-field">
+
+                    <label for="unit">
                         Unit
                     </label>
 
                     <select id="unit"
-                            class="form-select"
+                            class="pantry-select"
                             required>
                     </select>
+
                 </div>
 
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit"
-                            class="btn btn-primary w-100">
-                        Add
-                    </button>
-                </div>
+
+                <button type="submit"
+                        class="pantry-add-button">
+
+                    ＋ Add to Pantry
+
+                </button>
 
             </form>
 
-        </div>
-    </div>
+        </section>
 
 
-    <div class="card shadow-sm">
-        <div class="card-body">
+        <section class="pantry-card pantry-list-card">
 
-            <h5 class="card-title mb-3">
-                Pantry Items
-            </h5>
+            <div class="pantry-list-header">
 
-            <div id="emptyPantry"
-                 class="text-center text-muted py-4 d-none">
+                <div class="pantry-list-heading">
 
-                Your pantry is empty.
+                    <div class="pantry-card-icon">
+                        🧺
+                    </div>
+
+                    <div>
+
+                        <h2 class="pantry-card-title">
+                            Pantry Items
+                        </h2>
+
+                        <p class="pantry-card-subtitle">
+                            Ingredients currently available at home.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <span class="pantry-badge">
+                    Your ingredients
+                </span>
 
             </div>
 
-            <div class="table-responsive"
+
+            <div id="emptyPantry"
+                 class="empty-pantry d-none">
+
+                <div class="empty-pantry-icon">
+                    🧺
+                </div>
+
+                <div class="empty-pantry-title">
+                    Your pantry is empty
+                </div>
+
+                <div class="empty-pantry-text">
+                    Add your first ingredient using the form above.
+                </div>
+
+            </div>
+
+
+            <div class="pantry-table-wrapper"
                  id="pantryTableContainer">
 
-                <table class="table align-middle">
+                <table class="pantry-table">
+
                     <thead>
+
                         <tr>
                             <th>Ingredient</th>
                             <th>Quantity</th>
                             <th>Unit</th>
                             <th class="text-end">Actions</th>
                         </tr>
+
                     </thead>
+
 
                     <tbody id="pantryTableBody">
                     </tbody>
@@ -111,7 +749,9 @@
 
             </div>
 
-        </div>
+        </section>
+
+
     </div>
 
 </div>
@@ -122,7 +762,7 @@
      tabindex="-1"
      aria-hidden="true">
 
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
 
         <div class="modal-content">
 
@@ -139,10 +779,12 @@
 
             </div>
 
+
             <div class="modal-body">
 
                 <input type="hidden"
                        id="editPantryItemId" />
+
 
                 <div class="mb-3">
 
@@ -156,6 +798,7 @@
                            readonly />
 
                 </div>
+
 
                 <div class="mb-3">
 
@@ -173,6 +816,7 @@
 
                 </div>
 
+
                 <div class="mb-3">
 
                     <label for="editUnit"
@@ -188,18 +832,23 @@
 
             </div>
 
+
             <div class="modal-footer">
 
                 <button type="button"
-                        class="btn btn-secondary"
+                        class="btn btn-light"
                         data-bs-dismiss="modal">
+
                     Cancel
+
                 </button>
 
                 <button type="button"
                         id="saveEditButton"
                         class="btn btn-primary">
-                    Save
+
+                    Save Changes
+
                 </button>
 
             </div>
