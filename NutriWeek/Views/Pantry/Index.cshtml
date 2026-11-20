@@ -13,7 +13,12 @@
         min-height: calc(100vh - 70px);
         margin-left: -50vw;
         padding: 34px 0 70px;
-        background-image: linear-gradient( rgba(250, 252, 247, .88), rgba(250, 252, 247, .94) ), url('@Url.Content("~/images/MealsImages/meals-background.png")');
+        background-image:
+            linear-gradient(
+                rgba(250, 252, 247, .88),
+                rgba(250, 252, 247, .94)
+            ),
+            url('@Url.Content("~/images/MealsImages/meals-background.png")');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
@@ -26,8 +31,8 @@
 
 
     /* =====================================================
-                           HEADER
-           ===================================================== */
+                       HEADER
+       ===================================================== */
 
     .pantry-header {
         margin-bottom: 22px;
@@ -51,8 +56,8 @@
 
 
     /* =====================================================
-                           INFO STRIP
-           ===================================================== */
+                       INFO STRIP
+       ===================================================== */
 
     .pantry-flow {
         margin-bottom: 22px;
@@ -106,8 +111,8 @@
 
 
     /* =====================================================
-                           ALERTS
-           ===================================================== */
+                       ALERTS
+       ===================================================== */
 
     #pantryAlert .alert {
         margin-bottom: 18px;
@@ -117,8 +122,8 @@
 
 
     /* =====================================================
-                           ADD FORM
-           ===================================================== */
+                       ADD FORM
+       ===================================================== */
 
     .pantry-card {
         border: 1px solid #e0e7dd;
@@ -222,8 +227,8 @@
 
 
     /* =====================================================
-                           PANTRY LIST
-           ===================================================== */
+                       PANTRY LIST
+       ===================================================== */
 
     .pantry-list-card {
         overflow: hidden;
@@ -360,8 +365,8 @@
 
 
     /* =====================================================
-                           MODAL
-           ===================================================== */
+                       MODAL
+       ===================================================== */
 
     #editPantryModal .modal-content {
         overflow: hidden;
@@ -431,8 +436,8 @@
 
 
     /* =====================================================
-                           RESPONSIVE
-           ===================================================== */
+                       RESPONSIVE
+       ===================================================== */
 
     @@media (max-width: 850px) {
 
@@ -626,8 +631,13 @@
                            id="ingredientName"
                            class="pantry-input"
                            maxlength="100"
-                           placeholder="e.g. Chicken breast"
+                           list="ingredientSuggestions"
+                           autocomplete="off"
+                           placeholder="Start typing an ingredient..."
                            required />
+
+                    <datalist id="ingredientSuggestions">
+                    </datalist>
 
                 </div>
 

@@ -38,6 +38,20 @@ namespace NutriWeek.Web.Controllers.Api
         }
 
 
+        [HttpGet("ingredients")]
+        public async Task<IActionResult> SearchIngredients(
+            [FromQuery] string search)
+        {
+            var ingredients =
+                await _pantryService
+                    .SearchIngredientsAsync(
+                        search ?? string.Empty);
+
+
+            return Ok(ingredients);
+        }
+
+
         [HttpGet("units")]
         public IActionResult GetMeasurementUnits()
         {

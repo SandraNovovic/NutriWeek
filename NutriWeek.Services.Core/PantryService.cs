@@ -73,6 +73,39 @@ namespace NutriWeek.Services.Core.Services
         }
 
 
+        public async Task<List<DropdownResponseModel>> SearchIngredientsAsync(string search)
+        {
+            string searchTerm =
+                search.Trim();
+
+
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                return new List<DropdownResponseModel>();
+            }
+
+
+            return await ingredientRepository
+                .GetAllAsNoTracking()
+                .Where(i =>
+                    i.DishIngredients.Any() &&
+                    i.Name.Contains(searchTerm))
+                .OrderBy(i =>
+                    i.Name)
+                .Take(10)
+                .Select(i =>
+                    new DropdownResponseModel
+                    {
+                        Id =
+                            i.Id,
+
+                        Name =
+                            i.Name
+                    })
+                .ToListAsync();
+        }
+
+
         public async Task<PantryServiceStatusResponseModel> AddAsync( CreatePantryItemRequestData request, string userId)
         {
             PantryServiceStatusResponseModel response =
@@ -94,28 +127,22 @@ namespace NutriWeek.Services.Core.Services
                 }
 
 
-                string ingredientName =
-                    request.IngredientName.Trim();
-
-
-                Ingredient? ingredient =
+                bool ingredientExists =
                     await ingredientRepository
-                        .GetAll()
-                        .FirstOrDefaultAsync(i => i.Name == ingredientName);
+                        .GetAllAsNoTracking()
+                        .AnyAsync(i =>
+                            i.Id == request.IngredientId);
 
 
-                if (ingredient == null)
+                if (!ingredientExists)
                 {
-                    ingredient =
-                        new Ingredient
+                    response.ErrorMessages =
+                        new[]
                         {
-                            Name = ingredientName
+                            "Please select a valid ingredient from the suggestions."
                         };
 
-
-                    await ingredientRepository.AddAsync(ingredient);
-
-                    await ingredientRepository.SaveChangesAsync();
+                    return response;
                 }
 
 
@@ -125,7 +152,7 @@ namespace NutriWeek.Services.Core.Services
                         .AnyAsync(p =>
                             p.UserId == userId &&
                             p.IngredientId ==
-                            ingredient.Id);
+                            request.IngredientId);
 
 
                 if (alreadyExists)
@@ -147,7 +174,7 @@ namespace NutriWeek.Services.Core.Services
                             userId,
 
                         IngredientId =
-                            ingredient.Id,
+                            request.IngredientId,
 
                         Quantity =
                             request.Quantity,

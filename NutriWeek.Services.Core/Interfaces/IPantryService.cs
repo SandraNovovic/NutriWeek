@@ -8,6 +8,8 @@ namespace NutriWeek.Services.Core.Interfaces
     {
         Task<List<PantryItemResponseModel>> GetAllAsync( string userId);
 
+        Task<List<DropdownResponseModel>> SearchIngredientsAsync(string search);
+
         Task<PantryServiceStatusResponseModel> AddAsync( CreatePantryItemRequestData request,string userId);
 
         Task<PantryServiceStatusResponseModel> EditAsync( int id, EditPantryItemRequestData request, string userId);

@@ -1,10 +1,18 @@
 ﻿let measurementUnits = [];
 let pantryItems = [];
+let ingredientSuggestions = [];
+let ingredientSearchTimeout;
 
 document.addEventListener("DOMContentLoaded", async () => {
 
     await loadMeasurementUnits();
     await loadPantry();
+
+    document
+        .getElementById("ingredientName")
+        .addEventListener(
+            "input",
+            searchIngredients);
 
     document
         .getElementById("addPantryForm")
@@ -235,19 +243,115 @@ function getUnitName(unitId) {
 }
 
 
+function searchIngredients(event) {
+
+    clearTimeout(
+        ingredientSearchTimeout);
+
+
+    const search =
+        event
+            .target
+            .value
+            .trim();
+
+
+    if (search.length === 0) {
+
+        ingredientSuggestions = [];
+
+        document
+            .getElementById(
+                "ingredientSuggestions")
+            .replaceChildren();
+
+        return;
+    }
+
+
+    ingredientSearchTimeout =
+        setTimeout(
+            () =>
+                loadIngredientSuggestions(
+                    search),
+            250);
+}
+
+
+async function loadIngredientSuggestions(search) {
+
+    const response =
+        await fetch(
+            `/api/pantry/ingredients?search=${encodeURIComponent(search)}`);
+
+
+    if (!response.ok) {
+
+        showError(
+            "Could not load ingredient suggestions.");
+
+        return;
+    }
+
+
+    ingredientSuggestions =
+        await response.json();
+
+
+    const datalist =
+        document.getElementById(
+            "ingredientSuggestions");
+
+
+    datalist.replaceChildren();
+
+
+    ingredientSuggestions.forEach(ingredient => {
+
+        const option =
+            document.createElement("option");
+
+        option.value =
+            ingredient.name;
+
+        datalist.appendChild(option);
+    });
+}
+
+
 async function addPantryItem(event) {
 
     event.preventDefault();
 
 
+    const ingredientName =
+        document
+            .getElementById(
+                "ingredientName")
+            .value
+            .trim();
+
+
+    const selectedIngredient =
+        ingredientSuggestions
+            .find(i =>
+                i.name.toLowerCase() ===
+                ingredientName.toLowerCase());
+
+
+    if (!selectedIngredient) {
+
+        showError(
+            "Please select an ingredient from the suggestions.");
+
+        return;
+    }
+
+
     const request = {
 
-        ingredientName:
-            document
-                .getElementById(
-                    "ingredientName")
-                .value
-                .trim(),
+        ingredientId:
+            selectedIngredient.id,
 
         quantity:
             Number(
@@ -296,6 +400,14 @@ async function addPantryItem(event) {
         .getElementById(
             "addPantryForm")
         .reset();
+
+
+    ingredientSuggestions = [];
+
+    document
+        .getElementById(
+            "ingredientSuggestions")
+        .replaceChildren();
 
 
     showSuccess(
