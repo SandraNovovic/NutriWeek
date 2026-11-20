@@ -50,5 +50,27 @@ namespace NutriWeek.Web.Controllers.Api
 
             return Ok(shoppingList);
         }
+
+        [HttpGet("day/{date}")]
+        public async Task<IActionResult> GetForDay(DateTime date)
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+
+            List<ShoppingListItemResponseModel>? shoppingList =
+                await _shoppingListService
+                    .GetForDayAsync(
+                        date,
+                        userId);
+
+
+            if (shoppingList == null)
+            {
+                return NotFound();
+            }
+
+
+            return Ok(shoppingList);
+        }
     }
 }

@@ -2,6 +2,7 @@
 
 using NutriWeek.Data.Models;
 using NutriWeek.Data.Models.Enums;
+using NutriWeek.Data.Repository;
 using NutriWeek.Data.Repository.Interfaces;
 
 using NutriWeek.Services.Core.Data.ShoppingList.Response;
@@ -11,28 +12,30 @@ namespace NutriWeek.Services.Core.Services
 {
     public class ShoppingListService : IShoppingListService
     {
-        private readonly IWeeklyMenuRepository weeklyMenuRepository;
-        private readonly IPantryItemRepository pantryItemRepository;
-
+        private readonly IWeeklyMenuRepository _weeklyMenuRepository;
+        private readonly IPantryItemRepository _pantryItemRepository;
+        private readonly IDailyMenuRepository _dailyMenuRepository;
 
         public ShoppingListService(
             IWeeklyMenuRepository weeklyMenuRepository,
+            IDailyMenuRepository dailyMenuRepository,
             IPantryItemRepository pantryItemRepository)
         {
-            this.weeklyMenuRepository =
+            _weeklyMenuRepository =
                 weeklyMenuRepository;
 
-            this.pantryItemRepository =
+            _dailyMenuRepository =
+                dailyMenuRepository;
+
+            _pantryItemRepository =
                 pantryItemRepository;
         }
 
 
-        public async Task<ShoppingListResponseModel?> GetForWeekAsync(
-            int weeklyMenuId,
-            string userId)
+        public async Task<ShoppingListResponseModel?> GetForWeekAsync( int weeklyMenuId,string userId)
         {
             WeeklyMenu? weeklyMenu =
-                await weeklyMenuRepository
+                await _weeklyMenuRepository
                     .GetAllAsNoTracking()
                     .Include(w => w.DailyMenus)
                         .ThenInclude(d => d.Meals)
@@ -52,7 +55,7 @@ namespace NutriWeek.Services.Core.Services
 
 
             List<PantryItem> pantryItems =
-                await pantryItemRepository
+                await _pantryItemRepository
                     .GetAllAsNoTracking()
                     .Where(p =>
                         p.UserId == userId)
@@ -178,9 +181,7 @@ namespace NutriWeek.Services.Core.Services
         }
 
 
-        private static decimal ConvertToBaseQuantity(
-            decimal quantity,
-            MeasurementUnit unit)
+        private static decimal ConvertToBaseQuantity(decimal quantity, MeasurementUnit unit)
         {
             if (unit == MeasurementUnit.Kilogram)
             {
@@ -198,8 +199,7 @@ namespace NutriWeek.Services.Core.Services
         }
 
 
-        private static MeasurementUnit GetBaseUnit(
-            MeasurementUnit unit)
+        private static MeasurementUnit GetBaseUnit( MeasurementUnit unit)
         {
             if (unit == MeasurementUnit.Kilogram)
             {
@@ -215,5 +215,128 @@ namespace NutriWeek.Services.Core.Services
 
             return unit;
         }
+        public async Task<List<ShoppingListItemResponseModel>?> GetForDayAsync(DateTime date,string userId)
+        {
+            DateTime startDate = date.Date;
+
+            DateTime endDate =startDate.AddDays(1);
+
+
+            DailyMenu? dailyMenu =
+                await _dailyMenuRepository
+                    .GetAllAsNoTracking()
+                    .Include(d => d.WeeklyMenu)
+                    .Include(d => d.Meals)
+                        .ThenInclude(m => m.Dish)
+                            .ThenInclude(d => d.DishIngredients)
+                                .ThenInclude(di => di.Ingredient)
+                    .FirstOrDefaultAsync(d =>
+                        d.Date >= startDate &&
+                        d.Date < endDate &&
+                        !d.IsDeleted &&
+                        d.WeeklyMenu.UserId == userId);
+
+
+            if (dailyMenu == null)
+            {
+                return null;
+            }
+
+
+            List<PantryItem> pantryItems =
+                await _pantryItemRepository
+                    .GetAllAsNoTracking()
+                    .Where(p =>
+                        p.UserId == userId)
+                    .ToListAsync();
+
+
+            List<ShoppingListItemResponseModel> items =new List<ShoppingListItemResponseModel>();
+
+
+            foreach (Meal meal in dailyMenu.Meals)
+            {
+                if (meal.IsDeleted)
+                {
+                    continue;
+                }
+
+
+                foreach (DishIngredient dishIngredient
+                         in meal.Dish.DishIngredients)
+                {
+                    MeasurementUnit unit =  GetBaseUnit(dishIngredient.Unit);
+
+
+                    decimal quantity =ConvertToBaseQuantity( dishIngredient.Quantity,dishIngredient.Unit);
+
+
+                    ShoppingListItemResponseModel? item =
+                        items.FirstOrDefault(i =>
+                            i.IngredientId ==
+                                dishIngredient.IngredientId &&
+                            i.Unit ==
+                                unit);
+
+
+                    if (item == null)
+                    {
+                        item =
+                            new ShoppingListItemResponseModel
+                            {
+                                IngredientId =
+                                    dishIngredient.IngredientId,
+
+                                IngredientName =
+                                    dishIngredient.Ingredient.Name,
+
+                                Unit =
+                                    unit
+                            };
+
+
+                        items.Add(item);
+                    }
+
+
+                    item.RequiredQuantity += quantity;
+                }
+            }
+
+
+            foreach (ShoppingListItemResponseModel item in items)
+            {
+                PantryItem? pantryItem =
+                    pantryItems.FirstOrDefault(p =>
+                        p.IngredientId ==
+                            item.IngredientId &&
+                        GetBaseUnit(p.Unit) ==
+                            item.Unit);
+
+
+                if (pantryItem != null)
+                {
+                    item.PantryQuantity =
+                        ConvertToBaseQuantity(
+                            pantryItem.Quantity,
+                            pantryItem.Unit);
+                }
+
+
+                item.QuantityToBuy =item.RequiredQuantity - item.PantryQuantity;
+
+
+                if (item.QuantityToBuy < 0)
+                {
+                    item.QuantityToBuy = 0;
+                }
+            }
+
+
+            return items
+                .OrderBy(i =>i.IngredientName)
+                .ToList();
+        }
+
     }
 }
