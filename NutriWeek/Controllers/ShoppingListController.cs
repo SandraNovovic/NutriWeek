@@ -6,6 +6,7 @@ using NutriWeek.Data.Models.Enums;
 using NutriWeek.Services.Core.Data.Pantry.Request;
 using NutriWeek.Services.Core.Data.Pantry.Response;
 using NutriWeek.Services.Core.Data.ShoppingList.Response;
+using NutriWeek.Services.Core.Data.WeeklyMenu.Response;
 using NutriWeek.Services.Core.Interfaces;
 
 using NutriWeek.Web.ViewModels.ShoppingList;
@@ -19,24 +20,31 @@ namespace NutriWeek.Web.Controllers
     {
         private readonly IShoppingListService _shoppingListService;
         private readonly IPantryService _pantryService;
+        private readonly IWeeklyMenuService _weeklyMenuService;
 
 
         public ShoppingListController(
             IShoppingListService shoppingListService,
-            IPantryService pantryService)
+            IPantryService pantryService,
+            IWeeklyMenuService weeklyMenuService)
         {
             _shoppingListService =
                 shoppingListService;
 
             _pantryService =
                 pantryService;
+
+            _weeklyMenuService =
+                weeklyMenuService;
         }
 
 
         [HttpGet]
         public async Task<IActionResult> Index(
             int? weeklyMenuId,
-            DateTime? date)
+            DateTime? date,
+            DateTime? weekStart,
+            string? from)
         {
             string userId =
                 User.FindFirstValue(
@@ -71,6 +79,9 @@ namespace NutriWeek.Web.Controllers
                         WeekStartDate =
                             response.WeekStartDate,
 
+                        From =
+                            from,
+
                         Items =
                             response.Items
                                 .Select(MapItem)
@@ -95,10 +106,8 @@ namespace NutriWeek.Web.Controllers
                             userId);
 
 
-                if (response == null)
-                {
-                    return NotFound();
-                }
+                response ??=
+                    new List<ShoppingListItemResponseModel>();
 
 
                 int difference =
@@ -119,6 +128,9 @@ namespace NutriWeek.Web.Controllers
                             selectedDate
                                 .AddDays(-difference),
 
+                        From =
+                            from,
+
                         Items =
                             response
                                 .Select(MapItem)
@@ -130,9 +142,62 @@ namespace NutriWeek.Web.Controllers
             }
 
 
-            return RedirectToAction(
-                "Index",
-                "WeeklyMenus");
+            if (weekStart.HasValue)
+            {
+                ShoppingListPageViewModel selectedWeekModel =
+                    new ShoppingListPageViewModel
+                    {
+                        IsWeekly =
+                            true,
+
+                        WeekStartDate =
+                            weekStart.Value.Date,
+
+                        From =
+                            from
+                    };
+
+
+                return View(selectedWeekModel);
+            }
+
+
+            WeeklyMenuResponseModel? currentWeek =
+                await _weeklyMenuService
+                    .GetCurrentWeekAsync(
+                        userId);
+
+
+            if (currentWeek != null &&
+                currentWeek.Id > 0)
+            {
+                return RedirectToAction(
+                    nameof(Index),
+                    new
+                    {
+                        weeklyMenuId =
+                            currentWeek.Id,
+                        from
+                    });
+            }
+
+
+            ShoppingListPageViewModel emptyModel =
+                new ShoppingListPageViewModel
+                {
+                    IsWeekly =
+                        true,
+
+                    WeekStartDate =
+                        currentWeek?.StartDate ??
+                        GetCurrentWeekStart(),
+
+                    From =
+                        from
+                };
+
+
+            return View(emptyModel);
         }
 
 
@@ -143,7 +208,8 @@ namespace NutriWeek.Web.Controllers
             decimal quantity,
             MeasurementUnit unit,
             int? weeklyMenuId,
-            DateTime? date)
+            DateTime? date,
+            string? from)
         {
             if (ingredientId <= 0 ||
                 quantity <= 0)
@@ -153,7 +219,8 @@ namespace NutriWeek.Web.Controllers
 
                 return RedirectToShoppingList(
                     weeklyMenuId,
-                    date);
+                    date,
+                    from);
             }
 
 
@@ -199,13 +266,15 @@ namespace NutriWeek.Web.Controllers
 
             return RedirectToShoppingList(
                 weeklyMenuId,
-                date);
+                date,
+                from);
         }
 
 
         private IActionResult RedirectToShoppingList(
             int? weeklyMenuId,
-            DateTime? date)
+            DateTime? date,
+            string? from)
         {
             if (weeklyMenuId.HasValue)
             {
@@ -214,7 +283,8 @@ namespace NutriWeek.Web.Controllers
                     new
                     {
                         weeklyMenuId =
-                            weeklyMenuId.Value
+                            weeklyMenuId.Value,
+                        from
                     });
             }
 
@@ -228,14 +298,33 @@ namespace NutriWeek.Web.Controllers
                         date =
                             date.Value
                                 .ToString(
-                                    "yyyy-MM-dd")
+                                    "yyyy-MM-dd"),
+                        from
                     });
             }
 
 
             return RedirectToAction(
-                "Index",
-                "WeeklyMenus");
+                nameof(Index),
+                new
+                {
+                    from
+                });
+        }
+
+
+        private static DateTime GetCurrentWeekStart()
+        {
+            DateTime today =
+                DateTime.Today;
+
+            int difference =
+                ((int)today.DayOfWeek -
+                 (int)DayOfWeek.Monday + 7) % 7;
+
+            return today
+                .AddDays(-difference)
+                .Date;
         }
 
 

@@ -468,6 +468,78 @@
     }
 
 
+    .pantry-list-actions {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        flex-wrap: wrap;
+    }
+
+    .pantry-shopping-button,
+    .pantry-clear-button {
+        min-height: 38px;
+        padding: 9px 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 800;
+        text-decoration: none;
+        transition: .18s ease;
+    }
+
+    .pantry-shopping-button {
+        border: 1px solid #cfe0cb;
+        background: #f1f8ee;
+        color: #377b3f;
+    }
+
+    .pantry-shopping-button:hover {
+        color: #2f6f37;
+        background: #e9f4e5;
+    }
+
+    .pantry-clear-button {
+        border: 1px solid #efcaca;
+        background: #fff5f5;
+        color: #a84a4a;
+        cursor: pointer;
+    }
+
+    .pantry-clear-button:hover:not(:disabled) {
+        background: #ffecec;
+    }
+
+    .pantry-clear-button:disabled {
+        opacity: .45;
+        cursor: default;
+    }
+
+    .pantry-confirm-icon {
+        width: 52px;
+        height: 52px;
+        margin: 0 auto 12px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: #fff0f0;
+        font-size: 24px;
+    }
+
+    .pantry-confirm-text {
+        margin: 0;
+        color: #69746c;
+        font-size: 13px;
+        line-height: 1.6;
+        text-align: center;
+    }
+
+    .pantry-confirm-name {
+        color: #26382c;
+        font-weight: 900;
+    }
+
     @@media (max-width: 560px) {
 
         .pantry-page {
@@ -710,9 +782,22 @@
                 </div>
 
 
-                <span class="pantry-badge">
-                    Your ingredients
-                </span>
+                <div class="pantry-list-actions">
+
+                    <a asp-controller="ShoppingList"
+                       asp-action="Index"
+                       asp-route-from="pantry"
+                       class="pantry-shopping-button">
+                        🛒 Shopping List
+                    </a>
+
+                    <button type="button"
+                            id="clearPantryButton"
+                            class="pantry-clear-button">
+                        🗑 Clear Pantry
+                    </button>
+
+                </div>
 
             </div>
 
@@ -861,6 +946,108 @@
 
                 </button>
 
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="modal fade"
+     id="deletePantryModal"
+     tabindex="-1"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Remove Ingredient?</h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <input type="hidden"
+                       id="deletePantryItemId" />
+
+                <div class="pantry-confirm-icon">🗑</div>
+
+                <p class="pantry-confirm-text">
+                    Are you sure you want to remove
+                    <span id="deletePantryIngredientName"
+                          class="pantry-confirm-name"></span>
+                    from your pantry?
+                </p>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal">
+                    Cancel
+                </button>
+
+                <button type="button"
+                        id="confirmDeletePantryItem"
+                        class="btn btn-danger">
+                    Yes, remove
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="modal fade"
+     id="clearPantryModal"
+     tabindex="-1"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Clear Entire Pantry?</h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="pantry-confirm-icon">⚠️</div>
+
+                <p class="pantry-confirm-text">
+                    Are you sure you want to remove
+                    <strong>all ingredients</strong>
+                    from your pantry? This action cannot be undone.
+                </p>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal">
+                    Cancel
+                </button>
+
+                <button type="button"
+                        id="confirmClearPantry"
+                        class="btn btn-danger">
+                    Yes, clear pantry
+                </button>
             </div>
 
         </div>

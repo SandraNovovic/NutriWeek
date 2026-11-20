@@ -21,6 +21,16 @@
         Model.IsWeekly
             ? $"{Model.WeekStartDate:dd MMM} - {Model.WeekStartDate.AddDays(6):dd MMM yyyy}"
             : Model.Date?.ToString("dddd, dd MMMM yyyy") ?? string.Empty;
+
+
+    string backLabel =
+        Model.From?.ToLowerInvariant() switch
+        {
+            "daily" => "← Daily Menu",
+            "meals" => "← Meals",
+            "pantry" => "← Pantry",
+            _ => "← Weekly Menu"
+        };
 }
 
 @functions
@@ -99,14 +109,40 @@
 
             <div class="shopping-actions">
 
-                <a asp-controller="WeeklyMenus"
-                   asp-action="Index"
-                   asp-route-weekStart="@Model.WeekStartDate.ToString("yyyy-MM-dd")"
-                   class="shopping-action">
-
-                    ← Weekly Menu
-
-                </a>
+                @if (string.Equals(Model.From, "daily", StringComparison.OrdinalIgnoreCase))
+                {
+                    <a asp-controller="DailyMenus"
+                       asp-action="Index"
+                       asp-route-date="@((Model.Date ?? Model.WeekStartDate).ToString("yyyy-MM-dd"))"
+                       class="shopping-action">
+                        @backLabel
+                    </a>
+                }
+                else if (string.Equals(Model.From, "meals", StringComparison.OrdinalIgnoreCase))
+                {
+                    <a asp-controller="Meals"
+                       asp-action="Index"
+                       class="shopping-action">
+                        @backLabel
+                    </a>
+                }
+                else if (string.Equals(Model.From, "pantry", StringComparison.OrdinalIgnoreCase))
+                {
+                    <a asp-controller="Pantry"
+                       asp-action="Index"
+                       class="shopping-action">
+                        @backLabel
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="WeeklyMenus"
+                       asp-action="Index"
+                       asp-route-weekStart="@Model.WeekStartDate.ToString("yyyy-MM-dd")"
+                       class="shopping-action">
+                        @backLabel
+                    </a>
+                }
 
                 <a asp-controller="Pantry"
                    asp-action="Index"
@@ -353,6 +389,10 @@
                                                    name="date"
                                                    value="@Model.Date.Value.ToString("yyyy-MM-dd")" />
                                         }
+
+                                        <input type="hidden"
+                                               name="from"
+                                               value="@Model.From" />
 
 
                                         <button type="submit"

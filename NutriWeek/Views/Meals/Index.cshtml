@@ -1,4 +1,4 @@
-@using NutriWeek.Data.Models.Enums
+﻿@using NutriWeek.Data.Models.Enums
 @using NutriWeek.Web.ViewModels.Meals
 
 @model IEnumerable<MealIndexViewModel>
@@ -152,6 +152,24 @@
         line-height: 1.5;
     }
 
+
+    .meals-heading-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .shopping-list-heading-button {
+        background: white !important;
+        color: #377b3f !important;
+        border: 1px solid #cfe0cb;
+        box-shadow: none !important;
+    }
+
+    .shopping-list-heading-button:hover {
+        background: #f1f8ee !important;
+        color: #2f6f37 !important;
+    }
 
     .add-meal-button {
         min-width: 190px;
@@ -628,13 +646,26 @@
 
 
 
-            <a asp-controller="Meals"
-               asp-action="Add"
-               class="add-meal-button">
+            <div class="meals-heading-actions">
 
-                ＋ Add Meal
+                <a asp-controller="ShoppingList"
+                   asp-action="Index"
+                   asp-route-from="meals"
+                   class="add-meal-button shopping-list-heading-button">
 
-            </a>
+                    🛒 Shopping List
+
+                </a>
+
+                <a asp-controller="Meals"
+                   asp-action="Add"
+                   class="add-meal-button">
+
+                    ＋ Add Meal
+
+                </a>
+
+            </div>
 
 
         </div>

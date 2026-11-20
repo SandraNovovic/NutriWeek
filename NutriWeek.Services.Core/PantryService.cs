@@ -526,6 +526,56 @@ namespace NutriWeek.Services.Core.Services
         }
 
 
+        public async Task<PantryServiceStatusResponseModel> ClearAsync(string userId)
+        {
+            PantryServiceStatusResponseModel response =
+                new PantryServiceStatusResponseModel();
+
+
+            try
+            {
+                List<PantryItem> pantryItems =
+                    await pantryItemRepository
+                        .GetAll()
+                        .Where(p =>
+                            p.UserId == userId)
+                        .ToListAsync();
+
+
+                foreach (PantryItem pantryItem
+                         in pantryItems)
+                {
+                    pantryItemRepository
+                        .Remove(pantryItem);
+                }
+
+
+                await pantryItemRepository
+                    .SaveChangesAsync();
+
+
+                response.Status = true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Error while clearing pantry for user {UserId}.",
+                    userId);
+
+
+                response.ErrorMessages =
+                    new[]
+                    {
+                        "An unexpected error occurred while clearing your pantry."
+                    };
+            }
+
+
+            return response;
+        }
+
+
         public IEnumerable<DropdownResponseModel> LoadMeasurementUnits()
         {
             return Enum

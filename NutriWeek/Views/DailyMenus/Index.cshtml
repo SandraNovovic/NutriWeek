@@ -1,4 +1,4 @@
-@using System.Globalization
+﻿@using System.Globalization
 @using NutriWeek.Web.ViewModels.DailyMenus
 
 @model IEnumerable<DailyMenuIndexViewModel>
@@ -200,6 +200,31 @@
             font-weight: 800;
             cursor: pointer;
         }
+
+    .daily-toolbar-actions {
+        grid-column: 3;
+        justify-self: end;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .daily-toolbar-actions .top-add-meal {
+        grid-column: auto;
+        justify-self: auto;
+    }
+
+    .daily-shopping-list-link {
+        background: white !important;
+        color: #377b3f !important;
+        border: 1px solid #cfe0cb;
+        box-shadow: none !important;
+    }
+
+    .daily-shopping-list-link:hover {
+        background: #f1f8ee !important;
+        color: #2f6f37 !important;
+    }
 
     .top-add-meal {
         grid-column: 3;
@@ -871,15 +896,29 @@
             </div>
 
 
-            <a asp-controller="Meals"
-               asp-action="Add"
-               asp-route-fromDailyMenu="true"
-               id="topAddMealLink"
-               class="top-add-meal daily-add-meal-link">
+            <div class="daily-toolbar-actions">
 
-                ＋ Add Meal
+                <a asp-controller="ShoppingList"
+                   asp-action="Index"
+                   asp-route-from="daily"
+                   id="dailyShoppingListLink"
+                   class="top-add-meal daily-shopping-list-link">
 
-            </a>
+                    🛒 Shopping List
+
+                </a>
+
+                <a asp-controller="Meals"
+                   asp-action="Add"
+                   asp-route-fromDailyMenu="true"
+                   id="topAddMealLink"
+                   class="top-add-meal daily-add-meal-link">
+
+                    ＋ Add Meal
+
+                </a>
+
+            </div>
 
 
         </div>
@@ -1998,6 +2037,20 @@
                         document.getElementById(
                             "topAddMealLink"
                         );
+
+
+                    const dailyShoppingListLink =
+                        document.getElementById(
+                            "dailyShoppingListLink"
+                        );
+
+
+                    if (dailyShoppingListLink &&
+                        selectedDate) {
+
+                        dailyShoppingListLink.href =
+                            `/ShoppingList?date=${selectedDate}&from=daily`;
+                    }
 
 
                     if (

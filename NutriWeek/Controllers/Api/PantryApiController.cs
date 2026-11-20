@@ -30,7 +30,8 @@ namespace NutriWeek.Web.Controllers.Api
 
 
             List<PantryItemResponseModel> pantryItems =
-                await _pantryService .GetAllAsync(userId);
+                await _pantryService
+                    .GetAllAsync(userId);
 
 
             return Ok(pantryItems);
@@ -38,7 +39,8 @@ namespace NutriWeek.Web.Controllers.Api
 
 
         [HttpGet("ingredients")]
-        public async Task<IActionResult> SearchIngredients([FromQuery] string search)
+        public async Task<IActionResult> SearchIngredients(
+            [FromQuery] string search)
         {
             var ingredients =
                 await _pantryService
@@ -141,6 +143,39 @@ namespace NutriWeek.Web.Controllers.Api
                 {
                     message =
                         "Pantry item updated successfully."
+                });
+        }
+
+
+        [HttpDelete]
+        public async Task<IActionResult> Clear()
+        {
+            string userId =
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier)!;
+
+
+            PantryServiceStatusResponseModel response =
+                await _pantryService
+                    .ClearAsync(userId);
+
+
+            if (!response.Status)
+            {
+                return BadRequest(
+                    new
+                    {
+                        errors =
+                            response.ErrorMessages
+                    });
+            }
+
+
+            return Ok(
+                new
+                {
+                    message =
+                        "Pantry cleared successfully."
                 });
         }
 

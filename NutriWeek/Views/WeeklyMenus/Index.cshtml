@@ -326,6 +326,10 @@
         font-size: 10px;
         font-weight: 800;
         cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
         .day-shopping-button:hover {
@@ -559,6 +563,10 @@
         font-size: 14px;
         font-weight: 800;
         cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         box-shadow: 0 7px 18px rgba(48,119,56,.18);
         transition: .2s ease;
     }
@@ -788,13 +796,13 @@
             </div>
 
 
-            <button id="generateShoppingList"
-                    type="button"
-                    class="shopping-list-button">
+            <a id="generateShoppingList"
+               href="#"
+               class="shopping-list-button">
 
                 🛒 Shopping List
 
-            </button>
+            </a>
 
 
         </div>
@@ -911,28 +919,6 @@
 
                 </div>
 
-
-                <div class="shopping-list-card">
-
-                    <div class="shopping-list-header">
-
-                        <h3>
-                            🛒 Shopping List
-                        </h3>
-
-                        <p>
-                            Based on your weekly menu and pantry.
-                        </p>
-
-                    </div>
-
-
-                    <div class="shopping-list-content">
-                    </div>
-
-                </div>
-
-
                 <div class="week-grid-wrapper">
 
                     <div class="week-grid">
@@ -991,13 +977,15 @@
                             </div>
 
 
-                            <button type="button"
-                                    class="day-shopping-button"
-                                    data-date="@currentDate.ToString("yyyy-MM-dd")">
+                            <a asp-controller="ShoppingList"
+                               asp-action="Index"
+                               asp-route-date="@currentDate.ToString("yyyy-MM-dd")"
+                               asp-route-from="weekly"
+                               class="day-shopping-button">
 
                                 🛒 Shopping List
 
-                            </button>
+                            </a>
 
 
                             <div class="day-stats">
@@ -1493,12 +1481,6 @@
                     );
 
 
-                const dayShoppingButtons =
-                    document.querySelectorAll(
-                        ".day-shopping-button"
-                    );
-
-
                 let currentIndex = 0;
 
 
@@ -1555,6 +1537,23 @@
                         panels[currentIndex]
                             .dataset
                             .weekStart;
+
+
+                    const selectedWeekId =
+                        panels[currentIndex]
+                            .dataset
+                            .weekId;
+
+
+                    if (shoppingListButton &&
+                        selectedWeekStart) {
+
+                        shoppingListButton.href =
+                            selectedWeekId &&
+                            selectedWeekId !== "0"
+                                ? `/ShoppingList?weeklyMenuId=${selectedWeekId}&from=weekly`
+                                : `/ShoppingList?weekStart=${selectedWeekStart}&from=weekly`;
+                    }
 
 
                     if (selectedWeekStart) {
@@ -1625,301 +1624,6 @@
 
                     }
                 );
-
-
-                shoppingListButton.addEventListener(
-                    "click",
-                    function () {
-
-                        const weeklyMenuId =
-                            panels[currentIndex]
-                                .dataset
-                                .weekId;
-
-
-                        window.location.href =
-                            `/ShoppingList?weeklyMenuId=${weeklyMenuId}`;
-                    }
-                );
-
-
-                dayShoppingButtons.forEach(
-                    function (button) {
-
-                        button.addEventListener(
-                            "click",
-                            function () {
-
-                                window.location.href =
-                                    `/ShoppingList?date=${this.dataset.date}`;
-                            }
-                        );
-                    }
-                );
-
-
-                async function loadShoppingList() {
-
-                    const activePanel =
-                        panels[currentIndex];
-
-                    const title =
-                        activePanel.querySelector(
-                            ".shopping-list-header h3"
-                        );
-
-                    title.textContent =
-                        "🛒 Weekly Shopping List";
-
-                    const weeklyMenuId =
-                        activePanel.dataset.weekId;
-
-                    const card =
-                        activePanel.querySelector(
-                            ".shopping-list-card"
-                        );
-
-                    const content =
-                        activePanel.querySelector(
-                            ".shopping-list-content"
-                        );
-
-
-                    card.classList.add(
-                        "visible"
-                    );
-
-                    content.textContent =
-                        "Generating shopping list...";
-
-
-                    const response =
-                        await fetch(
-                            `/api/shopping-list/week/${weeklyMenuId}`
-                        );
-
-
-                    if (!response.ok) {
-
-                        content.textContent =
-                            "Could not generate shopping list.";
-
-                        return;
-                    }
-
-
-                    const shoppingList =
-                        await response.json();
-
-
-                    showShoppingList(
-                        shoppingList.items,
-                        content
-                    );
-                }
-
-
-                async function loadDailyShoppingList(
-                    date
-                ) {
-
-                    const activePanel =
-                        panels[currentIndex];
-
-                    const card =
-                        activePanel.querySelector(
-                            ".shopping-list-card"
-                        );
-
-                    const content =
-                        activePanel.querySelector(
-                            ".shopping-list-content"
-                        );
-
-                    const title =
-                        activePanel.querySelector(
-                            ".shopping-list-header h3"
-                        );
-
-
-                    card.classList.add(
-                        "visible"
-                    );
-
-                    title.textContent =
-                        `🛒 Shopping List - ${date}`;
-
-                    content.textContent =
-                        "Generating shopping list...";
-
-
-                    const response =
-                        await fetch(
-                            `/api/shopping-list/day/${date}`
-                        );
-
-
-                    if (!response.ok) {
-
-                        content.textContent =
-                            "Could not generate shopping list.";
-
-                        return;
-                    }
-
-
-                    const items =
-                        await response.json();
-
-
-                    showShoppingList(
-                        items,
-                        content
-                    );
-                }
-
-
-                function showShoppingList(
-                    items,
-                    container
-                ) {
-
-                    container.replaceChildren();
-
-
-                    if (items.length === 0) {
-
-                        container.textContent =
-                            "No ingredients found for this week.";
-
-                        return;
-                    }
-
-
-                    const header =
-                        createShoppingRow(
-                            "Ingredient",
-                            "Needed",
-                            "Have",
-                            "Buy"
-                        );
-
-                    header.classList.add(
-                        "shopping-row-header"
-                    );
-
-                    container.appendChild(
-                        header
-                    );
-
-
-                    items.forEach(function (item) {
-
-                        const unit =
-                            getUnitName(
-                                item.unit
-                            );
-
-                        const row =
-                            createShoppingRow(
-                                item.ingredientName,
-                                `${item.requiredQuantity} ${unit}`,
-                                `${item.pantryQuantity} ${unit}`,
-                                `${item.quantityToBuy} ${unit}`
-                            );
-
-                        row
-                            .lastElementChild
-                            .classList
-                            .add("shopping-buy");
-
-                        container.appendChild(
-                            row
-                        );
-                    });
-                }
-
-
-                function createShoppingRow(
-                    ingredient,
-                    needed,
-                    pantry,
-                    buy
-                ) {
-
-                    const row =
-                        document.createElement("div");
-
-                    row.className =
-                        "shopping-row";
-
-
-                    const ingredientElement =
-                        document.createElement("span");
-
-                    ingredientElement.textContent =
-                        ingredient;
-
-
-                    const neededElement =
-                        document.createElement("span");
-
-                    neededElement.textContent =
-                        needed;
-
-
-                    const pantryElement =
-                        document.createElement("span");
-
-                    pantryElement.textContent =
-                        pantry;
-
-
-                    const buyElement =
-                        document.createElement("span");
-
-                    buyElement.textContent =
-                        buy;
-
-
-                    row.append(
-                        ingredientElement,
-                        neededElement,
-                        pantryElement,
-                        buyElement
-                    );
-
-
-                    return row;
-                }
-
-
-                function getUnitName(
-                    unit
-                ) {
-
-                    if (unit === 0) {
-                        return "g";
-                    }
-
-                    if (unit === 1) {
-                        return "kg";
-                    }
-
-                    if (unit === 2) {
-                        return "ml";
-                    }
-
-                    if (unit === 3) {
-                        return "l";
-                    }
-
-                    if (unit === 4) {
-                        return "pcs";
-                    }
-
-                    return "";
-                }
 
 
                 const requestedWeekStart =

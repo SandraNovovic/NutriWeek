@@ -12,6 +12,8 @@ namespace NutriWeek.Web.ViewModels.ShoppingList
 
         public DateTime? Date { get; set; }
 
+        public string? From { get; set; }
+
         public List<ShoppingListItemViewModel> Items { get; set; }
             = new List<ShoppingListItemViewModel>();
     }

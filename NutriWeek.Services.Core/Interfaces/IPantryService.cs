@@ -20,6 +20,8 @@ namespace NutriWeek.Services.Core.Interfaces
 
         Task<PantryServiceStatusResponseModel> DeleteAsync(int id,string userId);
 
+        Task<PantryServiceStatusResponseModel> ClearAsync(string userId);
+
         IEnumerable<DropdownResponseModel> LoadMeasurementUnits();
     }
 }

@@ -76,9 +76,16 @@
                 Meals
             </a>
 
-            <a class="nav-link text-dark"
-               asp-controller="Pantry"
-               asp-action="Index">
+            <a asp-controller="ShoppingList"
+               asp-action="Index"
+               asp-route-from="navbar"
+               class="nav-link-custom @Active("ShoppingList")">
+                Shopping List
+            </a>
+
+            <a asp-controller="Pantry"
+               asp-action="Index"
+               class="nav-link-custom @Active("Pantry")">
                 Pantry
             </a>
 

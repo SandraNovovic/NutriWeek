@@ -21,6 +21,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     document
         .getElementById("saveEditButton")
         .addEventListener("click", savePantryItem);
+
+    document
+        .getElementById("confirmDeletePantryItem")
+        .addEventListener("click", deletePantryItem);
+
+    document
+        .getElementById("clearPantryButton")
+        .addEventListener("click", openClearPantryModal);
+
+    document
+        .getElementById("confirmClearPantry")
+        .addEventListener("click", clearPantry);
 });
 
 
@@ -118,8 +130,15 @@ function renderPantry() {
         document.getElementById(
             "emptyPantry");
 
+    const clearPantryButton =
+        document.getElementById(
+            "clearPantryButton");
+
 
     tableBody.replaceChildren();
+
+    clearPantryButton.disabled =
+        pantryItems.length === 0;
 
 
     if (pantryItems.length === 0) {
@@ -210,7 +229,7 @@ function renderPantry() {
 
         deleteButton.addEventListener(
             "click",
-            () => deletePantryItem(item.id));
+            () => openDeletePantryModal(item));
 
 
         actionsCell.append(
@@ -542,16 +561,40 @@ async function savePantryItem() {
 }
 
 
-async function deletePantryItem(id) {
+function openDeletePantryModal(item) {
 
-    const confirmed =
-        confirm(
-            "Are you sure you want to remove this item from your pantry?");
+    document
+        .getElementById(
+            "deletePantryItemId")
+        .value =
+        item.id;
 
 
-    if (!confirmed) {
-        return;
-    }
+    document
+        .getElementById(
+            "deletePantryIngredientName")
+        .textContent =
+        item.ingredientName;
+
+
+    const modal =
+        new bootstrap.Modal(
+            document.getElementById(
+                "deletePantryModal"));
+
+
+    modal.show();
+}
+
+
+async function deletePantryItem() {
+
+    const id =
+        Number(
+            document
+                .getElementById(
+                    "deletePantryItemId")
+                .value);
 
 
     const response =
@@ -575,8 +618,76 @@ async function deletePantryItem(id) {
     }
 
 
+    const modalElement =
+        document.getElementById(
+            "deletePantryModal");
+
+    bootstrap
+        .Modal
+        .getInstance(modalElement)
+        .hide();
+
+
     showSuccess(
-        "Pantry item removed.");
+        "Ingredient removed from your pantry.");
+
+
+    await loadPantry();
+}
+
+
+function openClearPantryModal() {
+
+    if (pantryItems.length === 0) {
+        return;
+    }
+
+
+    const modal =
+        new bootstrap.Modal(
+            document.getElementById(
+                "clearPantryModal"));
+
+
+    modal.show();
+}
+
+
+async function clearPantry() {
+
+    const response =
+        await fetch(
+            "/api/pantry",
+            {
+                method: "DELETE",
+
+                headers: {
+                    "RequestVerificationToken":
+                        getAntiForgeryToken()
+                }
+            });
+
+
+    if (!response.ok) {
+
+        await showApiErrors(response);
+
+        return;
+    }
+
+
+    const modalElement =
+        document.getElementById(
+            "clearPantryModal");
+
+    bootstrap
+        .Modal
+        .getInstance(modalElement)
+        .hide();
+
+
+    showSuccess(
+        "Your pantry was cleared successfully.");
 
 
     await loadPantry();
