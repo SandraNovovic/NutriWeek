@@ -36,15 +36,15 @@
 
 
     /* =====================================================
-                       NAVIGATION
-                       ===================================================== */
+                           NAVIGATION
+                           ===================================================== */
 
 
 
 
     /* =====================================================
-                       PAGE
-                       ===================================================== */
+                           PAGE
+                           ===================================================== */
 
     .add-dish-page {
         position: relative;
@@ -61,8 +61,8 @@
 
 
     /* =====================================================
-                       HEADER
-                       ===================================================== */
+                           HEADER
+                           ===================================================== */
 
     .page-heading-area {
         padding: 28px 0 30px;
@@ -108,8 +108,8 @@
 
 
     /* =====================================================
-                       MAIN FORM
-                       ===================================================== */
+                           MAIN FORM
+                           ===================================================== */
 
     .form-shell {
         width: min(1380px, calc(100% - 50px));
@@ -129,8 +129,8 @@
 
 
     /* =====================================================
-                       FORM CARD
-                       ===================================================== */
+                           FORM CARD
+                           ===================================================== */
 
     .form-card {
         padding: 24px;
@@ -164,8 +164,8 @@
 
 
     /* =====================================================
-                       INPUTS
-                       ===================================================== */
+                           INPUTS
+                           ===================================================== */
 
     .form-grid-two {
         display: grid;
@@ -245,8 +245,8 @@
 
 
     /* =====================================================
-                       IMAGE
-                       ===================================================== */
+                           IMAGE
+                           ===================================================== */
 
     .image-card {
         padding: 22px;
@@ -341,8 +341,8 @@
 
 
     /* =====================================================
-                       TIPS
-                       ===================================================== */
+                           TIPS
+                           ===================================================== */
 
     .tips-card {
         margin-top: 16px;
@@ -384,8 +384,8 @@
 
 
     /* =====================================================
-                       BUTTONS
-                       ===================================================== */
+                           BUTTONS
+                           ===================================================== */
 
     .form-actions {
         margin-top: 17px;
@@ -433,8 +433,8 @@
 
 
     /* =====================================================
-                       RESPONSIVE
-                       ===================================================== */
+                           RESPONSIVE
+                           ===================================================== */
 
     @@media (max-width: 1050px) {
 
@@ -500,6 +500,86 @@
         }
     }
 
+
+    /* =====================================================
+                           STRUCTURED INGREDIENTS
+                           ===================================================== */
+
+    .ingredients-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 14px;
+    }
+
+    .ingredients-help {
+        margin-top: 3px;
+        color: #6b766d;
+        font-size: 12px;
+    }
+
+    .ingredients-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .ingredient-row {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(110px, .8fr) minmax(140px, 1fr) 46px;
+        gap: 10px;
+        align-items: start;
+    }
+
+    .add-ingredient-button {
+        min-height: 40px;
+        padding: 8px 14px;
+        border: 1px solid #5b9661;
+        border-radius: 10px;
+        background: #f6fbf4;
+        color: #34743b;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+        .add-ingredient-button:hover {
+            background: #eaf5e7;
+        }
+
+    .remove-ingredient-button {
+        width: 46px;
+        min-height: 46px;
+        border: 1px solid #e3b8b8;
+        border-radius: 10px;
+        background: #fff7f7;
+        color: #b94a4a;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+        .remove-ingredient-button:hover {
+            background: #fdeaea;
+        }
+
+    @media (max-width: 760px) {
+        .ingredients-header
+
+    {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .ingredient-row {
+        grid-template-columns: 1fr;
+    }
+
+    .remove-ingredient-button {
+        width: 100%;
+    }
+
+    }
 </style>
 
 
@@ -847,6 +927,139 @@ e.g.
                 </div>
 
 
+
+                <div class="form-divider"></div>
+
+
+
+                <!-- STRUCTURED INGREDIENTS -->
+
+                <div class="form-group">
+
+                    <div class="ingredients-header">
+
+                        <div>
+
+                            <label class="form-label-custom">
+                                🛒 Shopping Ingredients
+                                <span class="required">*</span>
+                            </label>
+
+                            <div class="ingredients-help">
+                                Add the ingredient, quantity and unit so NutriWeek can calculate the shopping list.
+                            </div>
+
+                        </div>
+
+
+                        <button type="button"
+                                class="add-ingredient-button"
+                                onclick="addIngredient()">
+
+                            + Add Ingredient
+
+                        </button>
+
+                    </div>
+
+
+                    <div id="ingredientsContainer"
+                         class="ingredients-list">
+
+                        @if (Model.IngredientItems.Count == 0)
+                        {
+                            <div class="ingredient-row">
+
+                                <input type="text"
+                                       name="IngredientItems[0].Name"
+                                       class="form-control-custom ingredient-name"
+                                       placeholder="e.g. Chicken"
+                                       required />
+
+
+                                <input type="number"
+                                       name="IngredientItems[0].Quantity"
+                                       class="form-control-custom ingredient-quantity"
+                                       placeholder="Quantity"
+                                       min="0.01"
+                                       step="0.01"
+                                       required />
+
+
+                                <select name="IngredientItems[0].Unit"
+                                        class="form-select-custom ingredient-unit">
+
+                                    <option value="0">Gram</option>
+                                    <option value="1">Kilogram</option>
+                                    <option value="2">Milliliter</option>
+                                    <option value="3">Liter</option>
+                                    <option value="4">Piece</option>
+
+                                </select>
+
+
+                                <button type="button"
+                                        class="remove-ingredient-button"
+                                        onclick="removeIngredient(this)"
+                                        title="Remove ingredient">
+
+                                    ✕
+
+                                </button>
+
+                            </div>
+                        }
+                        else
+                        {
+                            @for (int i = 0; i < Model.IngredientItems.Count; i++)
+                            {
+                                <div class="ingredient-row">
+
+                                    <input asp-for="IngredientItems[i].Name"
+                                           class="form-control-custom ingredient-name"
+                                           placeholder="e.g. Chicken"
+                                           required />
+
+
+                                    <input asp-for="IngredientItems[i].Quantity"
+                                           type="number"
+                                           class="form-control-custom ingredient-quantity"
+                                           placeholder="Quantity"
+                                           min="0.01"
+                                           step="0.01"
+                                           required />
+
+
+                                    <select asp-for="IngredientItems[i].Unit"
+                                            class="form-select-custom ingredient-unit">
+
+                                        <option value="0">Gram</option>
+                                        <option value="1">Kilogram</option>
+                                        <option value="2">Milliliter</option>
+                                        <option value="3">Liter</option>
+                                        <option value="4">Piece</option>
+
+                                    </select>
+
+
+                                    <button type="button"
+                                            class="remove-ingredient-button"
+                                            onclick="removeIngredient(this)"
+                                            title="Remove ingredient">
+
+                                        ✕
+
+                                    </button>
+
+                                </div>
+                            }
+                        }
+
+                    </div>
+
+                </div>
+
+
             </div>
 
 
@@ -1047,23 +1260,152 @@ e.g.
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const imageUrlInput = document.getElementById("imageUrlInput");
-            const imagePreview = document.getElementById("imagePreview");
-            const removeImageButton = document.getElementById("removeImage");
-            const defaultImage = "/images/DishesImages/unadded.png";
+
+            const imageUrlInput =
+                document.getElementById("imageUrlInput");
+
+            const imagePreview =
+                document.getElementById("imagePreview");
+
+            const removeImageButton =
+                document.getElementById("removeImage");
+
+            const defaultImage =
+                "/images/DishesImages/unadded.png";
+
 
             function updatePreview() {
-                const imageUrl = imageUrlInput.value.trim();
-                imagePreview.src = imageUrl || defaultImage;
+
+                const imageUrl =
+                    imageUrlInput.value.trim();
+
+                imagePreview.src =
+                    imageUrl || defaultImage;
             }
 
-            imageUrlInput.addEventListener("input", updatePreview);
-            imageUrlInput.addEventListener("change", updatePreview);
 
-            removeImageButton.addEventListener("click", function () {
-                imageUrlInput.value = "";
-                imagePreview.src = defaultImage;
-            });
+            imageUrlInput.addEventListener(
+                "input",
+                updatePreview);
+
+            imageUrlInput.addEventListener(
+                "change",
+                updatePreview);
+
+
+            removeImageButton.addEventListener(
+                "click",
+                function () {
+
+                    imageUrlInput.value = "";
+                    imagePreview.src = defaultImage;
+                });
         });
+
+        function addIngredient() {
+
+            let container =
+                document.getElementById("ingredientsContainer");
+
+            let firstRow =
+                container.querySelector(".ingredient-row");
+
+            let newRow =
+                firstRow.cloneNode(true);
+
+
+            newRow
+                .querySelector(".ingredient-name")
+                .value = "";
+
+            newRow
+                .querySelector(".ingredient-quantity")
+                .value = "";
+
+            newRow
+                .querySelector(".ingredient-unit")
+                .value = "0";
+
+
+            container.appendChild(newRow);
+
+            updateIngredientIndexes();
+        }
+
+
+        function removeIngredient(button) {
+
+            let rows =
+                document.querySelectorAll(".ingredient-row");
+
+
+            if (rows.length > 1) {
+
+                button
+                    .closest(".ingredient-row")
+                    .remove();
+
+                updateIngredientIndexes();
+            }
+            else {
+
+                let row =
+                    button.closest(".ingredient-row");
+
+                row
+                    .querySelector(".ingredient-name")
+                    .value = "";
+
+                row
+                    .querySelector(".ingredient-quantity")
+                    .value = "";
+
+                row
+                    .querySelector(".ingredient-unit")
+                    .value = "0";
+            }
+        }
+
+
+        function updateIngredientIndexes() {
+
+            let rows =
+                document.querySelectorAll(".ingredient-row");
+
+
+            rows.forEach(function (row, index) {
+
+                let nameInput =
+                    row.querySelector(".ingredient-name");
+
+                let quantityInput =
+                    row.querySelector(".ingredient-quantity");
+
+                let unitSelect =
+                    row.querySelector(".ingredient-unit");
+
+
+                nameInput.name =
+                    `IngredientItems[${index}].Name`;
+
+                nameInput.id =
+                    `IngredientItems_${index}__Name`;
+
+
+                quantityInput.name =
+                    `IngredientItems[${index}].Quantity`;
+
+                quantityInput.id =
+                    `IngredientItems_${index}__Quantity`;
+
+
+                unitSelect.name =
+                    `IngredientItems[${index}].Unit`;
+
+                unitSelect.id =
+                    `IngredientItems_${index}__Unit`;
+            });
+        }
+
     </script>
 }
