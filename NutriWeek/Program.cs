@@ -46,6 +46,26 @@ namespace NutriWeek
                 IdentitySeeder
                     .SeedRoles(
                         scope.ServiceProvider);
+
+
+                string adminEmail =
+                    app.Configuration[
+                        "UserSeed:AdminAccount:Email"] ??
+                    throw new InvalidOperationException(
+                        "Administrator email is not configured.");
+
+                string adminPassword =
+                    app.Configuration[
+                        "UserSeed:AdminAccount:Password"] ??
+                    throw new InvalidOperationException(
+                        "Administrator password is not configured.");
+
+
+                IdentitySeeder
+                    .SeedAdminUser(
+                        scope.ServiceProvider,
+                        adminEmail,
+                        adminPassword);
             }
 
             // Configure the HTTP request pipeline.
@@ -67,6 +87,10 @@ namespace NutriWeek
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.MapControllerRoute(
+                name: "areas",
+                pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
             app.MapControllerRoute(
                 name: "default",

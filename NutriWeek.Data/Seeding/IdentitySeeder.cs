@@ -57,5 +57,81 @@ namespace NutriWeek.Data.Seeding
                 }
             }
         }
+
+
+        public static void SeedAdminUser(
+            IServiceProvider serviceProvider,
+            string adminEmail,
+            string adminPassword)
+        {
+            UserManager<IdentityUser> userManager =
+                serviceProvider
+                    .GetRequiredService<UserManager<IdentityUser>>();
+
+
+            IdentityUser? adminUser =
+                userManager
+                    .FindByNameAsync(adminEmail)
+                    .GetAwaiter()
+                    .GetResult();
+
+
+            if (adminUser == null)
+            {
+                adminUser =
+                    new IdentityUser(adminEmail)
+                    {
+                        Email =
+                            adminEmail
+                    };
+
+
+                IdentityResult createResult =
+                    userManager
+                        .CreateAsync(
+                            adminUser,
+                            adminPassword)
+                        .GetAwaiter()
+                        .GetResult();
+
+
+                if (!createResult.Succeeded)
+                {
+                    throw new InvalidOperationException(
+                        $"Administrator user {adminEmail} could not be created.");
+                }
+            }
+
+
+            bool isAdministrator =
+                userManager
+                    .IsInRoleAsync(
+                        adminUser,
+                        AdministratorRoleName)
+                    .GetAwaiter()
+                    .GetResult();
+
+
+            if (isAdministrator)
+            {
+                return;
+            }
+
+
+            IdentityResult roleResult =
+                userManager
+                    .AddToRoleAsync(
+                        adminUser,
+                        AdministratorRoleName)
+                    .GetAwaiter()
+                    .GetResult();
+
+
+            if (!roleResult.Succeeded)
+            {
+                throw new InvalidOperationException(
+                    $"Administrator user {adminEmail} could not be added to role {AdministratorRoleName}.");
+            }
+        }
     }
 }

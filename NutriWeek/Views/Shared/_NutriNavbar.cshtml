@@ -1,4 +1,6 @@
-﻿@{
+﻿@using static NutriWeek.GCommon.ApplicationConstants
+
+@{
     string? currentController =
         ViewContext.RouteData.Values["controller"]?.ToString();
 
@@ -88,6 +90,17 @@
                class="nav-link-custom @Active("Pantry")">
                 Pantry
             </a>
+
+            @if (User.Identity?.IsAuthenticated == true &&
+                 User.IsInRole(AdministratorRoleName))
+            {
+                <a asp-area="Admin"
+                   asp-controller="Home"
+                   asp-action="Index"
+                   class="nav-link-custom">
+                    Admin
+                </a>
+            }
 
         </div>
 
