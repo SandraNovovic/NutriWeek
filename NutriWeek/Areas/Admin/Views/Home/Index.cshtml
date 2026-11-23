@@ -74,6 +74,23 @@
         line-height: 1.6;
     }
 
+    .admin-card-link {
+        margin-top: 16px;
+        display: inline-flex;
+        padding: 9px 13px;
+        border-radius: 10px;
+        background: #3f8947;
+        color: white;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 900;
+    }
+
+    .admin-card-link:hover {
+        background: #34753b;
+        color: white;
+    }
+
     @@media (max-width: 700px) {
 
         .admin-grid {
@@ -102,8 +119,7 @@
 
         <p class="admin-subtitle">
             This area is available only to users with the
-            Administrator role. User management will be added
-            in the next step.
+            Administrator role.
         </p>
 
     </header>
@@ -122,9 +138,15 @@
             </h2>
 
             <p>
-                View users and manage their roles.
-                We will implement this in the next step.
+                View registered users and their current roles.
             </p>
+
+            <a asp-area="Admin"
+               asp-controller="UserManagement"
+               asp-action="Index"
+               class="admin-card-link">
+                Manage Users
+            </a>
 
         </section>
 

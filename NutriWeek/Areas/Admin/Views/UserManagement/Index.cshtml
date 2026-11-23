@@ -1,0 +1,246 @@
+﻿@using NutriWeek.Areas.Admin.ViewModels
+
+@model IEnumerable<UserViewModel>
+
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<style>
+
+    .users-page {
+        padding: 44px 0 70px;
+    }
+
+    .users-header {
+        margin-bottom: 24px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 18px;
+    }
+
+    .users-eyebrow {
+        margin-bottom: 7px;
+        color: #4a8a50;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .users-title {
+        margin: 0;
+        color: #193224;
+        font-size: 40px;
+        font-weight: 900;
+    }
+
+    .users-subtitle {
+        margin: 8px 0 0;
+        color: #78837b;
+        font-size: 13px;
+    }
+
+    .back-admin-button {
+        padding: 10px 14px;
+        border: 1px solid #d5e2d2;
+        border-radius: 11px;
+        background: white;
+        color: #3b7742;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .users-card {
+        overflow: hidden;
+        border: 1px solid #dfe8dc;
+        border-radius: 18px;
+        background: white;
+        box-shadow: 0 10px 28px rgba(38, 67, 43, .06);
+    }
+
+    .users-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .users-table th,
+    .users-table td {
+        padding: 15px 18px;
+        border-bottom: 1px solid #edf2eb;
+        text-align: left;
+    }
+
+    .users-table th {
+        background: #f6faf4;
+        color: #6f7b72;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+    }
+
+    .users-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .user-email {
+        color: #24382b;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .role-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .role-badge {
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: #edf6e9;
+        color: #3f7d46;
+        font-size: 10px;
+        font-weight: 900;
+    }
+
+    .no-role {
+        color: #9aa39c;
+        font-size: 11px;
+        font-style: italic;
+    }
+
+    .users-empty {
+        padding: 45px 20px;
+        color: #7d887f;
+        text-align: center;
+    }
+
+    @@media (max-width: 700px) {
+
+        .users-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .users-title {
+            font-size: 33px;
+        }
+
+        .users-card {
+            overflow-x: auto;
+        }
+
+        .users-table {
+            min-width: 560px;
+        }
+    }
+
+</style>
+
+
+<div class="users-page">
+
+    <header class="users-header">
+
+        <div>
+
+            <div class="users-eyebrow">
+                NutriWeek Administration
+            </div>
+
+            <h1 class="users-title">
+                User Management
+            </h1>
+
+            <p class="users-subtitle">
+                View registered users and their current roles.
+            </p>
+
+        </div>
+
+
+        <a asp-area="Admin"
+           asp-controller="Home"
+           asp-action="Index"
+           class="back-admin-button">
+
+            ← Back to Dashboard
+
+        </a>
+
+    </header>
+
+
+    <section class="users-card">
+
+        @if (Model.Any())
+        {
+            <table class="users-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Email</th>
+                        <th>Roles</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @foreach (UserViewModel user
+                              in Model)
+                    {
+                        <tr>
+
+                            <td class="user-email">
+                                @user.Email
+                            </td>
+
+                            <td>
+
+                                @if (user.Roles.Any())
+                                {
+                                    <div class="role-list">
+
+                                        @foreach (string role
+                                                  in user.Roles)
+                                        {
+                                            <span class="role-badge">
+                                                @role
+                                            </span>
+                                        }
+
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="no-role">
+                                        No role assigned
+                                    </span>
+                                }
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+        }
+        else
+        {
+            <div class="users-empty">
+                No registered users found.
+            </div>
+        }
+
+    </section>
+
+</div>
