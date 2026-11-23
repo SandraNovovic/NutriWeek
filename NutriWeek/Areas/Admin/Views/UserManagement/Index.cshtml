@@ -1,4 +1,5 @@
 ﻿@using NutriWeek.Areas.Admin.ViewModels
+@using static NutriWeek.GCommon.ApplicationConstants
 
 @model IEnumerable<UserViewModel>
 
@@ -53,6 +54,26 @@
         font-weight: 800;
     }
 
+    .admin-message {
+        margin-bottom: 16px;
+        padding: 13px 16px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .admin-message.success {
+        border: 1px solid #cae4c6;
+        background: #edf8eb;
+        color: #37733f;
+    }
+
+    .admin-message.error {
+        border: 1px solid #efcccc;
+        background: #fff1f1;
+        color: #a34747;
+    }
+
     .users-card {
         overflow: hidden;
         border: 1px solid #dfe8dc;
@@ -71,6 +92,7 @@
         padding: 15px 18px;
         border-bottom: 1px solid #edf2eb;
         text-align: left;
+        vertical-align: middle;
     }
 
     .users-table th {
@@ -99,7 +121,10 @@
     }
 
     .role-badge {
-        padding: 5px 9px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 8px 5px 9px;
         border-radius: 999px;
         background: #edf6e9;
         color: #3f7d46;
@@ -107,9 +132,78 @@
         font-weight: 900;
     }
 
+    .remove-role-form {
+        margin: 0;
+        display: inline-flex;
+    }
+
+    .remove-role-button {
+        width: 18px;
+        height: 18px;
+        padding: 0;
+        display: grid;
+        place-items: center;
+        border: 0;
+        border-radius: 50%;
+        background: rgba(63, 125, 70, .12);
+        color: #3f7d46;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .remove-role-button:hover {
+        background: #f8dede;
+        color: #a74b4b;
+    }
+
     .no-role {
         color: #9aa39c;
         font-size: 11px;
+        font-style: italic;
+    }
+
+    .assign-role-form {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .role-select {
+        min-width: 130px;
+        padding: 8px 10px;
+        border: 1px solid #d9e4d6;
+        border-radius: 9px;
+        background: white;
+        color: #3c4e42;
+        font-size: 11px;
+        outline: none;
+    }
+
+    .role-select:focus {
+        border-color: #77a975;
+        box-shadow: 0 0 0 3px rgba(83, 145, 83, .10);
+    }
+
+    .assign-role-button {
+        padding: 8px 11px;
+        border: 0;
+        border-radius: 9px;
+        background: #408a47;
+        color: white;
+        cursor: pointer;
+        font-size: 10px;
+        font-weight: 900;
+    }
+
+    .assign-role-button:hover {
+        background: #34763b;
+    }
+
+    .all-roles-assigned {
+        color: #8e9991;
+        font-size: 10px;
         font-style: italic;
     }
 
@@ -119,7 +213,7 @@
         text-align: center;
     }
 
-    @@media (max-width: 700px) {
+    @@media (max-width: 850px) {
 
         .users-header {
             align-items: flex-start;
@@ -135,7 +229,7 @@
         }
 
         .users-table {
-            min-width: 560px;
+            min-width: 760px;
         }
     }
 
@@ -157,7 +251,7 @@
             </h1>
 
             <p class="users-subtitle">
-                View registered users and their current roles.
+                View users, assign roles and remove roles.
             </p>
 
         </div>
@@ -175,6 +269,22 @@
     </header>
 
 
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-message success">
+            @TempData["Success"]
+        </div>
+    }
+
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="admin-message error">
+            @TempData["Error"]
+        </div>
+    }
+
+
     <section class="users-card">
 
         @if (Model.Any())
@@ -185,7 +295,8 @@
 
                     <tr>
                         <th>Email</th>
-                        <th>Roles</th>
+                        <th>Current Roles</th>
+                        <th>Assign Role</th>
                     </tr>
 
                 </thead>
@@ -196,11 +307,19 @@
                     @foreach (UserViewModel user
                               in Model)
                     {
+                        List<string> rolesToAssign =
+                            user.AvailableRoles
+                                .Where(role =>
+                                    !user.Roles.Contains(role))
+                                .ToList();
+
+
                         <tr>
 
                             <td class="user-email">
                                 @user.Email
                             </td>
+
 
                             <td>
 
@@ -212,7 +331,32 @@
                                                   in user.Roles)
                                         {
                                             <span class="role-badge">
+
                                                 @role
+
+                                                <form asp-area="Admin"
+                                                      asp-controller="UserManagement"
+                                                      asp-action="RemoveRole"
+                                                      method="post"
+                                                      class="remove-role-form">
+
+                                                    <input type="hidden"
+                                                           name="userId"
+                                                           value="@user.Id" />
+
+                                                    <input type="hidden"
+                                                           name="roleName"
+                                                           value="@role" />
+
+
+                                                    <button type="submit"
+                                                            class="remove-role-button"
+                                                            title="Remove @role role">
+                                                        ×
+                                                    </button>
+
+                                                </form>
+
                                             </span>
                                         }
 
@@ -222,6 +366,53 @@
                                 {
                                     <span class="no-role">
                                         No role assigned
+                                    </span>
+                                }
+
+                            </td>
+
+
+                            <td>
+
+                                @if (rolesToAssign.Any())
+                                {
+                                    <form asp-area="Admin"
+                                          asp-controller="UserManagement"
+                                          asp-action="AddRole"
+                                          method="post"
+                                          class="assign-role-form">
+
+                                        <input type="hidden"
+                                               name="userId"
+                                               value="@user.Id" />
+
+
+                                        <select name="roleName"
+                                                class="role-select"
+                                                required>
+
+                                            @foreach (string role
+                                                      in rolesToAssign)
+                                            {
+                                                <option value="@role">
+                                                    @role
+                                                </option>
+                                            }
+
+                                        </select>
+
+
+                                        <button type="submit"
+                                                class="assign-role-button">
+                                            Assign
+                                        </button>
+
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="all-roles-assigned">
+                                        All roles assigned
                                     </span>
                                 }
 
