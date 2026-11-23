@@ -18,9 +18,7 @@ namespace NutriWeek.Web.ViewModels.Dishes
         public string? Description { get; set; }
 
 
-        [Required]
-        [StringLength(DishIngredientsMaxLength, MinimumLength = DishIngredientsMinLength)]
-        public string Ingredients { get; set; } = null!;
+        public string? Ingredients { get; set; }
 
 
         [Required]

@@ -1,4 +1,4 @@
-@using NutriWeek.Web.ViewModels.Dishes
+﻿@using NutriWeek.Web.ViewModels.Dishes
 
 @model AddDishViewModel
 
@@ -842,54 +842,22 @@
 
 
 
-                <!-- INGREDIENTS / INSTRUCTIONS -->
+                <!-- INSTRUCTIONS -->
 
-                <div class="form-grid-two">
+                <div class="form-group">
 
+                    <label asp-for="Instructions"
+                           class="form-label-custom">
 
-                    <div class="form-group">
+                        📋 Instructions
+                        <span class="required">*</span>
 
-                        <label asp-for="Ingredients"
-                               class="form-label-custom">
-
-                            🥬 Ingredients
-                            <span class="required">*</span>
-
-                        </label>
+                    </label>
 
 
-                        <textarea asp-for="Ingredients"
-                                  class="form-control-custom large-textarea"
-                                  placeholder="Enter ingredients, one per line...
-
-e.g.
-1 cup quinoa
-1 tomato
-1 cucumber"></textarea>
-
-
-                        <span asp-validation-for="Ingredients"
-                              class="validation-message">
-                        </span>
-
-                    </div>
-
-
-
-                    <div class="form-group">
-
-                        <label asp-for="Instructions"
-                               class="form-label-custom">
-
-                            📋 Instructions
-                            <span class="required">*</span>
-
-                        </label>
-
-
-                        <textarea asp-for="Instructions"
-                                  class="form-control-custom large-textarea"
-                                  placeholder="Enter cooking instructions...
+                    <textarea asp-for="Instructions"
+                              class="form-control-custom large-textarea"
+                              placeholder="Enter cooking instructions...
 
 e.g.
 1. Cook quinoa.
@@ -897,12 +865,9 @@ e.g.
 3. Mix everything together."></textarea>
 
 
-                        <span asp-validation-for="Instructions"
-                              class="validation-message">
-                        </span>
-
-                    </div>
-
+                    <span asp-validation-for="Instructions"
+                          class="validation-message">
+                    </span>
 
                 </div>
 
@@ -918,7 +883,7 @@ e.g.
                         <div>
 
                             <label class="form-label-custom">
-                                🛒 Shopping Ingredients
+                                🥬 Ingredients
                                 <span class="required">*</span>
                             </label>
 

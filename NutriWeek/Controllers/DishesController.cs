@@ -105,7 +105,9 @@ namespace NutriWeek.Web.Controllers
                 {
                     Name = model.Name,
                     Description = model.Description,
-                    Ingredients = model.Ingredients,
+                    Ingredients =
+                        BuildIngredientsText(
+                            model.IngredientItems),
                     Instructions = model.Instructions,
                     Calories = model.Calories,
                     PreparationTime = model.PreparationTime,
@@ -287,7 +289,9 @@ namespace NutriWeek.Web.Controllers
                 {
                     Name = model.Name,
                     Description = model.Description,
-                    Ingredients = model.Ingredients,
+                    Ingredients =
+                        BuildIngredientsText(
+                            model.IngredientItems),
                     Instructions = model.Instructions,
                     Calories = model.Calories,
                     PreparationTime = model.PreparationTime,
@@ -534,6 +538,20 @@ namespace NutriWeek.Web.Controllers
 
 
             return View(model);
+        }
+
+
+        private static string BuildIngredientsText(
+            IEnumerable<DishIngredientInputViewModel> ingredientItems)
+        {
+            return string.Join(
+                ", ",
+                ingredientItems
+                    .Where(i =>
+                        !string.IsNullOrWhiteSpace(
+                            i.Name))
+                    .Select(i =>
+                        i.Name.Trim()));
         }
 
 
