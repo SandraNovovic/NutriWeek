@@ -19,6 +19,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
+using static NutriWeek.GCommon.ApplicationConstants;
+
 namespace NutriWeek.Web.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
@@ -121,6 +123,28 @@ namespace NutriWeek.Web.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
+
+
+                    result =
+                        await _userManager
+                            .AddToRoleAsync(
+                                user,
+                                UserRoleName);
+
+
+                    if (!result.Succeeded)
+                    {
+                        foreach (var error
+                                 in result.Errors)
+                        {
+                            ModelState.AddModelError(
+                                string.Empty,
+                                error.Description);
+                        }
+
+                        return Page();
+                    }
+
 
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);

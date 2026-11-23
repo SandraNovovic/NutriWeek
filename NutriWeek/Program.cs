@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NutriWeek.Data;
@@ -20,6 +20,7 @@ namespace NutriWeek
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<NutriWeekDbContext>();
             builder.Services.AddControllersWithViews(options =>
             {
@@ -40,6 +41,11 @@ namespace NutriWeek
                     .SeedAsync(dbContext)
                     .GetAwaiter()
                     .GetResult();
+
+
+                IdentitySeeder
+                    .SeedRoles(
+                        scope.ServiceProvider);
             }
 
             // Configure the HTTP request pipeline.
@@ -59,6 +65,7 @@ namespace NutriWeek
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(
