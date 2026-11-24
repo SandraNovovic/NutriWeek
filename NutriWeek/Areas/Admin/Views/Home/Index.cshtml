@@ -154,17 +154,24 @@
         <section class="admin-card">
 
             <div class="admin-card-icon">
-                🔐
+                🍽️
             </div>
 
             <h2>
-                Role Protected
+                Shared Dishes
             </h2>
 
             <p>
-                This dashboard is protected with
-                Administrator role authorization.
+                Manage global dishes that are available
+                to all NutriWeek users.
             </p>
+
+            <a asp-area="Admin"
+               asp-controller="SharedDishes"
+               asp-action="Index"
+               class="admin-card-link">
+                Manage Shared Dishes
+            </a>
 
         </section>
 

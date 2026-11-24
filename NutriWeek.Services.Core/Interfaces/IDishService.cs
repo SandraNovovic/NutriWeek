@@ -33,5 +33,13 @@ namespace NutriWeek.Services.Core.Interfaces
 
 
         Task<GetDishDetailsResponseModel?> GetDishDetailsAsync( int id, string userId);
+
+
+        Task<IEnumerable<GetAllDishesResponseModel>> GetSharedDishesAsync();
+
+
+        Task<DishServiceStatusResponseModel> SetSharedDishDeletedStatusAsync(
+            int id,
+            bool isDeleted);
     }
 }

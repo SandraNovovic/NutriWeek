@@ -1,0 +1,364 @@
+﻿@using NutriWeek.Areas.Admin.ViewModels
+
+@model IEnumerable<SharedDishViewModel>
+
+@{
+    ViewData["Title"] = "Shared Dishes";
+}
+
+<style>
+
+    .shared-dishes-page {
+        padding: 44px 0 70px;
+    }
+
+    .shared-header {
+        margin-bottom: 24px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 18px;
+    }
+
+    .shared-eyebrow {
+        margin-bottom: 7px;
+        color: #4a8a50;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .shared-title {
+        margin: 0;
+        color: #193224;
+        font-size: 40px;
+        font-weight: 900;
+    }
+
+    .shared-subtitle {
+        margin: 8px 0 0;
+        color: #78837b;
+        font-size: 13px;
+    }
+
+    .back-admin-button {
+        padding: 10px 14px;
+        border: 1px solid #d5e2d2;
+        border-radius: 11px;
+        background: white;
+        color: #3b7742;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .admin-message {
+        margin-bottom: 16px;
+        padding: 13px 16px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .admin-message.success {
+        border: 1px solid #cae4c6;
+        background: #edf8eb;
+        color: #37733f;
+    }
+
+    .admin-message.error {
+        border: 1px solid #efcccc;
+        background: #fff1f1;
+        color: #a34747;
+    }
+
+    .shared-card {
+        overflow: hidden;
+        border: 1px solid #dfe8dc;
+        border-radius: 18px;
+        background: white;
+        box-shadow: 0 10px 28px rgba(38, 67, 43, .06);
+    }
+
+    .shared-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .shared-table th,
+    .shared-table td {
+        padding: 15px 18px;
+        border-bottom: 1px solid #edf2eb;
+        text-align: left;
+        vertical-align: middle;
+    }
+
+    .shared-table th {
+        background: #f6faf4;
+        color: #6f7b72;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+    }
+
+    .shared-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .dish-name {
+        color: #24382b;
+        font-size: 13px;
+        font-weight: 850;
+    }
+
+    .dish-meta {
+        color: #738078;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        padding: 6px 9px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 900;
+    }
+
+    .status-badge.active {
+        background: #eaf6e8;
+        color: #3d8245;
+    }
+
+    .status-badge.deleted {
+        background: #fff0f0;
+        color: #a54a4a;
+    }
+
+    .dish-action-form {
+        margin: 0;
+    }
+
+    .dish-action-button {
+        min-width: 78px;
+        padding: 8px 11px;
+        border: 0;
+        border-radius: 9px;
+        cursor: pointer;
+        font-size: 10px;
+        font-weight: 900;
+    }
+
+    .dish-action-button.delete {
+        background: #fff0f0;
+        color: #a54a4a;
+        border: 1px solid #efcccc;
+    }
+
+    .dish-action-button.restore {
+        background: #edf6e9;
+        color: #397b41;
+        border: 1px solid #cde2c9;
+    }
+
+    .shared-empty {
+        padding: 50px 20px;
+        color: #7d887f;
+        text-align: center;
+    }
+
+    @@media (max-width: 760px) {
+
+        .shared-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .shared-title {
+            font-size: 33px;
+        }
+
+        .shared-card {
+            overflow-x: auto;
+        }
+
+        .shared-table {
+            min-width: 680px;
+        }
+    }
+
+</style>
+
+
+<div class="shared-dishes-page">
+
+    <header class="shared-header">
+
+        <div>
+
+            <div class="shared-eyebrow">
+                NutriWeek Administration
+            </div>
+
+            <h1 class="shared-title">
+                Shared Dishes
+            </h1>
+
+            <p class="shared-subtitle">
+                Manage the global dishes available to all NutriWeek users.
+            </p>
+
+        </div>
+
+
+        <a asp-area="Admin"
+           asp-controller="Home"
+           asp-action="Index"
+           class="back-admin-button">
+
+            ← Back to Dashboard
+
+        </a>
+
+    </header>
+
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-message success">
+            @TempData["Success"]
+        </div>
+    }
+
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="admin-message error">
+            @TempData["Error"]
+        </div>
+    }
+
+
+    <section class="shared-card">
+
+        @if (Model.Any())
+        {
+            <table class="shared-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Dish</th>
+                        <th>Type</th>
+                        <th>Calories</th>
+                        <th>Preparation</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @foreach (SharedDishViewModel dish
+                              in Model)
+                    {
+                        <tr>
+
+                            <td class="dish-name">
+                                @dish.Name
+                            </td>
+
+                            <td class="dish-meta">
+                                @dish.DishType
+                            </td>
+
+                            <td class="dish-meta">
+                                @dish.Calories kcal
+                            </td>
+
+                            <td class="dish-meta">
+                                @dish.PreparationTime min
+                            </td>
+
+                            <td>
+
+                                @if (dish.IsDeleted)
+                                {
+                                    <span class="status-badge deleted">
+                                        Deleted
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge active">
+                                        Active
+                                    </span>
+                                }
+
+                            </td>
+
+                            <td>
+
+                                @if (dish.IsDeleted)
+                                {
+                                    <form asp-area="Admin"
+                                          asp-controller="SharedDishes"
+                                          asp-action="Restore"
+                                          method="post"
+                                          class="dish-action-form">
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@dish.Id" />
+
+                                        <button type="submit"
+                                                class="dish-action-button restore">
+                                            Restore
+                                        </button>
+
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-area="Admin"
+                                          asp-controller="SharedDishes"
+                                          asp-action="Delete"
+                                          method="post"
+                                          class="dish-action-form"
+                                          onsubmit="return confirm('Delete this shared dish?');">
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@dish.Id" />
+
+                                        <button type="submit"
+                                                class="dish-action-button delete">
+                                            Delete
+                                        </button>
+
+                                    </form>
+                                }
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+        }
+        else
+        {
+            <div class="shared-empty">
+                No shared dishes found.
+            </div>
+        }
+
+    </section>
+
+</div>
