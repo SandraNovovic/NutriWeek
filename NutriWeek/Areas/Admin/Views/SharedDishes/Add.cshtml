@@ -1,0 +1,591 @@
+﻿@using NutriWeek.Areas.Admin.ViewModels
+@using NutriWeek.Data.Models.Enums
+@using NutriWeek.Web.ViewModels
+
+@model AddSharedDishViewModel
+
+@{
+    ViewData["Title"] = "Add Shared Dish";
+}
+
+<style>
+
+    .add-shared-page {
+        padding: 44px 0 70px;
+    }
+
+    .add-shared-header {
+        margin-bottom: 24px;
+    }
+
+    .add-shared-eyebrow {
+        margin-bottom: 7px;
+        color: #4a8a50;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .add-shared-title {
+        margin: 0;
+        color: #193224;
+        font-size: 40px;
+        font-weight: 900;
+    }
+
+    .add-shared-subtitle {
+        margin: 8px 0 0;
+        color: #78837b;
+        font-size: 13px;
+    }
+
+    .shared-form-card {
+        padding: 24px;
+        border: 1px solid #dfe8dc;
+        border-radius: 18px;
+        background: white;
+        box-shadow: 0 10px 28px rgba(38, 67, 43, .06);
+    }
+
+    .form-grid-two {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .form-grid-three {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-label-custom {
+        margin-bottom: 7px;
+        display: block;
+        color: #25352a;
+        font-size: 12px;
+        font-weight: 850;
+    }
+
+    .form-control-custom,
+    .form-select-custom {
+        width: 100%;
+        min-height: 44px;
+        padding: 10px 12px;
+        border: 1px solid #d9e4d6;
+        border-radius: 10px;
+        background: white;
+        color: #34443a;
+        font-size: 12px;
+        outline: none;
+    }
+
+    textarea.form-control-custom {
+        min-height: 105px;
+        resize: vertical;
+    }
+
+    textarea.instructions {
+        min-height: 145px;
+    }
+
+    .validation-message,
+    .validation-summary {
+        color: #b64a4a;
+        font-size: 11px;
+    }
+
+    .ingredients-header {
+        margin: 24px 0 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .ingredients-title {
+        color: #24382b;
+        font-size: 15px;
+        font-weight: 900;
+    }
+
+    .ingredients-help {
+        margin-top: 3px;
+        color: #7b867f;
+        font-size: 11px;
+    }
+
+    .add-ingredient-button {
+        padding: 9px 12px;
+        border: 1px solid #bcd5b9;
+        border-radius: 10px;
+        background: #eef7eb;
+        color: #3b7d42;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 900;
+    }
+
+    .ingredient-row {
+        margin-bottom: 10px;
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) 150px 160px 42px;
+        gap: 10px;
+        align-items: start;
+    }
+
+    .remove-ingredient-button {
+        min-height: 44px;
+        border: 1px solid #efcccc;
+        border-radius: 10px;
+        background: #fff1f1;
+        color: #a64b4b;
+        cursor: pointer;
+        font-weight: 900;
+    }
+
+    .form-actions {
+        margin-top: 24px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .form-button {
+        padding: 11px 16px;
+        border-radius: 11px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .form-button.cancel {
+        border: 1px solid #d5e2d2;
+        background: white;
+        color: #517056;
+    }
+
+    .form-button.submit {
+        border: 0;
+        background: #3f8947;
+        color: white;
+        cursor: pointer;
+    }
+
+    @@media (max-width: 760px) {
+
+        .form-grid-two,
+        .form-grid-three,
+        .ingredient-row {
+            grid-template-columns: 1fr;
+        }
+
+        .ingredients-header {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .remove-ingredient-button {
+            width: 100%;
+        }
+    }
+
+</style>
+
+
+<div class="add-shared-page">
+
+    <header class="add-shared-header">
+
+        <div class="add-shared-eyebrow">
+            NutriWeek Administration
+        </div>
+
+        <h1 class="add-shared-title">
+            Add Shared Dish
+        </h1>
+
+        <p class="add-shared-subtitle">
+            Create a global recipe that will be available to all NutriWeek users.
+        </p>
+
+    </header>
+
+
+    <form asp-area="Admin"
+          asp-controller="SharedDishes"
+          asp-action="Add"
+          method="post"
+          class="shared-form-card">
+
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly"
+             class="validation-summary">
+        </div>
+
+
+        <div class="form-grid-two">
+
+            <div class="form-group">
+
+                <label asp-for="Name"
+                       class="form-label-custom">
+                    Name
+                </label>
+
+                <input asp-for="Name"
+                       class="form-control-custom"
+                       placeholder="e.g. Mediterranean Chicken Bowl" />
+
+                <span asp-validation-for="Name"
+                      class="validation-message">
+                </span>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label asp-for="DishType"
+                       class="form-label-custom">
+                    Dish Type
+                </label>
+
+                <select asp-for="DishType"
+                        class="form-select-custom">
+
+                    @foreach (DropdownViewModel type
+                              in Model.DishTypes)
+                    {
+                        <option value="@type.Id">
+                            @type.Name
+                        </option>
+                    }
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label asp-for="Description"
+                   class="form-label-custom">
+                Description
+            </label>
+
+            <textarea asp-for="Description"
+                      class="form-control-custom"
+                      placeholder="Short description of the dish..."></textarea>
+
+            <span asp-validation-for="Description"
+                  class="validation-message">
+            </span>
+
+        </div>
+
+
+        <div class="form-grid-three">
+
+            <div class="form-group">
+                <label asp-for="Calories" class="form-label-custom">Calories</label>
+                <input asp-for="Calories" type="number" class="form-control-custom" />
+                <span asp-validation-for="Calories" class="validation-message"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PreparationTime" class="form-label-custom">Preparation Time</label>
+                <input asp-for="PreparationTime" type="number" class="form-control-custom" />
+                <span asp-validation-for="PreparationTime" class="validation-message"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Portions" class="form-label-custom">Portions</label>
+                <input asp-for="Portions" type="number" class="form-control-custom" />
+                <span asp-validation-for="Portions" class="validation-message"></span>
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label asp-for="ImageUrl"
+                   class="form-label-custom">
+                Image URL
+            </label>
+
+            <input asp-for="ImageUrl"
+                   class="form-control-custom"
+                   placeholder="https://..." />
+
+            <span asp-validation-for="ImageUrl"
+                  class="validation-message">
+            </span>
+
+        </div>
+
+
+        <div class="ingredients-header">
+
+            <div>
+                <div class="ingredients-title">
+                    Ingredients
+                </div>
+
+                <div class="ingredients-help">
+                    Add each ingredient with quantity and measurement unit.
+                </div>
+            </div>
+
+            <button type="button"
+                    class="add-ingredient-button"
+                    onclick="addIngredient()">
+                + Add Ingredient
+            </button>
+
+        </div>
+
+
+        <div id="ingredientsContainer">
+
+            @if (Model.IngredientItems.Count == 0)
+            {
+                <div class="ingredient-row">
+
+                    <input type="text"
+                           name="IngredientItems[0].Name"
+                           class="form-control-custom ingredient-name"
+                           placeholder="Ingredient"
+                           required />
+
+                    <input type="number"
+                           name="IngredientItems[0].Quantity"
+                           class="form-control-custom ingredient-quantity"
+                           placeholder="Quantity"
+                           min="0.01"
+                           step="0.01"
+                           required />
+
+                    <select name="IngredientItems[0].Unit"
+                            class="form-select-custom ingredient-unit">
+
+                        @foreach (MeasurementUnit unit
+                                  in Enum.GetValues<MeasurementUnit>())
+                        {
+                            <option value="@((int)unit)">
+                                @unit
+                            </option>
+                        }
+
+                    </select>
+
+                    <button type="button"
+                            class="remove-ingredient-button"
+                            onclick="removeIngredient(this)">
+                        ×
+                    </button>
+
+                </div>
+            }
+            else
+            {
+                @for (int i = 0;
+                      i < Model.IngredientItems.Count;
+                      i++)
+                {
+                    <div class="ingredient-row">
+
+                        <input type="text"
+                               name="IngredientItems[@i].Name"
+                               value="@Model.IngredientItems[i].Name"
+                               class="form-control-custom ingredient-name"
+                               placeholder="Ingredient"
+                               required />
+
+                        <input type="number"
+                               name="IngredientItems[@i].Quantity"
+                               value="@Model.IngredientItems[i].Quantity"
+                               class="form-control-custom ingredient-quantity"
+                               placeholder="Quantity"
+                               min="0.01"
+                               step="0.01"
+                               required />
+
+                        <select name="IngredientItems[@i].Unit"
+                                class="form-select-custom ingredient-unit">
+
+                            @foreach (MeasurementUnit unit
+                                      in Enum.GetValues<MeasurementUnit>())
+                            {
+                                <option value="@((int)unit)"
+                                        selected="@(Model.IngredientItems[i].Unit == unit)">
+                                    @unit
+                                </option>
+                            }
+
+                        </select>
+
+                        <button type="button"
+                                class="remove-ingredient-button"
+                                onclick="removeIngredient(this)">
+                            ×
+                        </button>
+
+                    </div>
+                }
+            }
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label asp-for="Instructions"
+                   class="form-label-custom">
+                Instructions
+            </label>
+
+            <textarea asp-for="Instructions"
+                      class="form-control-custom instructions"
+                      placeholder="Describe how to prepare the dish..."></textarea>
+
+            <span asp-validation-for="Instructions"
+                  class="validation-message">
+            </span>
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <a asp-area="Admin"
+               asp-controller="SharedDishes"
+               asp-action="Index"
+               class="form-button cancel">
+                Cancel
+            </a>
+
+            <button type="submit"
+                    class="form-button submit">
+                Add Shared Dish
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        function addIngredient() {
+
+            const container =
+                document.getElementById(
+                    "ingredientsContainer");
+
+            const row =
+                document.createElement(
+                    "div");
+
+            row.className =
+                "ingredient-row";
+
+            row.innerHTML = `
+                <input type="text"
+                       class="form-control-custom ingredient-name"
+                       placeholder="Ingredient"
+                       required />
+
+                <input type="number"
+                       class="form-control-custom ingredient-quantity"
+                       placeholder="Quantity"
+                       min="0.01"
+                       step="0.01"
+                       required />
+
+                <select class="form-select-custom ingredient-unit">
+                    <option value="0">Gram</option>
+                    <option value="1">Kilogram</option>
+                    <option value="2">Milliliter</option>
+                    <option value="3">Liter</option>
+                    <option value="4">Piece</option>
+                </select>
+
+                <button type="button"
+                        class="remove-ingredient-button"
+                        onclick="removeIngredient(this)">
+                    ×
+                </button>`;
+
+            container.appendChild(
+                row);
+
+            reindexIngredients();
+        }
+
+
+        function removeIngredient(button) {
+
+            const container =
+                document.getElementById(
+                    "ingredientsContainer");
+
+            const rows =
+                container.querySelectorAll(
+                    ".ingredient-row");
+
+            if (rows.length === 1) {
+                return;
+            }
+
+            button.closest(
+                ".ingredient-row")
+                .remove();
+
+            reindexIngredients();
+        }
+
+
+        function reindexIngredients() {
+
+            const rows =
+                document.querySelectorAll(
+                    "#ingredientsContainer .ingredient-row");
+
+            rows.forEach((row, index) => {
+
+                row.querySelector(
+                    ".ingredient-name")
+                    .name =
+                    `IngredientItems[${index}].Name`;
+
+                row.querySelector(
+                    ".ingredient-quantity")
+                    .name =
+                    `IngredientItems[${index}].Quantity`;
+
+                row.querySelector(
+                    ".ingredient-unit")
+                    .name =
+                    `IngredientItems[${index}].Unit`;
+            });
+        }
+
+    </script>
+}

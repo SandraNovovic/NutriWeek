@@ -76,139 +76,6 @@ namespace NutriWeek.Services.Core.Services
         }
 
 
-        public async Task<IEnumerable<GetAllDishesResponseModel>> GetSharedDishesAsync()
-        {
-            try
-            {
-                return await _dishRepository
-                    .GetAllAsNoTracking()
-                    .Where(d =>
-                        d.IsShared)
-                    .OrderBy(d =>
-                        d.IsDeleted)
-                    .ThenBy(d =>
-                        d.Name)
-                    .Select(d =>
-                        new GetAllDishesResponseModel
-                        {
-                            Id =
-                                d.Id,
-
-                            Name =
-                                d.Name,
-
-                            Description =
-                                d.Description,
-
-                            Calories =
-                                d.Calories,
-
-                            PreparationTime =
-                                d.PreparationTime,
-
-                            Portions =
-                                d.Portions,
-
-                            ImageUrl =
-                                d.ImageUrl,
-
-                            DishType =
-                                d.DishType,
-
-                            IsShared =
-                                d.IsShared,
-
-                            IsDeleted =
-                                d.IsDeleted
-                        })
-                    .ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "An error occurred while loading shared dishes.");
-
-                throw;
-            }
-        }
-
-
-        public async Task<DishServiceStatusResponseModel> SetSharedDishDeletedStatusAsync(
-            int id,
-            bool isDeleted)
-        {
-            DishServiceStatusResponseModel response =
-                new DishServiceStatusResponseModel();
-
-
-            try
-            {
-                DishEntity? dish =
-                    await _dishRepository
-                        .GetAll()
-                        .FirstOrDefaultAsync(d =>
-                            d.Id == id &&
-                            d.IsShared);
-
-
-                if (dish == null)
-                {
-                    response.ErrorMessages =
-                        new[]
-                        {
-                            "Shared dish not found."
-                        };
-
-                    return response;
-                }
-
-
-                dish.IsDeleted =
-                    isDeleted;
-
-
-                await _dishRepository
-                    .SaveChangesAsync();
-
-
-                response.Status =
-                    true;
-            }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Database error while changing shared dish {DishId} status.",
-                    id);
-
-
-                response.ErrorMessages =
-                    new[]
-                    {
-                        "An error occurred while updating the shared dish."
-                    };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Unexpected error while changing shared dish {DishId} status.",
-                    id);
-
-
-                response.ErrorMessages =
-                    new[]
-                    {
-                        "An unexpected error occurred while updating the shared dish."
-                    };
-            }
-
-
-            return response;
-        }
-
-
         public async Task<GetDishesPageResponseModel> GetPagedAsync(
             GetDishesPageRequestData request,
             string userId)
@@ -420,11 +287,144 @@ namespace NutriWeek.Services.Core.Services
             {
                 _logger.LogError(
                     ex,
-                    "An error occurred while searching dishes for user {UserId}.",
+                    "An error occurred while loading filtered dishes for user {UserId}.",
                     userId);
 
                 throw;
             }
+        }
+
+
+        public async Task<IEnumerable<GetAllDishesResponseModel>> GetSharedDishesAsync()
+        {
+            try
+            {
+                return await _dishRepository
+                    .GetAllAsNoTracking()
+                    .Where(d =>
+                        d.IsShared)
+                    .OrderBy(d =>
+                        d.IsDeleted)
+                    .ThenBy(d =>
+                        d.Name)
+                    .Select(d =>
+                        new GetAllDishesResponseModel
+                        {
+                            Id =
+                                d.Id,
+
+                            Name =
+                                d.Name,
+
+                            Description =
+                                d.Description,
+
+                            Calories =
+                                d.Calories,
+
+                            PreparationTime =
+                                d.PreparationTime,
+
+                            Portions =
+                                d.Portions,
+
+                            ImageUrl =
+                                d.ImageUrl,
+
+                            DishType =
+                                d.DishType,
+
+                            IsShared =
+                                d.IsShared,
+
+                            IsDeleted =
+                                d.IsDeleted
+                        })
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "An error occurred while loading shared dishes.");
+
+                throw;
+            }
+        }
+
+
+        public async Task<DishServiceStatusResponseModel> SetSharedDishDeletedStatusAsync(
+            int id,
+            bool isDeleted)
+        {
+            DishServiceStatusResponseModel response =
+                new DishServiceStatusResponseModel();
+
+
+            try
+            {
+                DishEntity? dish =
+                    await _dishRepository
+                        .GetAll()
+                        .FirstOrDefaultAsync(d =>
+                            d.Id == id &&
+                            d.IsShared);
+
+
+                if (dish == null)
+                {
+                    response.ErrorMessages =
+                        new[]
+                        {
+                            "Shared dish not found."
+                        };
+
+                    return response;
+                }
+
+
+                dish.IsDeleted =
+                    isDeleted;
+
+
+                await _dishRepository
+                    .SaveChangesAsync();
+
+
+                response.Status =
+                    true;
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Database error while changing shared dish {DishId} status.",
+                    id);
+
+
+                response.ErrorMessages =
+                    new[]
+                    {
+                        "An error occurred while updating the shared dish."
+                    };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Unexpected error while changing shared dish {DishId} status.",
+                    id);
+
+
+                response.ErrorMessages =
+                    new[]
+                    {
+                        "An unexpected error occurred while updating the shared dish."
+                    };
+            }
+
+
+            return response;
         }
 
 
@@ -441,7 +441,10 @@ namespace NutriWeek.Services.Core.Services
                 .ToList();
         }
 
-        public async Task<DishServiceStatusResponseModel> AddDishAsync( CreateDishRequestData request,string userId)
+        public async Task<DishServiceStatusResponseModel> AddDishAsync(
+            CreateDishRequestData request,
+            string userId,
+            bool isShared = false)
         {
             DishServiceStatusResponseModel response =
                 new DishServiceStatusResponseModel();
@@ -533,10 +536,12 @@ namespace NutriWeek.Services.Core.Services
                         request.DishType,
 
                     UserId =
-                        userId,
+                        isShared
+                            ? null
+                            : userId,
 
                     IsShared =
-                        false
+                        isShared
                 };
 
 

@@ -42,6 +42,14 @@
         font-size: 13px;
     }
 
+    .shared-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .add-shared-button,
     .back-admin-button {
         padding: 10px 14px;
         border: 1px solid #d5e2d2;
@@ -51,6 +59,17 @@
         text-decoration: none;
         font-size: 12px;
         font-weight: 800;
+    }
+
+    .add-shared-button {
+        border-color: #3f8947;
+        background: #3f8947;
+        color: white;
+    }
+
+    .add-shared-button:hover {
+        background: #34753b;
+        color: white;
     }
 
     .admin-message {
@@ -213,14 +232,27 @@
         </div>
 
 
-        <a asp-area="Admin"
-           asp-controller="Home"
-           asp-action="Index"
-           class="back-admin-button">
+        <div class="shared-header-actions">
 
-            ← Back to Dashboard
+            <a asp-area="Admin"
+               asp-controller="SharedDishes"
+               asp-action="Add"
+               class="add-shared-button">
 
-        </a>
+                + Add Shared Dish
+
+            </a>
+
+            <a asp-area="Admin"
+               asp-controller="Home"
+               asp-action="Index"
+               class="back-admin-button">
+
+                ← Back to Dashboard
+
+            </a>
+
+        </div>
 
     </header>
 

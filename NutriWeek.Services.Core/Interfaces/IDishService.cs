@@ -19,7 +19,10 @@ namespace NutriWeek.Services.Core.Interfaces
         IEnumerable<DropdownResponseModel> LoadDishTypes();
 
 
-        Task<DishServiceStatusResponseModel> AddDishAsync(  CreateDishRequestData request,string userId);
+        Task<DishServiceStatusResponseModel> AddDishAsync(
+            CreateDishRequestData request,
+            string userId,
+            bool isShared = false);
 
 
         Task<GetDishForEditResponseModel?> GetDishForEditAsync( int id, string userId);
