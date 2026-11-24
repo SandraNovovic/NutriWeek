@@ -1,0 +1,91 @@
+﻿@{
+    ViewData["Title"] = "Server Error";
+}
+
+<style>
+
+    .error-page {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 50px 20px;
+    }
+
+    .error-card {
+        width: min(680px, 100%);
+        padding: 48px 34px;
+        border: 1px solid #dfe8dc;
+        border-radius: 24px;
+        background: #ffffff;
+        box-shadow: 0 18px 45px rgba(38, 67, 43, .08);
+        text-align: center;
+    }
+
+    .error-code {
+        margin-bottom: 5px;
+        color: #b5654d;
+        font-size: 82px;
+        font-weight: 950;
+        line-height: 1;
+        letter-spacing: -.06em;
+    }
+
+    .error-title {
+        margin: 0;
+        color: #1e3527;
+        font-size: 30px;
+        font-weight: 900;
+    }
+
+    .error-text {
+        max-width: 510px;
+        margin: 12px auto 24px;
+        color: #78837b;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .error-button {
+        display: inline-flex;
+        min-width: 150px;
+        padding: 11px 16px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #3f8947;
+        color: white;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+</style>
+
+
+<div class="error-page">
+
+    <section class="error-card">
+
+        <div class="error-code">
+            500
+        </div>
+
+        <h1 class="error-title">
+            Something went wrong
+        </h1>
+
+        <p class="error-text">
+            An unexpected server error occurred.
+            Please return to the home page and try again.
+        </p>
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="error-button">
+            Return to Home
+        </a>
+
+    </section>
+
+</div>
