@@ -127,6 +127,18 @@ namespace NutriWeek.Services.Core.Services
                 }
 
 
+                if (!IsMeasurementUnitValid(request.Unit))
+                {
+                    response.ErrorMessages =
+                        new[]
+                        {
+                            "Invalid measurement unit."
+                        };
+
+                    return response;
+                }
+
+
                 bool ingredientExists =
                     await ingredientRepository
                         .GetAllAsNoTracking()
@@ -229,6 +241,18 @@ namespace NutriWeek.Services.Core.Services
                             .Select(v =>
                                 v.ErrorMessage)
                             .ToArray();
+
+                    return response;
+                }
+
+
+                if (!IsMeasurementUnitValid(request.Unit))
+                {
+                    response.ErrorMessages =
+                        new[]
+                        {
+                            "Invalid measurement unit."
+                        };
 
                     return response;
                 }
@@ -417,6 +441,18 @@ namespace NutriWeek.Services.Core.Services
                 }
 
 
+                if (!IsMeasurementUnitValid(request.Unit))
+                {
+                    response.ErrorMessages =
+                        new[]
+                        {
+                            "Invalid measurement unit."
+                        };
+
+                    return response;
+                }
+
+
                 PantryItem? pantryItem =
                     await pantryItemRepository
                         .GetAll()
@@ -573,6 +609,15 @@ namespace NutriWeek.Services.Core.Services
 
 
             return response;
+        }
+
+
+        private static bool IsMeasurementUnitValid(
+            MeasurementUnit unit)
+        {
+            return Enum.IsDefined(
+                typeof(MeasurementUnit),
+                unit);
         }
 
 

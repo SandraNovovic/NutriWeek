@@ -868,8 +868,8 @@ namespace NutriWeek.Services.Core.Services
                         .GetAllAsNoTracking()
                         .Where(d =>
                             d.Id == id &&
-                            (d.IsShared ||
-                             d.UserId == userId))
+                            !d.IsDeleted &&
+                            d.UserId == userId)
                         .Select(d =>
                             new GetDishByIdResponseModel
                             {
@@ -1010,6 +1010,7 @@ namespace NutriWeek.Services.Core.Services
                         .GetAllAsNoTracking()
                         .Where(d =>
                             d.Id == id &&
+                            !d.IsDeleted &&
                             (d.IsShared ||
                              d.UserId == userId))
                         .Select(d =>

@@ -51,6 +51,14 @@ namespace NutriWeek.Web.Controllers
             }
 
 
+            if (selectedYear < 1 ||
+                selectedYear > 9999)
+            {
+                return BadRequest(
+                    "Invalid year.");
+            }
+
+
             string userId =
                 User.FindFirstValue(
                     ClaimTypes.NameIdentifier)!;
