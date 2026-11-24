@@ -1,14 +1,17 @@
+﻿@using NutriWeek.Data.Models.Enums
 @using NutriWeek.Web.ViewModels.Dishes
-@model IEnumerable<DishIndexViewModel>
+
+@model DishesIndexViewModel
 
 @{
     ViewData["Title"] = "Dishes";
 
     List<DishIndexViewModel> dishes =
-        Model?.ToList() ?? new List<DishIndexViewModel>();
+        Model.Dishes;
 
     Dictionary<string, string> dishImages =
-        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        new Dictionary<string, string>(
+            StringComparer.OrdinalIgnoreCase)
         {
             { "Vegan Oatmeal", "/images/DishesImages/vegan_oatmeal.png" },
             { "Vegetarian Pasta", "/images/DishesImages/vegetarian_pasta.png" },
@@ -16,34 +19,6 @@
             { "Salmon with Vegetables", "/images/DishesImages/salmon_with_vegetables.png" },
             { "Lentil Soup", "/images/DishesImages/lentil_soup.png" }
         };
-
-    int vegetarianCount =
-        dishes.Count(d =>
-            d.DishType.ToString()
-                .Equals(
-                    "Vegetarian",
-                    StringComparison.OrdinalIgnoreCase));
-
-    int veganCount =
-        dishes.Count(d =>
-            d.DishType.ToString()
-                .Equals(
-                    "Vegan",
-                    StringComparison.OrdinalIgnoreCase));
-
-    int meatCount =
-        dishes.Count(d =>
-            d.DishType.ToString()
-                .Equals(
-                    "Meat",
-                    StringComparison.OrdinalIgnoreCase));
-
-    int fishCount =
-        dishes.Count(d =>
-            d.DishType.ToString()
-                .Equals(
-                    "Fish",
-                    StringComparison.OrdinalIgnoreCase));
 }
 
 <style>
@@ -693,1437 +668,597 @@
         }
     }
 
+    .filter-form {
+        display: block;
+    }
+
+    .filter-label {
+        margin: 16px 0 7px;
+        display: block;
+        color: #253027;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .filter-select {
+        width: 100%;
+        padding: 9px 12px;
+        border: 1px solid #dfe5dc;
+        border-radius: 12px;
+        background: #fff;
+        color: #555f57;
+        font-size: 12px;
+        outline: none;
+    }
+
+    .filter-submit {
+        width: 100%;
+        margin-top: 18px;
+        padding: 10px;
+        border: none;
+        border-radius: 24px;
+        background: #2f7b35;
+        color: white;
+        font-size: 12px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .filter-submit:hover {
+        background: #27692d;
+    }
+
+    .category-link {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .pagination-custom {
+        margin-top: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 7px;
+        flex-wrap: wrap;
+    }
+
+    .page-link-custom {
+        min-width: 38px;
+        height: 38px;
+        padding: 0 11px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #dce5d9;
+        border-radius: 10px;
+        background: white;
+        color: #49604c;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .page-link-custom:hover {
+        background: #eef6e9;
+        color: #2f7036;
+    }
+
+    .page-link-custom.active {
+        border-color: #2f7b35;
+        background: #2f7b35;
+        color: white;
+    }
+
+    .page-link-custom.disabled {
+        opacity: .45;
+        pointer-events: none;
+    }
+
 </style>
-
-
-<!-- =====================================================
-     NAVBAR
-     ===================================================== -->
-<!-- =====================================================
-     PAGE
-     ===================================================== -->
 
 <div class="dishes-page">
 
     <div class="dishes-container">
 
-
-        <!-- HERO -->
-
         <section class="dishes-hero">
 
             <div class="hero-content">
 
-
                 <div class="hero-kicker">
-
                     DISCOVER • COOK • ENJOY
-
                 </div>
-
 
                 <div class="hero-title">
-
                     Healthy <span>Recipes</span>
-
                 </div>
 
-
                 <p class="hero-text">
-
                     Browse our collection of nutritious and delicious recipes.
-                    Save your favorites and use them in your weekly menu.
-
+                    Search, filter and add them to your weekly menu.
                 </p>
-
 
             </div>
 
         </section>
 
-
-
-        <!-- =================================================
-             TOP CATEGORY FILTERS
-             ================================================= -->
 
         <section class="categories-row">
 
-
-            <!-- ALL -->
-
-            <div class="category-card selected"
-                 data-top-group="all"
-                 data-top-value="all">
+            <a asp-controller="Dishes"
+               asp-action="Index"
+               class="category-card category-link @(Model.DishType == null ? "selected" : "")">
 
                 <div class="category-icon-frame">
-
-                    <span class="all-category-icon">
-                        🥗
-                    </span>
-
+                    <span class="all-category-icon">🥗</span>
                 </div>
 
                 <div class="category-info">
-
-                    <div class="category-name">
-                        All
-                    </div>
-
+                    <div class="category-name">All</div>
                     <div class="category-count">
-                        @dishes.Count recipes
+                        @(Model.VegetarianCount +
+                          Model.VeganCount +
+                          Model.MeatCount +
+                          Model.FishCount) recipes
                     </div>
-
                 </div>
 
-            </div>
+            </a>
 
 
-            <!-- VEGETARIAN -->
-
-            <div class="category-card vegetarian"
-                 data-top-group="diet"
-                 data-top-value="vegetarian">
+            <a asp-controller="Dishes"
+               asp-action="Index"
+               asp-route-dishType="@DishType.Vegetarian"
+               class="category-card category-link vegetarian @(Model.DishType == DishType.Vegetarian ? "selected" : "")">
 
                 <div class="category-icon-frame">
-
                     <img src="~/images/Icons/vegetarian-icon.png"
                          alt="Vegetarian" />
-
                 </div>
 
                 <div class="category-info">
-
-                    <div class="category-name">
-                        Vegetarian
-                    </div>
-
-                    <div class="category-count">
-                        @vegetarianCount recipes
-                    </div>
-
+                    <div class="category-name">Vegetarian</div>
+                    <div class="category-count">@Model.VegetarianCount recipes</div>
                 </div>
 
-            </div>
+            </a>
 
 
-            <!-- VEGAN -->
-
-            <div class="category-card vegan"
-                 data-top-group="diet"
-                 data-top-value="vegan">
+            <a asp-controller="Dishes"
+               asp-action="Index"
+               asp-route-dishType="@DishType.Vegan"
+               class="category-card category-link vegan @(Model.DishType == DishType.Vegan ? "selected" : "")">
 
                 <div class="category-icon-frame">
-
                     <img src="~/images/Icons/vegan-icon.png"
                          alt="Vegan" />
-
                 </div>
 
                 <div class="category-info">
-
-                    <div class="category-name">
-                        Vegan
-                    </div>
-
-                    <div class="category-count">
-                        @veganCount recipes
-                    </div>
-
+                    <div class="category-name">Vegan</div>
+                    <div class="category-count">@Model.VeganCount recipes</div>
                 </div>
 
-            </div>
+            </a>
 
 
-            <!-- MEAT -->
-
-            <div class="category-card meat"
-                 data-top-group="diet"
-                 data-top-value="meat">
+            <a asp-controller="Dishes"
+               asp-action="Index"
+               asp-route-dishType="@DishType.Meat"
+               class="category-card category-link meat @(Model.DishType == DishType.Meat ? "selected" : "")">
 
                 <div class="category-icon-frame">
-
                     <img src="~/images/Icons/meat-icon.png"
                          alt="Meat" />
-
                 </div>
 
                 <div class="category-info">
-
-                    <div class="category-name">
-                        Meat
-                    </div>
-
-                    <div class="category-count">
-                        @meatCount recipes
-                    </div>
-
+                    <div class="category-name">Meat</div>
+                    <div class="category-count">@Model.MeatCount recipes</div>
                 </div>
 
-            </div>
+            </a>
 
 
-            <!-- FISH -->
-
-            <div class="category-card fish"
-                 data-top-group="diet"
-                 data-top-value="fish">
+            <a asp-controller="Dishes"
+               asp-action="Index"
+               asp-route-dishType="@DishType.Fish"
+               class="category-card category-link fish @(Model.DishType == DishType.Fish ? "selected" : "")">
 
                 <div class="category-icon-frame">
-
                     <img src="~/images/Icons/fish-icon.png"
                          class="fish-icon"
                          alt="Fish" />
-
                 </div>
 
                 <div class="category-info">
-
-                    <div class="category-name">
-                        Fish
-                    </div>
-
-                    <div class="category-count">
-                        @fishCount recipes
-                    </div>
-
+                    <div class="category-name">Fish</div>
+                    <div class="category-count">@Model.FishCount recipes</div>
                 </div>
 
-            </div>
-
+            </a>
 
         </section>
 
 
-
-        <!-- =================================================
-             CONTENT
-             ================================================= -->
-
         <section class="dishes-content">
-
-
-            <!-- =================================================
-                 FILTER SIDEBAR
-                 ================================================= -->
 
             <aside class="filter-sidebar">
 
+                <form asp-controller="Dishes"
+                      asp-action="Index"
+                      method="get"
+                      class="filter-form">
 
-                <div class="search-box">
+                    <div class="search-box">
+
+                        🔍
 
-                    🔍
+                        <input name="search"
+                               type="search"
+                               value="@Model.Search"
+                               placeholder="Search dishes..." />
 
-                    <input id="dishSearch"
-                           type="text"
-                           placeholder="Search dishes..." />
+                    </div>
 
-                </div>
 
+                    <label class="filter-label"
+                           for="dishType">
+                        Dish Type
+                    </label>
 
+                    <select id="dishType"
+                            name="dishType"
+                            class="filter-select">
 
-                <!-- DISH TYPE -->
+                        <option value="">
+                            All types
+                        </option>
+
+                        @foreach (DishType type
+                                  in Enum.GetValues<DishType>())
+                        {
+                            <option value="@type"
+                                    selected="@(Model.DishType == type)">
+                                @type
+                            </option>
+                        }
+
+                    </select>
 
-                <div class="filter-title">
-                    Dish Type
-                </div>
+
+                    <label class="filter-label"
+                           for="cookingTime">
+                        Cooking Time
+                    </label>
 
+                    <select id="cookingTime"
+                            name="cookingTime"
+                            class="filter-select">
 
-                <label class="filter-option">
+                        <option value=""
+                                selected="@(string.IsNullOrWhiteSpace(Model.CookingTime))">
+                            Any
+                        </option>
 
-                    <span class="filter-option-left">
+                        <option value="under15"
+                                selected="@(Model.CookingTime == "under15")">
+                            Under 15 min
+                        </option>
 
-                        <input type="checkbox"
-                               class="diet-filter"
-                               value="vegetarian" />
+                        <option value="15to30"
+                                selected="@(Model.CookingTime == "15to30")">
+                            15 - 30 min
+                        </option>
 
-                        Vegetarian
+                        <option value="over30"
+                                selected="@(Model.CookingTime == "over30")">
+                            Over 30 min
+                        </option>
 
-                    </span>
+                    </select>
 
-                    <span class="filter-count">
-                        @vegetarianCount
-                    </span>
 
-                </label>
+                    <label class="filter-label"
+                           for="calories">
+                        Calories
+                    </label>
 
+                    <select id="calories"
+                            name="calories"
+                            class="filter-select">
 
-                <label class="filter-option">
+                        <option value=""
+                                selected="@(string.IsNullOrWhiteSpace(Model.Calories))">
+                            Any
+                        </option>
 
-                    <span class="filter-option-left">
+                        <option value="under350"
+                                selected="@(Model.Calories == "under350")">
+                            Under 350 kcal
+                        </option>
 
-                        <input type="checkbox"
-                               class="diet-filter"
-                               value="vegan" />
+                        <option value="350to450"
+                                selected="@(Model.Calories == "350to450")">
+                            350 - 450 kcal
+                        </option>
 
-                        Vegan
+                        <option value="451to550"
+                                selected="@(Model.Calories == "451to550")">
+                            451 - 550 kcal
+                        </option>
 
-                    </span>
+                        <option value="over550"
+                                selected="@(Model.Calories == "over550")">
+                            Over 550 kcal
+                        </option>
 
-                    <span class="filter-count">
-                        @veganCount
-                    </span>
+                    </select>
 
-                </label>
 
+                    <label class="filter-label"
+                           for="sortBy">
+                        Sort By
+                    </label>
 
-                <label class="filter-option">
+                    <select id="sortBy"
+                            name="sortBy"
+                            class="filter-select">
 
-                    <span class="filter-option-left">
+                        <option value=""
+                                selected="@(string.IsNullOrWhiteSpace(Model.SortBy))">
+                            Newest
+                        </option>
 
-                        <input type="checkbox"
-                               class="diet-filter"
-                               value="meat" />
+                        <option value="nameAsc"
+                                selected="@(Model.SortBy == "nameAsc")">
+                            Name A-Z
+                        </option>
 
-                        Meat
+                        <option value="caloriesAsc"
+                                selected="@(Model.SortBy == "caloriesAsc")">
+                            Calories: Low to High
+                        </option>
 
-                    </span>
+                        <option value="caloriesDesc"
+                                selected="@(Model.SortBy == "caloriesDesc")">
+                            Calories: High to Low
+                        </option>
 
-                    <span class="filter-count">
-                        @meatCount
-                    </span>
+                    </select>
 
-                </label>
 
+                    <button type="submit"
+                            class="filter-submit">
+                        Apply Filters
+                    </button>
 
-                <label class="filter-option">
 
-                    <span class="filter-option-left">
+                    <a asp-controller="Dishes"
+                       asp-action="Index"
+                       class="clear-filter category-link">
+                        ↻ Clear Filters
+                    </a>
 
-                        <input type="checkbox"
-                               class="diet-filter"
-                               value="fish" />
-
-                        Fish
-
-                    </span>
-
-                    <span class="filter-count">
-                        @fishCount
-                    </span>
-
-                </label>
-
-
-
-                <!-- COOKING TIME -->
-
-                <div class="filter-title">
-                    Cooking Time
-                </div>
-
-
-                <label class="filter-option">
-
-                    <span class="filter-option-left">
-
-                        <input type="checkbox"
-                               class="time-filter"
-                               value="under15" />
-
-                        Under 15 min
-
-                    </span>
-
-                </label>
-
-
-                <label class="filter-option">
-
-                    <span class="filter-option-left">
-
-                        <input type="checkbox"
-                               class="time-filter"
-                               value="15to30" />
-
-                        15 - 30 min
-
-                    </span>
-
-                </label>
-
-
-                <label class="filter-option">
-
-                    <span class="filter-option-left">
-
-                        <input type="checkbox"
-                               class="time-filter"
-                               value="over30" />
-
-                        Over 30 min
-
-                    </span>
-
-                </label>
-
-
-
-                <!-- CALORIES -->
-
-                <div class="filter-title">
-                    Calories
-                </div>
-
-
-                <select id="calorieFilter"
-                        class="calories-select">
-
-                    <option value="all">
-                        Any
-                    </option>
-
-                    <option value="under350">
-                        Under 350 kcal
-                    </option>
-
-                    <option value="350to450">
-                        350 - 450 kcal
-                    </option>
-
-                    <option value="451to550">
-                        451 - 550 kcal
-                    </option>
-
-                    <option value="over550">
-                        Over 550 kcal
-                    </option>
-
-                </select>
-
-
-
-                <button id="clearFilters"
-                        type="button"
-                        class="clear-filter">
-
-                    ↻ Clear Filters
-
-                </button>
-
+                </form>
 
             </aside>
 
 
-
-            <!-- =================================================
-                 DISHES
-                 ================================================= -->
-
             <main class="dishes-main">
-
 
                 <div class="dishes-toolbar">
 
-
                     <h2>
-
-                        <span id="visibleDishCount">
-                            @dishes.Count
-                        </span>
-
-                        Dishes
-
+                        @Model.TotalItems Dishes
                     </h2>
-
 
                     <div class="toolbar-right">
 
-
                         <span class="sort-label">
-                            Sort by
+                            Page @Model.CurrentPage of @Model.TotalPages
                         </span>
-
-
-                        <select id="sortDishes"
-                                class="sort-select">
-
-                            <option value="default">
-                                Newest
-                            </option>
-
-                            <option value="nameAsc">
-                                Name A-Z
-                            </option>
-
-                            <option value="caloriesAsc">
-                                Calories: Low to High
-                            </option>
-
-                            <option value="caloriesDesc">
-                                Calories: High to Low
-                            </option>
-
-                        </select>
-
 
                         <a asp-controller="Dishes"
                            asp-action="Add"
                            class="add-dish-btn">
-
                             ＋ Add Dish
+                        </a>
 
+                    </div>
+
+                </div>
+
+
+                <div class="dish-grid">
+
+                    @if (dishes.Any())
+                    {
+                        @foreach (DishIndexViewModel dish
+                                  in dishes)
+                        {
+                            string imagePath;
+
+                            if (!string.IsNullOrWhiteSpace(
+                                    dish.ImageUrl))
+                            {
+                                imagePath =
+                                    dish.ImageUrl;
+                            }
+                            else if (dishImages.ContainsKey(
+                                         dish.Name))
+                            {
+                                imagePath =
+                                    dishImages[dish.Name];
+                            }
+                            else
+                            {
+                                imagePath =
+                                    "/images/DishesImages/unadded.png";
+                            }
+
+
+                            <article class="dish-card">
+
+                                <div class="dish-image-wrapper">
+
+                                    <img src="@imagePath"
+                                         alt="@dish.Name"
+                                         onerror="this.onerror=null; this.src='/images/DishesImages/unadded.png';" />
+
+                                    <div class="heart">
+                                        ♥
+                                    </div>
+
+                                </div>
+
+
+                                <div class="dish-body">
+
+                                    <div class="dish-name">
+                                        @dish.Name
+                                    </div>
+
+                                    <div class="dish-tags">
+
+                                        <span class="dish-tag">
+                                            @dish.DishType
+                                        </span>
+
+                                        @if (dish.IsShared)
+                                        {
+                                            <span class="dish-tag">
+                                                Example
+                                            </span>
+                                        }
+
+                                    </div>
+
+                                    <div class="dish-description">
+                                        @dish.Description
+                                    </div>
+
+                                    <div class="dish-meta">
+
+                                        <span>
+                                            🔥 @dish.Calories kcal
+                                        </span>
+
+                                        <span>
+                                            ⏱ @dish.PreparationTime min
+                                        </span>
+
+                                        <span>
+                                            👥 @dish.Portions servings
+                                        </span>
+
+                                    </div>
+
+                                    <div class="dish-actions">
+
+                                        <a asp-controller="Dishes"
+                                           asp-action="Details"
+                                           asp-route-id="@dish.Id"
+                                           class="dish-action">
+                                            Details
+                                        </a>
+
+                                        @if (!dish.IsShared)
+                                        {
+                                            <a asp-controller="Dishes"
+                                               asp-action="Edit"
+                                               asp-route-id="@dish.Id"
+                                               class="dish-action">
+                                                Edit
+                                            </a>
+
+                                            <a asp-controller="Dishes"
+                                               asp-action="Delete"
+                                               asp-route-id="@dish.Id"
+                                               class="dish-action">
+                                                Delete
+                                            </a>
+                                        }
+
+                                    </div>
+
+                                </div>
+
+                            </article>
+                        }
+                    }
+                    else
+                    {
+                        <div class="no-results show">
+
+                            <h4>
+                                No dishes found
+                            </h4>
+
+                            <p>
+                                Try changing or clearing your filters.
+                            </p>
+
+                        </div>
+                    }
+
+                </div>
+
+
+                @if (Model.TotalPages > 1)
+                {
+                    <nav class="pagination-custom"
+                         aria-label="Dishes pages">
+
+                        <a asp-controller="Dishes"
+                           asp-action="Index"
+                           asp-route-search="@Model.Search"
+                           asp-route-dishType="@Model.DishType"
+                           asp-route-cookingTime="@Model.CookingTime"
+                           asp-route-calories="@Model.Calories"
+                           asp-route-sortBy="@Model.SortBy"
+                           asp-route-page="@(Model.CurrentPage - 1)"
+                           class="page-link-custom @(Model.CurrentPage <= 1 ? "disabled" : "")">
+                            ←
                         </a>
 
 
-                    </div>
-
-
-                </div>
-
-
-
-                <!-- =================================================
-                     DISH GRID
-                     ================================================= -->
-
-                <div id="dishGrid"
-                     class="dish-grid">
-
-
-                    @foreach (DishIndexViewModel dish in dishes)
-                    {
-                        /*
-                        IMAGE PRIORITY:
-
-                        1. ImageUrl from the Dish
-                        2. Existing image for seeded dishes
-                        3. unadded.png
-                        */
-
-                        string imagePath;
-
-                        if (!string.IsNullOrWhiteSpace(dish.ImageUrl))
+                        @for (int page = 1;
+                              page <= Model.TotalPages;
+                              page++)
                         {
-                            imagePath = dish.ImageUrl;
-                        }
-                        else if (dishImages.ContainsKey(dish.Name))
-                        {
-                            imagePath = dishImages[dish.Name];
-                        }
-                        else
-                        {
-                            imagePath =
-                            "/images/DishesImages/unadded.png";
+                            <a asp-controller="Dishes"
+                               asp-action="Index"
+                               asp-route-search="@Model.Search"
+                               asp-route-dishType="@Model.DishType"
+                               asp-route-cookingTime="@Model.CookingTime"
+                               asp-route-calories="@Model.Calories"
+                               asp-route-sortBy="@Model.SortBy"
+                               asp-route-page="@page"
+                               class="page-link-custom @(page == Model.CurrentPage ? "active" : "")">
+                                @page
+                            </a>
                         }
 
 
-                        string dietType =
-                        dish.DishType
-                        .ToString()
-                        .ToLowerInvariant();
-
-
-                        <article class="dish-card"
-                                 data-name="@dish.Name.ToLowerInvariant()"
-                                 data-diet="@dietType"
-                                 data-time="@dish.PreparationTime"
-                                 data-calories="@dish.Calories">
-
-
-                            <!-- IMAGE -->
-
-                            <div class="dish-image-wrapper">
-
-
-                                <img src="@imagePath"
-                                     alt="@dish.Name"
-                                     onerror="this.onerror=null; this.src='/images/DishesImages/unadded.png';" />
-
-
-                                <div class="heart">
-                                    ♥
-                                </div>
-
-
-                            </div>
-
-
-
-                            <!-- BODY -->
-
-                            <div class="dish-body">
-
-
-                                <div class="dish-name">
-                                    @dish.Name
-                                </div>
-
-
-                                <div class="dish-tags">
-
-
-                                    <span class="dish-tag">
-
-                                        @dish.DishType
-
-                                    </span>
-
-                                    @if (dish.IsShared)
-                                    {
-                                        <span class="dish-tag">
-                                            Example
-                                        </span>
-                                    }
-
-
-                                </div>
-
-
-
-                                <div class="dish-description">
-
-                                    @dish.Description
-
-                                </div>
-
-
-
-                                <div class="dish-meta">
-
-
-                                    <span>
-                                        🔥 @dish.Calories kcal
-                                    </span>
-
-
-                                    <span>
-                                        ⏱ @dish.PreparationTime min
-                                    </span>
-
-
-                                    <span>
-                                        👥 @dish.Portions servings
-                                    </span>
-
-
-                                </div>
-
-
-
-                                <div class="dish-actions">
-
-
-                                    <a asp-controller="Dishes"
-                                       asp-action="Details"
-                                       asp-route-id="@dish.Id"
-                                       class="dish-action">
-                                        Details
-                                    </a>
-
-                                    @if (!dish.IsShared)
-                                    {
-                                        <a asp-controller="Dishes"
-                                           asp-action="Edit"
-                                           asp-route-id="@dish.Id"
-                                           class="dish-action">
-                                            Edit
-                                        </a>
-
-                                        <a asp-controller="Dishes"
-                                           asp-action="Delete"
-                                           asp-route-id="@dish.Id"
-                                           class="dish-action">
-                                            Delete
-                                        </a>
-                                    }
-
-
-                                </div>
-
-
-                            </div>
-
-
-                        </article>
-
-                    }
-
-
-
-                    <!-- NO RESULTS -->
-
-                    <div id="noResults"
-                         class="no-results">
-
-                        <h4>
-                            No dishes found
-                        </h4>
-
-                        <p>
-                            Try changing or clearing your filters.
-                        </p>
-
-                    </div>
-
-
-                </div>
-
+                        <a asp-controller="Dishes"
+                           asp-action="Index"
+                           asp-route-search="@Model.Search"
+                           asp-route-dishType="@Model.DishType"
+                           asp-route-cookingTime="@Model.CookingTime"
+                           asp-route-calories="@Model.Calories"
+                           asp-route-sortBy="@Model.SortBy"
+                           asp-route-page="@(Model.CurrentPage + 1)"
+                           class="page-link-custom @(Model.CurrentPage >= Model.TotalPages ? "disabled" : "")">
+                            →
+                        </a>
+
+                    </nav>
+                }
 
             </main>
 
-
         </section>
-
 
     </div>
 
 </div>
-
-
-
-<script>
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        function () {
-
-
-            const searchInput =
-                document.getElementById(
-                    "dishSearch"
-                );
-
-
-            const navbarSearchInput =
-                document.getElementById(
-                    "navbarDishSearch"
-                );
-
-
-            const searchFromUrl =
-                new URLSearchParams(
-                    window.location.search
-                ).get(
-                    "search"
-                );
-
-
-            if (searchFromUrl) {
-
-                searchInput.value =
-                    searchFromUrl;
-
-                navbarSearchInput.value =
-                    searchFromUrl;
-
-            }
-
-
-            const calorieFilter =
-                document.getElementById(
-                    "calorieFilter"
-                );
-
-
-            const clearButton =
-                document.getElementById(
-                    "clearFilters"
-                );
-
-
-            const sortSelect =
-                document.getElementById(
-                    "sortDishes"
-                );
-
-
-            const dishGrid =
-                document.getElementById(
-                    "dishGrid"
-                );
-
-
-            const noResults =
-                document.getElementById(
-                    "noResults"
-                );
-
-
-            const countElement =
-                document.getElementById(
-                    "visibleDishCount"
-                );
-
-
-            const dishCards =
-                Array.from(
-                    document.querySelectorAll(
-                        ".dish-card"
-                    )
-                );
-
-
-            const topFilters =
-                document.querySelectorAll(
-                    ".category-card"
-                );
-
-
-
-            /* =================================================
-               GET CHECKED VALUES
-               ================================================= */
-
-            function getCheckedValues(
-                selector
-            ) {
-
-                return Array
-                    .from(
-                        document.querySelectorAll(
-                            selector + ":checked"
-                        )
-                    )
-                    .map(
-                        checkbox =>
-                            checkbox.value
-                    );
-
-            }
-
-
-
-            /* =================================================
-               COOKING TIME
-               ================================================= */
-
-            function matchesTime(
-                minutes,
-                selectedTimes
-            ) {
-
-                if (
-                    selectedTimes.length === 0
-                ) {
-
-                    return true;
-
-                }
-
-
-                return selectedTimes.some(
-                    filter => {
-
-
-                        if (
-                            filter === "under15"
-                        ) {
-
-                            return minutes < 15;
-
-                        }
-
-
-                        if (
-                            filter === "15to30"
-                        ) {
-
-                            return (
-                                minutes >= 15 &&
-                                minutes <= 30
-                            );
-
-                        }
-
-
-                        if (
-                            filter === "over30"
-                        ) {
-
-                            return minutes > 30;
-
-                        }
-
-
-                        return true;
-
-                    }
-                );
-
-            }
-
-
-
-            /* =================================================
-               CALORIES
-               ================================================= */
-
-            function matchesCalories(
-                calories,
-                filter
-            ) {
-
-                if (
-                    filter === "all"
-                ) {
-
-                    return true;
-
-                }
-
-
-                if (
-                    filter === "under350"
-                ) {
-
-                    return calories < 350;
-
-                }
-
-
-                if (
-                    filter === "350to450"
-                ) {
-
-                    return (
-                        calories >= 350 &&
-                        calories <= 450
-                    );
-
-                }
-
-
-                if (
-                    filter === "451to550"
-                ) {
-
-                    return (
-                        calories >= 451 &&
-                        calories <= 550
-                    );
-
-                }
-
-
-                if (
-                    filter === "over550"
-                ) {
-
-                    return calories > 550;
-
-                }
-
-
-                return true;
-
-            }
-
-
-
-            /* =================================================
-               APPLY FILTERS
-               ================================================= */
-
-            function applyFilters() {
-
-
-                const search =
-                    searchInput
-                        .value
-                        .trim()
-                        .toLowerCase();
-
-
-                const diets =
-                    getCheckedValues(
-                        ".diet-filter"
-                    );
-
-
-                const times =
-                    getCheckedValues(
-                        ".time-filter"
-                    );
-
-
-                let visibleCount = 0;
-
-
-
-                dishCards.forEach(
-                    card => {
-
-
-                        const name =
-                            card.dataset.name;
-
-
-                        const diet =
-                            card.dataset.diet;
-
-
-                        const time =
-                            Number(
-                                card.dataset.time
-                            );
-
-
-                        const calories =
-                            Number(
-                                card.dataset.calories
-                            );
-
-
-                        const searchMatches =
-                            name.includes(
-                                search
-                            );
-
-
-                        const dietMatches =
-                            diets.length === 0 ||
-                            diets.includes(
-                                diet
-                            );
-
-
-                        const timeMatches =
-                            matchesTime(
-                                time,
-                                times
-                            );
-
-
-                        const calorieMatches =
-                            matchesCalories(
-                                calories,
-                                calorieFilter.value
-                            );
-
-
-                        const shouldShow =
-                            searchMatches &&
-                            dietMatches &&
-                            timeMatches &&
-                            calorieMatches;
-
-
-                        card.classList.toggle(
-                            "filtered-out",
-                            !shouldShow
-                        );
-
-
-                        if (shouldShow) {
-
-                            visibleCount++;
-
-                        }
-
-
-                    }
-                );
-
-
-                countElement.textContent =
-                    visibleCount;
-
-
-                noResults.classList.toggle(
-                    "show",
-                    visibleCount === 0
-                );
-
-            }
-
-
-
-            /* =================================================
-               CLEAR CHECKBOXES
-               ================================================= */
-
-            function clearCheckboxes() {
-
-
-                document
-                    .querySelectorAll(
-                        ".diet-filter, " +
-                        ".time-filter"
-                    )
-                    .forEach(
-                        checkbox => {
-
-                            checkbox.checked =
-                                false;
-
-                        }
-                    );
-
-            }
-
-
-
-            /* =================================================
-               TOP CATEGORY SELECTION
-               ================================================= */
-
-            function clearTopSelection() {
-
-
-                topFilters.forEach(
-                    card => {
-
-                        card.classList.remove(
-                            "selected"
-                        );
-
-                    }
-                );
-
-            }
-
-
-
-            function selectAllCard() {
-
-
-                clearTopSelection();
-
-
-                const allCard =
-                    document.querySelector(
-                        '[data-top-group="all"]'
-                    );
-
-
-                if (allCard) {
-
-                    allCard.classList.add(
-                        "selected"
-                    );
-
-                }
-
-            }
-
-
-
-            /* =================================================
-               TOP CATEGORY CLICK
-               ================================================= */
-
-            topFilters.forEach(
-                card => {
-
-
-                    card.addEventListener(
-                        "click",
-                        function () {
-
-
-                            const group =
-                                this.dataset.topGroup;
-
-
-                            const value =
-                                this.dataset.topValue;
-
-
-                            clearCheckboxes();
-
-
-                            searchInput.value =
-                                "";
-
-
-                            navbarSearchInput.value =
-                                "";
-
-
-                            calorieFilter.value =
-                                "all";
-
-
-                            clearTopSelection();
-
-
-                            this.classList.add(
-                                "selected"
-                            );
-
-                            if (
-                                group === "diet"
-                            ) {
-
-
-                                const checkbox =
-                                    document.querySelector(
-                                        '.diet-filter[value="' +
-                                        value +
-                                        '"]'
-                                    );
-
-
-                                if (checkbox) {
-
-                                    checkbox.checked =
-                                        true;
-
-                                }
-
-
-                            }
-
-
-                            applyFilters();
-
-
-                        }
-                    );
-
-                }
-            );
-
-
-
-            /* =================================================
-               SEARCH
-               ================================================= */
-
-            searchInput.addEventListener(
-                "input",
-                function () {
-
-
-                    navbarSearchInput.value =
-                        this.value;
-
-
-                    clearTopSelection();
-
-
-                    applyFilters();
-
-
-                }
-            );
-
-
-            navbarSearchInput.addEventListener(
-                "input",
-                function () {
-
-
-                    searchInput.value =
-                        this.value;
-
-
-                    clearTopSelection();
-
-
-                    applyFilters();
-
-
-                }
-            );
-
-
-
-            /* =================================================
-               CHECKBOX FILTERS
-               ================================================= */
-
-            document
-                .querySelectorAll(
-                    ".diet-filter, " +
-                    ".time-filter"
-                )
-                .forEach(
-                    filter => {
-
-
-                        filter.addEventListener(
-                            "change",
-                            function () {
-
-
-                                clearTopSelection();
-
-
-                                applyFilters();
-
-
-                            }
-                        );
-
-
-                    }
-                );
-
-
-
-            calorieFilter.addEventListener(
-                "change",
-                function () {
-
-
-                    clearTopSelection();
-
-
-                    applyFilters();
-
-
-                }
-            );
-
-
-
-            /* =================================================
-               CLEAR FILTERS
-               ================================================= */
-
-            clearButton.addEventListener(
-                "click",
-                function () {
-
-
-                    searchInput.value =
-                        "";
-
-
-                    navbarSearchInput.value =
-                        "";
-
-
-                    calorieFilter.value =
-                        "all";
-
-
-                    sortSelect.value =
-                        "default";
-
-
-                    clearCheckboxes();
-
-
-                    selectAllCard();
-
-
-                    dishCards.forEach(
-                        card => {
-
-
-                            dishGrid.insertBefore(
-                                card,
-                                noResults
-                            );
-
-
-                        }
-                    );
-
-
-                    applyFilters();
-
-
-                }
-            );
-
-
-
-            /* =================================================
-               SORTING
-               ================================================= */
-
-            sortSelect.addEventListener(
-                "change",
-                function () {
-
-
-                    const cards =
-                        [...dishCards];
-
-
-                    if (
-                        this.value ===
-                        "nameAsc"
-                    ) {
-
-
-                        cards.sort(
-                            (a, b) =>
-
-                                a.dataset.name
-                                    .localeCompare(
-                                        b.dataset.name
-                                    )
-
-                        );
-
-
-                    }
-
-
-                    if (
-                        this.value ===
-                        "caloriesAsc"
-                    ) {
-
-
-                        cards.sort(
-                            (a, b) =>
-
-                                Number(
-                                    a.dataset.calories
-                                )
-                                -
-                                Number(
-                                    b.dataset.calories
-                                )
-
-                        );
-
-
-                    }
-
-
-                    if (
-                        this.value ===
-                        "caloriesDesc"
-                    ) {
-
-
-                        cards.sort(
-                            (a, b) =>
-
-                                Number(
-                                    b.dataset.calories
-                                )
-                                -
-                                Number(
-                                    a.dataset.calories
-                                )
-
-                        );
-
-
-                    }
-
-
-                    cards.forEach(
-                        card => {
-
-
-                            dishGrid.insertBefore(
-                                card,
-                                noResults
-                            );
-
-
-                        }
-                    );
-
-
-                }
-            );
-
-
-
-            applyFilters();
-
-
-        }
-    );
-
-</script>

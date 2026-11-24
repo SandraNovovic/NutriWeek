@@ -209,6 +209,225 @@ namespace NutriWeek.Services.Core.Services
         }
 
 
+        public async Task<GetDishesPageResponseModel> GetPagedAsync(
+            GetDishesPageRequestData request,
+            string userId)
+        {
+            try
+            {
+                IQueryable<DishEntity> baseQuery =
+                    _dishRepository
+                        .GetAllAsNoTracking()
+                        .Where(d =>
+                            !d.IsDeleted &&
+                            (d.IsShared ||
+                             d.UserId == userId));
+
+
+                GetDishesPageResponseModel response =
+                    new GetDishesPageResponseModel
+                    {
+                        VegetarianCount =
+                            await baseQuery.CountAsync(d =>
+                                d.DishType ==
+                                DishType.Vegetarian),
+
+                        VeganCount =
+                            await baseQuery.CountAsync(d =>
+                                d.DishType ==
+                                DishType.Vegan),
+
+                        MeatCount =
+                            await baseQuery.CountAsync(d =>
+                                d.DishType ==
+                                DishType.Meat),
+
+                        FishCount =
+                            await baseQuery.CountAsync(d =>
+                                d.DishType ==
+                                DishType.Fish)
+                    };
+
+
+                IQueryable<DishEntity> query =
+                    baseQuery;
+
+
+                if (!string.IsNullOrWhiteSpace(
+                        request.Search))
+                {
+                    string search =
+                        request.Search.Trim();
+
+
+                    query =
+                        query.Where(d =>
+                            d.Name.Contains(search) ||
+                            (d.Description != null &&
+                             d.Description.Contains(search)));
+                }
+
+
+                if (request.DishType.HasValue &&
+                    IsDishTypeValid(
+                        request.DishType.Value))
+                {
+                    query =
+                        query.Where(d =>
+                            d.DishType ==
+                            request.DishType.Value);
+                }
+
+
+                query =
+                    request.CookingTime switch
+                    {
+                        "under15" =>
+                            query.Where(d =>
+                                d.PreparationTime < 15),
+
+                        "15to30" =>
+                            query.Where(d =>
+                                d.PreparationTime >= 15 &&
+                                d.PreparationTime <= 30),
+
+                        "over30" =>
+                            query.Where(d =>
+                                d.PreparationTime > 30),
+
+                        _ =>
+                            query
+                    };
+
+
+                query =
+                    request.Calories switch
+                    {
+                        "under350" =>
+                            query.Where(d =>
+                                d.Calories < 350),
+
+                        "350to450" =>
+                            query.Where(d =>
+                                d.Calories >= 350 &&
+                                d.Calories <= 450),
+
+                        "451to550" =>
+                            query.Where(d =>
+                                d.Calories >= 451 &&
+                                d.Calories <= 550),
+
+                        "over550" =>
+                            query.Where(d =>
+                                d.Calories > 550),
+
+                        _ =>
+                            query
+                    };
+
+
+                query =
+                    request.SortBy switch
+                    {
+                        "nameAsc" =>
+                            query.OrderBy(d =>
+                                d.Name),
+
+                        "caloriesAsc" =>
+                            query.OrderBy(d =>
+                                d.Calories),
+
+                        "caloriesDesc" =>
+                            query.OrderByDescending(d =>
+                                d.Calories),
+
+                        _ =>
+                            query.OrderByDescending(d =>
+                                d.Id)
+                    };
+
+
+                int pageSize =
+                    request.PageSize > 0
+                        ? request.PageSize
+                        : 8;
+
+
+                response.TotalItems =
+                    await query.CountAsync();
+
+
+                response.TotalPages =
+                    Math.Max(
+                        1,
+                        (int)Math.Ceiling(
+                            response.TotalItems /
+                            (double)pageSize));
+
+
+                response.CurrentPage =
+                    Math.Clamp(
+                        request.Page,
+                        1,
+                        response.TotalPages);
+
+
+                response.Dishes =
+                    await query
+                        .Skip(
+                            (response.CurrentPage - 1) *
+                            pageSize)
+                        .Take(pageSize)
+                        .Select(d =>
+                            new GetAllDishesResponseModel
+                            {
+                                Id =
+                                    d.Id,
+
+                                Name =
+                                    d.Name,
+
+                                Description =
+                                    d.Description,
+
+                                Calories =
+                                    d.Calories,
+
+                                PreparationTime =
+                                    d.PreparationTime,
+
+                                Portions =
+                                    d.Portions,
+
+                                ImageUrl =
+                                    d.ImageUrl,
+
+                                DishType =
+                                    d.DishType,
+
+                                IsShared =
+                                    d.IsShared,
+
+                                IsDeleted =
+                                    d.IsDeleted
+                            })
+                        .ToListAsync();
+
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "An error occurred while searching dishes for user {UserId}.",
+                    userId);
+
+                throw;
+            }
+        }
+
+
         public IEnumerable<DropdownResponseModel> LoadDishTypes()
         {
             return Enum

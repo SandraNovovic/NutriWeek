@@ -34,37 +34,128 @@ namespace NutriWeek.Web.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(
+            string? search,
+            NutriWeek.Data.Models.Enums.DishType? dishType,
+            string? cookingTime,
+            string? calories,
+            string? sortBy,
+            int page = 1)
         {
             string userId =
                 User.FindFirstValue(
                     ClaimTypes.NameIdentifier)!;
 
 
-            IEnumerable<GetAllDishesResponseModel> response =
+            GetDishesPageRequestData request =
+                new GetDishesPageRequestData
+                {
+                    Search =
+                        search,
+
+                    DishType =
+                        dishType,
+
+                    CookingTime =
+                        cookingTime,
+
+                    Calories =
+                        calories,
+
+                    SortBy =
+                        sortBy,
+
+                    Page =
+                        page,
+
+                    PageSize =
+                        8
+                };
+
+
+            GetDishesPageResponseModel response =
                 await _dishService
-                    .GetAllAsync(userId);
+                    .GetPagedAsync(
+                        request,
+                        userId);
 
 
-            IEnumerable<DishIndexViewModel> dishes =
-                response
-                    .Select(d =>
-                        new DishIndexViewModel
-                        {
-                            Id = d.Id,
-                            Name = d.Name,
-                            Description = d.Description,
-                            Calories = d.Calories,
-                            PreparationTime = d.PreparationTime,
-                            Portions = d.Portions,
-                            ImageUrl = d.ImageUrl,
-                            DishType = d.DishType,
-                            IsShared = d.IsShared
-                        })
-                    .ToList();
+            DishesIndexViewModel model =
+                new DishesIndexViewModel
+                {
+                    Search =
+                        search,
+
+                    DishType =
+                        dishType,
+
+                    CookingTime =
+                        cookingTime,
+
+                    Calories =
+                        calories,
+
+                    SortBy =
+                        sortBy,
+
+                    CurrentPage =
+                        response.CurrentPage,
+
+                    TotalPages =
+                        response.TotalPages,
+
+                    TotalItems =
+                        response.TotalItems,
+
+                    VegetarianCount =
+                        response.VegetarianCount,
+
+                    VeganCount =
+                        response.VeganCount,
+
+                    MeatCount =
+                        response.MeatCount,
+
+                    FishCount =
+                        response.FishCount,
+
+                    Dishes =
+                        response.Dishes
+                            .Select(d =>
+                                new DishIndexViewModel
+                                {
+                                    Id =
+                                        d.Id,
+
+                                    Name =
+                                        d.Name,
+
+                                    Description =
+                                        d.Description,
+
+                                    Calories =
+                                        d.Calories,
+
+                                    PreparationTime =
+                                        d.PreparationTime,
+
+                                    Portions =
+                                        d.Portions,
+
+                                    ImageUrl =
+                                        d.ImageUrl,
+
+                                    DishType =
+                                        d.DishType,
+
+                                    IsShared =
+                                        d.IsShared
+                                })
+                            .ToList()
+                };
 
 
-            return View(dishes);
+            return View(model);
         }
 
 
@@ -105,9 +196,7 @@ namespace NutriWeek.Web.Controllers
                 {
                     Name = model.Name,
                     Description = model.Description,
-                    Ingredients =
-                        BuildIngredientsText(
-                            model.IngredientItems),
+                    Ingredients = model.Ingredients,
                     Instructions = model.Instructions,
                     Calories = model.Calories,
                     PreparationTime = model.PreparationTime,
@@ -289,9 +378,7 @@ namespace NutriWeek.Web.Controllers
                 {
                     Name = model.Name,
                     Description = model.Description,
-                    Ingredients =
-                        BuildIngredientsText(
-                            model.IngredientItems),
+                    Ingredients = model.Ingredients,
                     Instructions = model.Instructions,
                     Calories = model.Calories,
                     PreparationTime = model.PreparationTime,
@@ -538,20 +625,6 @@ namespace NutriWeek.Web.Controllers
 
 
             return View(model);
-        }
-
-
-        private static string BuildIngredientsText(
-            IEnumerable<DishIngredientInputViewModel> ingredientItems)
-        {
-            return string.Join(
-                ", ",
-                ingredientItems
-                    .Where(i =>
-                        !string.IsNullOrWhiteSpace(
-                            i.Name))
-                    .Select(i =>
-                        i.Name.Trim()));
         }
 
 

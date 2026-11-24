@@ -11,6 +11,11 @@ namespace NutriWeek.Services.Core.Interfaces
         Task<IEnumerable<GetAllDishesResponseModel>> GetAllAsync(string userId);
 
 
+        Task<GetDishesPageResponseModel> GetPagedAsync(
+            GetDishesPageRequestData request,
+            string userId);
+
+
         IEnumerable<DropdownResponseModel> LoadDishTypes();
 
 
