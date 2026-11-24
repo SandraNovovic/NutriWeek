@@ -188,6 +188,99 @@
         text-align: center;
     }
 
+    .delete-modal-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 3000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(24, 39, 29, .48);
+        backdrop-filter: blur(3px);
+    }
+
+    .delete-modal-backdrop.show {
+        display: flex;
+    }
+
+    .delete-modal {
+        width: min(430px, 100%);
+        padding: 26px;
+        border: 1px solid #ead8d4;
+        border-radius: 22px;
+        background: white;
+        box-shadow: 0 24px 65px rgba(22, 38, 28, .24);
+    }
+
+    .delete-modal-icon {
+        width: 54px;
+        height: 54px;
+        margin-bottom: 16px;
+        display: grid;
+        place-items: center;
+        border-radius: 16px;
+        background: #fff0ee;
+        font-size: 24px;
+    }
+
+    .delete-modal-title {
+        margin: 0;
+        color: #2b392f;
+        font-size: 22px;
+        font-weight: 900;
+    }
+
+    .delete-modal-text {
+        margin: 10px 0 0;
+        color: #7a837d;
+        font-size: 13px;
+        line-height: 1.65;
+    }
+
+    .delete-modal-dish {
+        margin-top: 15px;
+        padding: 11px 13px;
+        border: 1px solid #ece4e1;
+        border-radius: 12px;
+        background: #faf7f6;
+        color: #774b43;
+        font-size: 12px;
+        font-weight: 850;
+    }
+
+    .delete-modal-actions {
+        margin-top: 22px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 9px;
+    }
+
+    .delete-modal-button {
+        min-width: 100px;
+        padding: 10px 14px;
+        border-radius: 11px;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 900;
+    }
+
+    .delete-modal-button.cancel {
+        border: 1px solid #d7e1d5;
+        background: white;
+        color: #5f6f63;
+    }
+
+    .delete-modal-button.confirm {
+        border: 1px solid #c95e52;
+        background: #c95e52;
+        color: white;
+    }
+
+    .delete-modal-button.confirm:hover {
+        background: #b94f45;
+    }
+
     @@media (max-width: 760px) {
 
         .shared-header {
@@ -356,23 +449,12 @@
                                 }
                                 else
                                 {
-                                    <form asp-area="Admin"
-                                          asp-controller="SharedDishes"
-                                          asp-action="Delete"
-                                          method="post"
-                                          class="dish-action-form"
-                                          onsubmit="return confirm('Delete this shared dish?');">
-
-                                        <input type="hidden"
-                                               name="id"
-                                               value="@dish.Id" />
-
-                                        <button type="submit"
-                                                class="dish-action-button delete">
-                                            Delete
-                                        </button>
-
-                                    </form>
+                                    <button type="button"
+                                            class="dish-action-button delete open-delete-modal"
+                                            data-dish-id="@dish.Id"
+                                            data-dish-name="@dish.Name">
+                                        Delete
+                                    </button>
                                 }
 
                             </td>
@@ -393,4 +475,157 @@
 
     </section>
 
+
+    <div id="deleteSharedDishModal"
+         class="delete-modal-backdrop"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="deleteSharedDishTitle"
+         hidden>
+
+        <div class="delete-modal">
+
+            <div class="delete-modal-icon">
+                🗑️
+            </div>
+
+            <h2 id="deleteSharedDishTitle"
+                class="delete-modal-title">
+                Delete shared dish?
+            </h2>
+
+            <p class="delete-modal-text">
+                This dish will no longer be available to users.
+                You can restore it later from Shared Dishes.
+            </p>
+
+            <div id="deleteSharedDishName"
+                 class="delete-modal-dish">
+            </div>
+
+
+            <form asp-area="Admin"
+                  asp-controller="SharedDishes"
+                  asp-action="Delete"
+                  method="post"
+                  class="delete-modal-actions">
+
+                <input id="deleteSharedDishId"
+                       type="hidden"
+                       name="id" />
+
+                <button id="cancelDeleteSharedDish"
+                        type="button"
+                        class="delete-modal-button cancel">
+                    Cancel
+                </button>
+
+                <button type="submit"
+                        class="delete-modal-button confirm">
+                    Delete Dish
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
 </div>
+
+
+<script>
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        () => {
+
+            const modal =
+                document.getElementById(
+                    "deleteSharedDishModal");
+
+            const dishIdInput =
+                document.getElementById(
+                    "deleteSharedDishId");
+
+            const dishNameElement =
+                document.getElementById(
+                    "deleteSharedDishName");
+
+            const cancelButton =
+                document.getElementById(
+                    "cancelDeleteSharedDish");
+
+
+            const openButtons =
+                document.querySelectorAll(
+                    ".open-delete-modal");
+
+
+            const closeModal = () => {
+
+                modal.classList.remove(
+                    "show");
+
+                modal.hidden =
+                    true;
+
+                dishIdInput.value =
+                    "";
+
+                dishNameElement.textContent =
+                    "";
+            };
+
+
+            openButtons.forEach(
+                button => {
+
+                    button.addEventListener(
+                        "click",
+                        () => {
+
+                            dishIdInput.value =
+                                button.dataset.dishId;
+
+                            dishNameElement.textContent =
+                                button.dataset.dishName;
+
+
+                            modal.hidden =
+                                false;
+
+                            modal.classList.add(
+                                "show");
+                        });
+                });
+
+
+            cancelButton.addEventListener(
+                "click",
+                closeModal);
+
+
+            modal.addEventListener(
+                "click",
+                event => {
+
+                    if (event.target === modal) {
+                        closeModal();
+                    }
+                });
+
+
+            document.addEventListener(
+                "keydown",
+                event => {
+
+                    if (event.key === "Escape" &&
+                        !modal.hidden) {
+
+                        closeModal();
+                    }
+                });
+        });
+
+</script>
