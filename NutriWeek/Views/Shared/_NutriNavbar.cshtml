@@ -4,6 +4,17 @@
     string? currentController =
         ViewContext.RouteData.Values["controller"]?.ToString();
 
+    string? currentArea =
+        ViewContext.RouteData.Values["area"]?.ToString();
+
+    string navbarSearchId =
+        string.Equals(
+            currentController,
+            "Meals",
+            StringComparison.OrdinalIgnoreCase)
+                ? "navbarMealSearch"
+                : "navbarPageSearch";
+
     DateTime today =
         DateTime.Today;
 
@@ -105,25 +116,22 @@
         </div>
 
 
-        <form asp-controller="Dishes"
-              asp-action="Index"
-              method="get"
-              class="navbar-search">
+        <div class="navbar-search"
+             data-controller="@currentController"
+             data-area="@currentArea">
 
-            <button type="submit"
+            <button type="button"
                     class="navbar-search-button"
-                    aria-label="Search dishes">
+                    aria-label="Search this page">
                 🔍
             </button>
 
-            <input id="navbarDishSearch"
-                   name="search"
+            <input id="@navbarSearchId"
                    type="search"
-                   value="@Context.Request.Query["search"]"
-                   placeholder="Search dishes..."
+                   placeholder="Search this page..."
                    autocomplete="off" />
 
-        </form>
+        </div>
 
 
         <div class="nav-account">
@@ -175,3 +183,7 @@
     </div>
 
 </nav>
+
+<script src="~/js/navbar-page-search.js"
+        asp-append-version="true"
+        defer></script>
